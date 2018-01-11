@@ -1,0 +1,27 @@
+package com.industry.rx_epl;
+
+event Subject {
+	string channelName;
+	
+	static action createWithName(string channelName) returns Subject {
+		return Subject(channelName);
+	}
+	
+	static action create() returns Subject {
+		return createWithName("Subject"+integer.getUnique().toString());
+	}
+	
+	action next(any value) returns Subject {
+		send Value(channelName, value) to channelName;
+		return self;
+	}
+	
+	action complete() returns Subject {
+		send Complete(channelName) to channelName;
+		return self;
+	}
+	
+	action getObservable() returns Observable {
+		return Observable.createWithName(channelName);
+	}
+}

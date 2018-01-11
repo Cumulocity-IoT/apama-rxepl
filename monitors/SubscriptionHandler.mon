@@ -1,0 +1,28 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event SubscriptionHandler {
+	action<any> _onNext;
+	action<Exception, any> _onError;
+	action<> _onCompleted;
+	
+	static action create() returns SubscriptionHandler {
+		return new SubscriptionHandler;
+	}
+
+	action onNext(action<any> onNext) returns SubscriptionHandler {
+		_onNext := onNext;
+		return self;
+	}
+	
+	action onError(action<Exception, any> onError) returns SubscriptionHandler {
+		_onError := onError;
+		return self;
+	}
+
+	action onCompleted(action<> onCompleted) returns SubscriptionHandler {
+		_onCompleted := onCompleted;
+		return self;
+	}
+}
