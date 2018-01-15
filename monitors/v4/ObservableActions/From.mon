@@ -2,13 +2,13 @@ package com.industry.rx_epl;
 
 using com.apama.exceptions.Exception;
 
-event OfOnPull {
+event FromOnPull {
 	Subscriber subscriber;
 	sequence<any> values;
 	integer i;
 	
 	static action create(sequence<any> values, Subscriber subscriber) returns action<> {
-		return OfOnPull(subscriber, values, 0).onPull;
+		return FromOnPull(subscriber, values, 0).onPull;
 	}
 	
 	action onPull() {
@@ -21,15 +21,15 @@ event OfOnPull {
 	}
 }
 
-event OfOnConnection {
+event FromOnConnection {
 	any values;
 	static action create(any values) returns action<Subscriber> returns ISubscription {
-		return OfOnConnection(values).onConnection;
+		return FromOnConnection(values).onConnection;
 	}
 	
 	action onConnection(Subscriber subscriber) returns ISubscription {
 		if subscriber._isPulling {
-			subscriber._onPull.set(OfOnPull.create(Utils.anyToSequenceAny(values), subscriber));
+			subscriber._onPull.set(FromOnPull.create(Utils.anyToSequenceAny(values), subscriber));
 		} else {			
 			any value;
 			for value in Utils.anyToSequenceAny(values) {

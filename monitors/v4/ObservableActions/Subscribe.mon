@@ -2,6 +2,19 @@ package com.industry.rx_epl;
 
 using com.apama.exceptions.Exception;
 
+event SubscribeSubscriber {
+	action<> completeSubscriber;
+	action<> onComplete;
+	static action create(Subscriber subscriber, action<> onComplete) returns Subscriber {
+		return subscriber.copy().onComplete(SubscribeSubscriber(subscriber.complete, onComplete).complete);
+	}
+	
+	action complete() {
+		completeSubscriber();
+		onComplete();
+	}
+}
+
 event PullingSubscriber {
 	Subscriber subscriber;
 	boolean isSubscribed;
@@ -36,13 +49,17 @@ event SubscribeOnConnection {
 	
 	action onConnection(Subscriber subscriber) returns ISubscription {
 		if pulling {
-			PullingSubscriber pullingSubscriber := PullingSubscriber.create(subscriber);
+			DeferredUnsubscribe deferredUnsubscribe := DeferredUnsubscribe.create();
+			PullingSubscriber pullingSubscriber := PullingSubscriber.create(SubscribeSubscriber.create(subscriber, deferredUnsubscribe.unsubscribe));
 			ISubscription s := parentOnConnection(pullingSubscriber.createSubscriber());
 			s.add(pullingSubscriber.onUnsubscribe);
 			subscriber._pull();
 			return s;
 		} else {
-			return parentOnConnection(subscriber);
+			DeferredUnsubscribe deferredUnsubscribe := DeferredUnsubscribe.create();
+			ISubscription s := parentOnConnection(SubscribeSubscriber.create(subscriber, deferredUnsubscribe.unsubscribe));
+			deferredUnsubscribe.resolve(s.unsubscribe);
+			return s;
 		}
 	}
 }

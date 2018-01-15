@@ -1,0 +1,39 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event JustOnPull {
+	Subscriber subscriber;
+	any value;
+	boolean firstPull;
+	
+	static action create(any value, Subscriber subscriber) returns action<> {
+		return JustOnPull(subscriber, value, true).onPull;
+	}
+	
+	action onPull() {
+		if firstPull {
+			firstPull := false;
+			subscriber.next(value);
+		} else {
+			subscriber.complete();
+		}
+	}
+}
+
+event JustOnConnection {
+	any value;
+	static action create(any value) returns action<Subscriber> returns ISubscription {
+		return JustOnConnection(value).onConnection;
+	}
+	
+	action onConnection(Subscriber subscriber) returns ISubscription {
+		if subscriber._isPulling {
+			subscriber._onPull.set(JustOnPull.create(value, subscriber));
+		} else {
+			subscriber.next(value);
+			subscriber.complete();
+		}
+		return Subscription.create().asISubscription();
+	}
+}

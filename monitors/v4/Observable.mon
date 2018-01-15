@@ -17,10 +17,6 @@ event Observable {
 		return o;
 	}
 	
-	static action create(boolean cold) returns IObservable {
-		return _create(cold).asIObservable();
-	}
-	
 	static action _createConnectable(action<> returns IDisposable connect) returns Observable {
 		Observable o := new Observable;
 		o.connect := connect;
@@ -28,13 +24,30 @@ event Observable {
 		o.cold := false;
 		return o;
 	}
-	
-	static action of(any value) returns IObservable {
-		Observable o := _create(true);
+
+	static action create(action<IObserver> resolver) returns IObservable {
+		// A user defined resolver cannot handle pull requests so it's hot
+		Observable o := _create(false);
 		
-		o.onConnection := OfOnConnection.create(value);
+		o.onConnection := CreateOnConnection.create(resolver);
 		
 		return o.asIObservable();
+	}
+	
+	static action fromValues(any values) returns IObservable {
+		Observable o := _create(true);
+		
+		o.onConnection := FromOnConnection.create(values);
+		
+		return o.asIObservable();
+	}
+	
+	static action just(any value) returns IObservable {
+		Observable o := _create(true);
+		
+		o.onConnection := JustOnConnection.create(value);
+		
+		return o.asIObservable();		
 	}
 
 	/**
