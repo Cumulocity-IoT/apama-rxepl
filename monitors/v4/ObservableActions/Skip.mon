@@ -1,0 +1,37 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event SkipSubscriber {
+	Subscriber subscriber;
+	integer count;
+	
+	static action create(Subscriber subscriber, integer count) returns Subscriber {
+		SkipSubscriber s := SkipSubscriber(subscriber, count);
+		return subscriber.copy().onNext(s.next);
+	}
+	
+	action next(any value) {
+		if count > 0 {
+			count := count - 1;
+			if subscriber._isPulling {
+				subscriber._pull();
+			}
+		} else {
+			subscriber.next(value);
+		}
+	}
+}
+
+event SkipOnConnection {
+	action<Subscriber> returns ISubscription parentOnConnection;
+	integer count;
+	
+	static action create(action<Subscriber> returns ISubscription parentOnConnection, integer count) returns action<Subscriber> returns ISubscription {
+		return SkipOnConnection(parentOnConnection, count).onConnection;
+	}
+	
+	action onConnection(Subscriber subscriber) returns ISubscription {
+		return parentOnConnection(SkipSubscriber.create(subscriber, count));
+	}
+}

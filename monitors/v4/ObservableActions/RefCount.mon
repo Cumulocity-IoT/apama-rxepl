@@ -1,0 +1,68 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event RefCountSubscriber {
+	Subscriber subscriber;
+	action<> onComplete;
+	static action create(Subscriber subscriber, action<> onComplete) returns Subscriber {
+		RefCountSubscriber r := RefCountSubscriber(subscriber, onComplete);
+		return subscriber.copy().onComplete(r.complete);
+	}
+	
+	action complete() {
+		onComplete();
+		subscriber.complete();
+	}
+}
+
+event RefCountOnConnection {
+	action<> returns IDisposable connect;
+	action<Subscriber> returns ISubscription parentOnConnection;
+	integer refCount;
+	IDisposable connection;
+	boolean connecting;
+	boolean disposeSynchronously;
+	
+	static action create(action<> returns IDisposable connect, action<Subscriber> returns ISubscription parentOnConnection) returns action<Subscriber> returns ISubscription {
+		return RefCountOnConnection(connect, parentOnConnection, 0, Disposable.createDisposed(), false, false).onConnection;
+	}
+	
+	action onConnection(Subscriber subscriber) returns ISubscription {
+		refCount := refCount + 1;
+		ISubscription subscription := parentOnConnection(RefCountSubscriber.create(subscriber, onComplete));
+		if connection.disposed() {
+			connecting := true;
+			connection := connect();
+			connecting := false;
+			// It's possible for connect to trigger onComplete - but onComplete needs a reference to the connection
+			// Therefore we mark it as disposeSynchronously and once we have the connection we instantly dispose of it
+			if disposeSynchronously {
+				connection.dispose();
+				disposeSynchronously := false;
+			}
+		}
+		if not connection.disposed() {
+			subscription.add(decrementRefCount);
+		}
+		return subscription;
+	}
+	
+	action onComplete() {
+		refCount := 0;
+		if connecting {
+			disposeSynchronously := true;
+		} else {
+			if not connection.disposed() {
+				connection.dispose();
+			}
+		}
+	}
+	
+	action decrementRefCount() {
+		refCount := refCount - 1;
+		if refCount = 0 {
+			onComplete();
+		}
+	}
+}

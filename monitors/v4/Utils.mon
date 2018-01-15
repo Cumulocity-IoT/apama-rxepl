@@ -1,0 +1,63 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event Utils {
+	static action anyToSequenceAny(any value) returns sequence<any> {
+		switch(value) {
+			case string: {
+				return [<any>value];
+			}
+			default: {
+				return value.getEntries();
+			}
+		}
+	}
+	
+	static action callAsync(action<> callback) {
+		on wait(0.0) {
+			callback();
+		}
+	}
+}
+
+event WrappedFloat {
+	float value;
+	
+	action add(float value) {
+		self.value := self.value + value;
+	}
+	
+	action get() returns float {
+		return value;
+	}
+}
+
+/**
+ * Limits the max number of synchronous calls to an action, after which the call will be made asynchronously.
+ * This stops stackoverflow exceptions
+ */
+event LimitSyncInvoke {
+	integer countLimit;
+	action<> method;
+	integer count;
+	boolean hasLogged;
+	
+	static action create(integer countLimit, action<> method) returns LimitSyncInvoke {
+		return LimitSyncInvoke(countLimit, method, 0, false);
+	}
+	
+	action invoke() {
+		count := count + 1;
+		if count - 1 < countLimit {
+			method();
+		} else {
+			if not hasLogged {
+				log "Exceeded max number of synchronous invocations (" + countLimit.toString() + "), splitting into async batches of " + countLimit.toString() + ". Consider making the observable async." at INFO;
+				hasLogged := true;
+			}
+			Utils.callAsync(method);
+		}
+		count := 0;
+	}
+}

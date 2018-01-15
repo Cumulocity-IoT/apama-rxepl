@@ -1,0 +1,5 @@
+package com.industry.rx_epl;
+
+event GlobalConstants {		
+	constant integer MAX_SYNC_VALUES := 10;
+}

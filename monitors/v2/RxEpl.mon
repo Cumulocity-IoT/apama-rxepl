@@ -3,15 +3,22 @@ package com.industry.rx_epl;
 using com.apama.exceptions.Exception;
 
 monitor RxEpl {
-	Subscription x;
+	ISubject s;
+	float i := 10.0;
 	action onload() {
-		x := Observable.of([<any>1.0])
-				.flatMap(mapToObservableOfMapped)
-				.subscribeDisconnected(SubscriptionHandler.create().onNext(printToConsole).onCompleted(subscribeDone));
-	
-		on wait(10.0) {
-			log "Connecting";
-			x := x.connect();
+		s := BehaviourSubject.create(i).asISubject();
+		
+		on wait(5.0) {
+			IObservable o := s.getObservable()
+				.map(multiplyBy10)
+				.subscribe(Subscription.create().onNext(printToConsole).onCompleted(subscribeDone));
+			
+			on wait(5.0) {
+				IObservable o := s.getObservable()
+					.map(multiplyBy10)
+					.subscribe(Subscription.create().onNext(printToConsole).onCompleted(subscribeDone));
+				
+			}
 		}
 	}
 	
@@ -21,11 +28,6 @@ monitor RxEpl {
 	
 	action errorHandler(Exception e, any triggerValue) returns any {
 		return 0.0;
-	}
-	
-	action mapToObservableOfMapped(any value) returns any {
-		return Observable.of([value, value])
-			.flatMap(mapToObservable);
 	}
 	
 	action mapToObservable(any value) returns any {

@@ -1,0 +1,42 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+monitor RxEpl {
+	Subscription x;
+	action onload() {
+		x := Observable.of([<any>1.0])
+				.flatMap(mapToObservable)
+				.flatMap(mapToObservable)
+				.flatMap(mapToObservable)
+				.flatMap(mapToObservable)
+				.flatMap(mapToObservable)
+				.flatMap(mapToObservable)
+				.subscribeDisconnected(SubscriptionHandler.create().onNext(printToConsole).onCompleted(subscribeDone));
+	
+		on wait(10.0) {
+			log "Connecting";
+			x := x.connect();
+		}
+	}
+	
+	action subscribeDone() {
+		log "Complete";
+	}
+	
+	action errorHandler(Exception e, any triggerValue) returns any {
+		return 0.0;
+	}
+	
+	action mapToObservable(any value) returns any {
+		return Observable.of([value, value]);
+	}
+	
+	action printToConsole(any value) {
+		log value.valueToString();
+	}
+	
+	action multiplyBy10(any value) returns any {
+		return <float>value * 10.0;
+	}
+}

@@ -1,0 +1,139 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event Observable {	
+	action<Subscriber> returns ISubscription onConnection;
+	
+	boolean connectable;
+	boolean cold;
+	
+	action<> returns IDisposable connect;
+	
+	static action _create(boolean cold) returns Observable {
+		Observable o := new Observable;
+		o.connect := invalidConnect;
+		o.cold := cold;
+		return o;
+	}
+	
+	static action create(boolean cold) returns IObservable {
+		return _create(cold).asIObservable();
+	}
+	
+	static action _createConnectable(action<> returns IDisposable connect) returns Observable {
+		Observable o := new Observable;
+		o.connect := connect;
+		o.connectable := true;
+		o.cold := false;
+		return o;
+	}
+	
+	static action of(any value) returns IObservable {
+		Observable o := _create(true);
+		
+		o.onConnection := OfOnConnection.create(value);
+		
+		return o.asIObservable();
+	}
+
+	/**
+	 * Generates a series of event with an incrementing float value
+	 * @param interval the time between subsequent events
+	 */
+	static action interval(float interval) returns IObservable {
+		Observable o := _create(false);
+		
+		o.onConnection := IntervalOnConnection.create(interval);
+		
+		return o.asIObservable();	
+	}
+	
+	action subscribe(Subscriber subscriber) returns ISubscription {
+		Observable o := _create(cold);
+		
+		subscriber._isPulling := cold;
+		
+		o.onConnection := SubscribeOnConnection.create(onConnection, cold); 
+		
+		return o.onConnection(subscriber);
+	}
+	
+	action map(action<any> returns any mapper) returns IObservable {
+		Observable o := _create(cold);		
+		o.onConnection := MapOnConnection.create(onConnection, mapper);
+		
+		return o.asIObservable();
+	}
+	
+	action publish() returns IObservable {
+		PublishHandler p := PublishHandler.create(onConnection);
+		Observable o := _createConnectable(p.connect);
+		
+		o.onConnection := p.onConnection;
+		
+		return o.asIObservable();
+	}
+	
+	action refCount() returns IObservable {
+		if not connectable {
+			throw Exception("Can only refCount a published Observable", "UnsupportedOperation");
+		}
+		Observable o := _create(false);
+		o.onConnection := RefCountOnConnection.create(connect, onConnection);
+		return o.asIObservable();
+	}
+	
+	action share() returns IObservable {
+		return publish().refCount();
+	}
+
+	action take(integer count) returns IObservable {
+		Observable o := _create(cold);
+		
+		o.onConnection := TakeOnConnection.create(onConnection, count);
+		
+		return o.asIObservable();	
+	}
+
+	action takeLast(integer count) returns IObservable {
+		Observable o := _create(cold);
+		
+		o.onConnection := TakeLastOnConnection.create(onConnection, count);
+		
+		return o.asIObservable();	
+	}
+
+	action first() returns IObservable {
+		Observable o := _create(cold);
+		
+		o.onConnection := TakeOnConnection.create(onConnection, 1);
+		
+		return o.asIObservable();	
+	}
+	
+	action last() returns IObservable {
+		Observable o := _create(cold);
+		
+		o.onConnection := TakeLastOnConnection.create(onConnection, 1);
+		
+		return o.asIObservable();	
+	}
+	
+	action skip(integer count) returns IObservable {
+		Observable o := _create(cold);
+		
+		o.onConnection := SkipOnConnection.create(onConnection, count);
+		
+		return o.asIObservable();			
+	}
+	
+	static action invalidConnect() returns IDisposable {
+		throw Exception("Can only connect a published Observable", "UnsupportedOperation");
+	}
+		
+	action asIObservable() returns IObservable {
+		return IObservable(self, 
+		                   subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip);
+	}
+}

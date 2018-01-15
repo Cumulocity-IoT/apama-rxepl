@@ -1,0 +1,30 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event Disposable {
+	boolean isDisposed;
+	action<> onDispose;
+	static action create(action<> onDispose) returns Disposable {
+		return Disposable(false, onDispose);
+	}
+	
+	static action createDisposed() returns IDisposable {
+		return Disposable(true, new action<>).asIDisposable();
+	}
+	
+	action dispose() {
+		if not isDisposed {
+			isDisposed := true;
+			onDispose();
+		}
+	}
+	
+	action disposed() returns boolean {
+		return isDisposed;
+	}
+
+	action asIDisposable() returns IDisposable {
+		return IDisposable(self, dispose, disposed);
+	}
+}

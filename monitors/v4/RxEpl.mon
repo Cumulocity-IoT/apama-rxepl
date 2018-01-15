@@ -1,0 +1,192 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+monitor RxEpl {
+	IObservable o;
+	
+//	action onload() {
+//		o := Observable.of([1.0, 2.0, 3.0])
+//			.map(multiplyBy10)
+//			.share();
+//
+//		ISubscription subscription := o.subscribe(Subscriber.create().onNext(printValue).onComplete(printComplete));
+//		
+//		on wait(1.0) {
+//			subscription := o.subscribe(Subscriber.create().onNext(printValue).onComplete(printComplete));
+//		}
+//	}
+	
+//	Subject s;
+//	float i := 0.0;
+//	action onload() {
+//		s := Subject.create();
+//		o := s.getIObservable()
+//			.map(multiplyBy10)
+//			.share();
+//		
+//		ISubscription subscription := o.subscribe(Subscriber.create().onNext(printValue).onComplete(printComplete));
+//		
+//		on wait(5.0) {
+//			subscription := o.subscribe(Subscriber.create().onNext(printValue).onComplete(printComplete));
+//		}
+//		
+//		on wait(11.0) {
+//			log "Subscribing after complete" at INFO;
+//			subscription := o.subscribe(Subscriber.create().onNext(printValue).onComplete(printComplete));
+//		}
+//		
+//		s.next(i);
+//		i := i + 1.0;
+//		
+//		on all wait(1.0) {
+//			s.next(i);
+//			i := i + 1.0;
+//		}
+//		
+//		on wait(10.0) {
+//			s.complete();
+//		}
+//	}
+	
+//	IBehaviorSubject s;
+//	float i := 0.0;
+//	action onload() {
+//		s := BehaviorSubject.create(i);
+//		o := s
+//			.map(multiplyBy10)
+//			.share();
+//		
+//		ISubscription subscription := o.subscribe(Subscriber.create().onNext(printValue).onComplete(printComplete));
+//		
+//		on wait(8.0) {
+//			log "Current value: " + s.getValue().valueToString() at INFO;
+//		}
+//		
+//		on wait(5.0) {
+//			subscription := o.subscribe(Subscriber.create().onNext(printValue).onComplete(printComplete));
+//		}
+//		
+//		on wait(11.0) {
+//			subscription := o.subscribe(Subscriber.create().onNext(printValue).onComplete(printComplete));
+//		}
+//		
+//		on all wait(1.0) {
+//			i := i + 1.0;
+//			s.next(i);
+//		}
+//		
+//		on wait(10.0) {
+//			s.complete();
+//		}
+//	}
+	
+
+//	action onload() {
+//		o := Observable.interval(1.0)
+//			.map(multiplyBy10)
+//			.share();
+//		
+//		ISubscription subscription := o.subscribe(Subscriber.create().onNext(printValue).onComplete(printComplete));
+//		
+//		on wait(5.0) {
+//			subscription := o.subscribe(Subscriber.create().onNext(printValue).onComplete(printComplete));
+//		}
+//	}
+	
+//	action onload() {
+//		o := Observable.interval(1.0)
+//			.take(5)
+//			.map(multiplyBy10);
+//		
+//		ISubscription subscription := o.subscribe(Subscriber.create().onNext(printValue).onComplete(printComplete));
+//		
+//		on wait(5.0) {
+//			subscription := o.subscribe(Subscriber.create().onNext(printValue).onComplete(printComplete));
+//		}
+//	}
+
+//	action onload() {
+//		sequence<float> numbers := new sequence<float>;
+//		 
+//		float i := 0.0;
+//		while i < 20000.0 {
+//			numbers.append(i);
+//			i := i + 1.0;
+//		}
+//		
+//		o := Observable.of(numbers)
+//			.map(multiplyBy10)
+//			.take(5);
+//		
+//		ISubscription subscription := o.subscribe(Subscriber.create().onNext(printValue).onComplete(printComplete));
+//	}
+	
+//	action onload() {
+//		o := Observable.of([0.0,1.0,2.0,3.0,4.0,5.0])
+//			.takeLast(1)
+//			.map(multiplyBy10);
+//		
+//		ISubscription subscription := o.subscribe(Subscriber.create().onNext(printValue).onComplete(printComplete));
+//	}
+	
+//	action onload() {
+//		sequence<float> numbers := new sequence<float>;
+//		 
+//		float i := 0.0;
+//		while i < 20000.0 {
+//			numbers.append(i);
+//			i := i + 1.0;
+//		}
+//		
+//		o := Observable.of(numbers)
+//			.takeLast(1)
+//			.map(multiplyBy10);
+//		
+//		ISubscription subscription := o.subscribe(Subscriber.create().onNext(printValue).onComplete(printComplete));
+//	}
+
+//	action onload() {
+//		o := Observable.interval(0.001)
+//			.take(50)
+//			.takeLast(3);
+//		
+//		ISubscription subscription := o.subscribe(Subscriber.create().onNext(printValue).onComplete(printComplete));
+//	}
+	
+//	action onload() {
+//		o := Observable.interval(0.001)
+//			.take(15)
+//			.last();
+//		
+//		ISubscription subscription := o.subscribe(Subscriber.create().onNext(printValue).onComplete(printComplete));
+//	}
+	
+	action onload() {
+		o := Observable.interval(1.0)
+			.skip(1);
+		
+		ISubscription subscription := o.subscribe(Subscriber.create().onNext(printValue).onComplete(printComplete));
+	}
+	
+	action printComplete() {
+		log "Complete";
+	}
+	
+	action errorHandler(Exception e, any triggerValue) returns any {
+		return 0.0;
+	}
+	
+	action mapToObservable(any value) returns any {
+		return Observable.of([value, value]);
+	}
+	
+	action printValue(any value) {
+		log value.valueToString();
+	}
+	
+	action multiplyBy10(any value) returns any {
+		//log "Multiplying " + value.valueToString() + " by 10" at INFO;
+		return <float>value * 10.0;
+	}
+}

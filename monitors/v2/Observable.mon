@@ -1,0 +1,412 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event WrappedInteger {
+	integer i;
+	
+	action increment() {
+		i := i + 1;
+	}
+	
+	action decrement() {
+		i := i - 1;
+	}
+	
+	action isZero() returns boolean {
+		return i = 0;
+	}
+	
+	action equals(integer j) returns boolean {
+		return i = j;
+	}
+}
+
+event WrappedAny {
+	any value;
+}
+
+event OfConnectionHandler {
+	IObservable observable;
+	any values;
+	
+	static action create(IObservable observable, any values) returns action<optional<IObservable> > {
+		return OfConnectionHandler(observable, values).onConnection;
+	}
+	
+	action onConnection(optional<IObservable> connectingObservable) {
+		if not observable.isCompleted() { 
+			any value;
+			for value in values.getEntries() {
+				observable._next(value);
+			}
+			observable._completed();
+		}
+	}
+}
+
+event ConnectionHandler {
+	action<optional<IObservable> > connect;
+	IObservable observable;
+	
+	static action create(action<optional<IObservable> > connect, IObservable observable) returns action<optional<IObservable> > {
+		return ConnectionHandler(connect, observable).onConnection;
+	}
+	
+	action onConnection(optional<IObservable> connectingObservable) {
+		optional<IObservable> optionalObservable := observable;
+		if observable.isConnected() {
+			connect(optionalObservable);
+		} else {
+			
+		}
+	}
+}
+
+event DefaultHandlers {
+	static action forwardingNextHandler(sequence<IObservable> subscriptions, any value) {
+		IObservable subscription;
+		for subscription in subscriptions {
+			subscription._next(value);
+		}
+	}
+	static action forwardingErrorHandler(sequence<IObservable> subscriptions, Exception e, any value) {
+		IObservable subscription;
+		for subscription in subscriptions {
+			subscription._error(e, value);
+		}
+	}
+	static action forwardingCompletedHandler(sequence<IObservable> subscriptions) {
+		IObservable subscription;
+		for subscription in subscriptions {
+			subscription._completed();
+		}
+	}
+}
+
+event CompletedCallbackHandler {
+	action<> callback;
+	static action create(action<> callback) returns action<sequence<IObservable> > {
+		return CompletedCallbackHandler(callback).handler;
+	}
+	
+	action handler(sequence<IObservable> subscriptions) {
+		callback();
+	}
+}
+
+event ErrorCallbackHandler {
+	action<Exception, any> callback;
+	
+	static action create(action<Exception, any> callback) returns action<sequence<IObservable>, Exception, any> {
+		return ErrorCallbackHandler(callback).handler;
+	}
+	
+	action handler(sequence<IObservable> subscriptions, Exception e, any value) {
+		callback(e, value);
+	}
+}
+
+event SubscribeHandler {
+	action<any> valueHandler;
+	
+	static action create(action<any> valueHandler) returns action<sequence<IObservable>, any> {
+		return SubscribeHandler(valueHandler).recievedValue;
+	}
+	
+	action recievedValue(sequence<IObservable> subscriptions, any value) {
+		valueHandler(value);
+	}	
+}
+
+event MapHandler {
+	action<any> returns any mapper;
+	
+	static action create(action<any> returns any mapper) returns action<sequence<IObservable>, any> {
+		return MapHandler(mapper).map;
+	}
+	
+	action map(sequence<IObservable> subscriptions, any value) {
+		try {
+			any newValue := mapper(value);
+			IObservable subscription;
+			for subscription in subscriptions {
+				subscription._next(newValue);
+			}
+		} catch (Exception e) {
+			IObservable subscription;
+			for subscription in subscriptions {
+				subscription._error(e, value);
+			}
+		}
+	}
+}
+
+event Observable {
+	integer uid;
+	boolean _isCompleted;
+	WrappedInteger connectionCount;
+	
+	integer bufferSize;
+	sequence<any> buffer;
+	
+	dictionary<integer, sequence<action<optional<IObservable> > > > onConnectionListenersBySubscriberId;
+	dictionary<integer, sequence<action<> > > onDisconnectionListenersBySubscriberId;
+	dictionary<integer, Observable> subscriptionBySubscriberId;
+	
+	action<sequence<IObservable>, any> nextHandler;
+	action<sequence<IObservable>, Exception, any> errorHandler;
+	action<sequence<IObservable> > completedHandler;
+	
+	action asIObservable() returns IObservable {
+		return IObservable(self, _next, _error, _completed, isCompleted, subscribe, map);
+	}
+	
+	action isCompleted() returns boolean {
+		return _isCompleted;
+	}
+	
+	static action create() returns Observable {
+		Observable result := new Observable;
+		result.uid := integer.getUnique();
+		result.nextHandler := DefaultHandlers.forwardingNextHandler;
+		result.errorHandler := DefaultHandlers.forwardingErrorHandler;
+		result.completedHandler := DefaultHandlers.forwardingCompletedHandler;
+		return result;
+	}
+	
+	action createChildObservable() returns Observable {
+		 Observable child := Observable.create();
+		 
+		 // Call the parent connect when a child is connected
+		 child.addOnConnectionListener(child.uid, ConnectionHandler.create(connect, self.asIObservable()));
+		 child.addOnDisconnectionListener(child.uid, disconnect);
+		 
+		 subscriptionBySubscriberId.add(child.uid, child);
+		 
+		 return child;
+	}
+	
+	action addOnConnectionListener(integer subscriberId, action<optional<IObservable> > onConnection) {
+		onConnectionListenersBySubscriberId.getOrAddDefault(subscriberId).append(onConnection);
+	}
+	
+	action addOnDisconnectionListener(integer subscriberId, action<> onDisconnection) {
+		onDisconnectionListenersBySubscriberId.getOrAddDefault(subscriberId).append(onDisconnection);
+	}
+	
+	action isConnected() returns boolean {
+		return not connectionCount.isZero();
+	}
+	
+	action getConnectedSubscriptions() returns sequence<IObservable> {
+		sequence<IObservable> result := new sequence<IObservable>;
+		Observable subscription;
+		for subscription in subscriptionBySubscriberId.values() {
+			if subscription.isConnected() and not subscription.isCompleted() {
+				result.append(subscription.asIObservable());
+			}
+		}
+		return result;
+	}
+	
+	action _next(any value) {
+		nextHandler(getConnectedSubscriptions(), value);
+	}
+	
+	action _error(Exception e, any value) {
+		errorHandler(getConnectedSubscriptions(), e, value);
+	}
+	
+	action _completed() {
+		_isCompleted := true;
+		completedHandler(getConnectedSubscriptions());
+	}
+	
+	static action of(any values) returns Observable {
+		Observable result := Observable.create();
+		result.addOnConnectionListener(result.uid, OfConnectionHandler.create(result.asIObservable(), values));
+		return result;
+	}
+	
+	action subscribeDisconnected(Subscription handler) returns Observable {
+		Observable result := createChildObservable();
+		
+		ifpresent handler._onNext as onNext {
+			result.nextHandler := SubscribeHandler.create(onNext);
+		}
+		ifpresent handler._onCompleted as onCompleted {
+			result.completedHandler := CompletedCallbackHandler.create(onCompleted);
+		}
+		ifpresent handler._onError as onError {
+			result.errorHandler := ErrorCallbackHandler.create(onError);
+		}
+		
+		return result;
+	}
+	
+	action subscribe(Subscription handler) returns IObservable {
+		Observable result := subscribeDisconnected(handler);
+		result.connect(new optional<IObservable>);
+		return result.asIObservable();
+	}
+	
+	action connect(optional<IObservable> connectingObservable) {
+		connectionCount.increment();
+		sequence<action<optional<IObservable> > > onConnectionListeners;
+		for onConnectionListeners in onConnectionListenersBySubscriberId.values() {
+			action<optional<IObservable> > onConnection;
+			for onConnection in onConnectionListeners {
+				onConnection(connectingObservable);
+			}
+		}
+		if isCompleted() {
+			ifpresent connectingObservable {
+				if not connectingObservable.isCompleted() {
+					connectingObservable._completed();
+				}
+			}
+		}
+	}
+	
+	action disconnect() {
+		connectionCount.decrement();
+		sequence<action<> > onDisconnectionListeners;
+		for onDisconnectionListeners in onDisconnectionListenersBySubscriberId.values() {
+			action<> onDisconnection;
+			for onDisconnection in onDisconnectionListeners {
+				onDisconnection();
+			}
+		}
+	}
+	
+	action map(action<any> returns any mapper) returns IObservable {
+		Observable result := createChildObservable();
+		
+		result.nextHandler := MapHandler.create(mapper);
+		
+		return result.asIObservable();
+	}
+}
+
+event Subject {
+	Observable o;
+	
+	static action create() returns Subject {
+		return Subject(Observable.create());
+	}
+	
+	action asISubject() returns ISubject {
+		return ISubject(self, isCompleted, next, error, complete, getIObservable);
+	}
+	
+	action isCompleted() returns boolean {
+		return o.isCompleted();
+	}
+	
+	action next(any value) {
+		if not isCompleted() {
+			o._next(value);
+		}
+	}
+	
+	action error(Exception e, any value) {
+		if not isCompleted() {
+			o._error(e, value);
+		}
+	}
+	
+	action complete() {
+		if not isCompleted() {
+			o._completed();
+		}
+	}
+	
+	action getObservable() returns Observable {
+		return o;
+	}
+	
+	action getIObservable() returns IObservable {
+		return o.asIObservable();
+	}
+}
+
+event WrappedValueFromChannel {
+	string channelName;
+	string uniqueId;
+	any value;
+}
+
+event Observables {
+	static action fromChannel(string channelName) returns Observable {
+		Subject s := Subject.create();
+
+		// Needs a uniqueId so that fromChannel can be called multiple times from the same context
+		string uniqueId := "EventFromChannel" + integer.getUnique().toString();
+		
+		on all WrappedValueFromChannel(channelName = channelName, uniqueId = uniqueId) as wrappedValue {
+			s.next(wrappedValue.value);
+		}
+		spawn _channelValueWrapper(channelName, context.current(), uniqueId) to context("ReceiveFromChannelContext");
+		
+		return s.getObservable();
+	}
+	
+	static action _channelValueWrapper(string receiveChannelName, context parentContext, string uniqueId) {
+		monitor.subscribe(receiveChannelName);
+		on all any() as anyValue {
+			switch(anyValue) {
+				case WrappedAny : {
+					send WrappedValueFromChannel(receiveChannelName, uniqueId, anyValue.value) to parentContext;
+				}
+				default : {
+					send  WrappedValueFromChannel(receiveChannelName, uniqueId, anyValue) to parentContext;
+				}
+			}
+		}
+	}
+}
+
+event BehaviourSubject {
+	Subject s;
+	any currentValue;
+	
+	action<> returns boolean isCompleted;
+	action<Exception, any> error;
+	action<> complete;
+	
+	static action create(any initialValue) returns BehaviourSubject {
+		BehaviourSubject bs := new BehaviourSubject;
+		bs.s := Subject.create();
+		bs.currentValue := initialValue;
+		bs.isCompleted := bs.s.isCompleted;
+		bs.error := bs.s.error;
+		bs.complete := bs.s.complete; 
+		return bs;
+	}
+	
+	action next(any value) {
+		currentValue := value;
+		s.next(value);
+	}
+	
+	action getObservable() returns Observable {
+		Observable o := s.getObservable();
+		o.addOnConnectionListener(o.uid, onConnection);
+		return o;
+	}
+	
+	action onConnection(optional<IObservable> connectingObservable) {
+		ifpresent connectingObservable {
+			connectingObservable._next(currentValue);
+		}
+	}
+	
+	action getIObservable() returns IObservable {
+		return getObservable().asIObservable();
+	}
+	
+	action asISubject() returns ISubject {
+		return ISubject(self, isCompleted, next, error, complete, getIObservable);
+	}
+}

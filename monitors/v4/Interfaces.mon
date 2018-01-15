@@ -1,0 +1,84 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event IDisposable {
+	any disposable;
+	
+	action<> dispose;
+	action<> returns boolean disposed;
+}
+
+event ISubscription {
+	any subcription;
+	
+	/** 
+	 * Adds a teardown callback for this subscription
+	 */
+	action<action<> > add;
+	action<> unsubscribe;
+}
+
+event IObservable {
+	any observable;
+
+	action<Subscriber> returns ISubscription subscribe;
+	action<action<any> returns any> returns IObservable map;
+	action<> returns IObservable publish;
+	action<> returns IDisposable connect;
+	action<> returns IObservable refCount;
+	action<> returns IObservable share;	
+	action<integer> returns IObservable take;
+	action<integer> returns IObservable takeLast;
+	action<> returns IObservable first;
+	action<> returns IObservable last;
+	action<integer> returns IObservable skip;
+}
+
+event ISubject {
+	any subject;
+	
+	action<any> next;
+	action<any> error;
+	action<> complete;
+	
+	action<> returns IObservable asIObservable;
+
+	action<Subscriber> returns ISubscription subscribe;
+	action<action<any> returns any> returns IObservable map;
+	action<> returns IObservable publish;
+	action<> returns IDisposable connect;
+	action<> returns IObservable refCount;
+	action<> returns IObservable share;
+	action<integer> returns IObservable take;
+	action<integer> returns IObservable takeLast;
+	action<> returns IObservable first;
+	action<> returns IObservable last;
+	action<integer> returns IObservable skip;
+}
+
+event IBehaviorSubject {
+	any subject;
+	
+	action<> returns any getValue;
+
+	action<> returns ISubject asISubject;
+	
+	action<any> next;
+	action<any> error;
+	action<> complete;
+	
+	action<> returns IObservable asIObservable;
+
+	action<Subscriber> returns ISubscription subscribe;
+	action<action<any> returns any> returns IObservable map;
+	action<> returns IObservable publish;
+	action<> returns IDisposable connect;
+	action<> returns IObservable refCount;
+	action<> returns IObservable share;
+	action<integer> returns IObservable take;
+	action<integer> returns IObservable takeLast;
+	action<> returns IObservable first;
+	action<> returns IObservable last;
+	action<integer> returns IObservable skip;
+}

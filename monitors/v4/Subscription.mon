@@ -1,0 +1,26 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event Subscription {
+	sequence<action<> > teardownCallbacks;
+	
+	static action create() returns Subscription {
+		return new Subscription;
+	}
+	
+	action add(action<> onTeardown) {
+		teardownCallbacks.append(onTeardown);
+	}
+	
+	action unsubscribe() {
+		action<> teardownCallback;
+		for teardownCallback in teardownCallbacks {
+			teardownCallback();
+		}
+	}
+	
+	action asISubscription() returns ISubscription {
+		return ISubscription(self, add, unsubscribe);
+	}
+}

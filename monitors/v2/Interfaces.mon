@@ -1,0 +1,52 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event Subscription {
+	action<any> _onNext;
+	action<Exception, any> _onError;
+	action<> _onCompleted;
+	
+	static action create() returns Subscription {
+		return new Subscription;
+	}
+
+	action onNext(action<any> onNext) returns Subscription {
+		_onNext := onNext;
+		return self;
+	}
+	
+	action onError(action<Exception, any> onError) returns Subscription {
+		_onError := onError;
+		return self;
+	}
+
+	action onCompleted(action<> onCompleted) returns Subscription {
+		_onCompleted := onCompleted;
+		return self;
+	}	
+}
+
+event IObservable {
+	any object;
+		
+	action<any> _next;
+	action<Exception, any> _error;
+	action<> _completed;
+	
+	action<> returns boolean isCompleted;
+	
+	action<Subscription> returns IObservable subscribe;
+	action<action<any> returns any> returns IObservable map;
+}
+
+event ISubject {
+	any subject;
+	
+	action<> returns boolean isCompleted;
+	action<any> next;
+	action<Exception, any> error;
+	action<> complete;
+	
+	action<> returns IObservable getObservable;
+}

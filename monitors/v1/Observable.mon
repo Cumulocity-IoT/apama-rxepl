@@ -271,7 +271,6 @@ event Observable {
 					any flatMapResult := mapper(value.value);
 					switch (flatMapResult as flatMapResult) {
 						case Observable : {
-							// TODO: should really kill the subscription of these when the main completed fires (but only if they haven't already completed) - maybe subscribe should return an object to allow cancellation
 							subscription := flatMapResult
 								.subscribeDisconnected(SubscriptionHandler.create()
 							                                    	.onNext(_ForwardToChannel.create(newChannelName))
@@ -288,7 +287,7 @@ event Observable {
 								}
 								integer i := 0;
 								while i < subscriptionCount.i {
-									route Subscribe(subscription.channelName);// to subscription.channelName;	
+									send Subscribe(subscription.channelName) to subscription.channelName;	
 									i := i + 1;
 								}
 							}
@@ -322,24 +321,16 @@ event Observable {
 			send error to newChannelName;
 		}
 		completedListener.l := on Complete(channelName = channelName) as complete {
-			// Needs to be async'd twice to allow subscribe to propogate the full chain and then for values to be received before the completed fires
-			string propogateSubscribe := "PropogateSubscribe" + integer.getUnique().toString();
-			monitor.subscribe(propogateSubscribe);
-			on Complete(channelName = propogateSubscribe) {
-				string propogateValue := "PropogateValue" + integer.getUnique().toString();
-				monitor.subscribe(propogateValue);
-				on Complete(channelName = propogateValue) {
-					valueListener.quit();
-					errorListener.quit();
-					ifpresent subscription { 
-						subscription := subscription.disconnect();
-					}
-					complete.channelName := newChannelName;
-					send complete to newChannelName;
+			// Async to allow the subscriptions and therefore values to be sent from any observables that have been flat mapped
+			on wait(float.MIN) {
+				valueListener.quit();
+				errorListener.quit();
+				ifpresent subscription { 
+					subscription := subscription.disconnect();
 				}
-				send Complete(propogateValue) to propogateValue;
+				complete.channelName := newChannelName;
+				send complete to newChannelName;
 			}
-			send Complete(propogateSubscribe) to propogateSubscribe;
 		}
 		return result;
 	}

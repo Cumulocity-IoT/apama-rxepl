@@ -1,0 +1,97 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event PublishSubscriber {
+	dictionary<integer, Subscriber> subscribers;
+	action<> onComplete;
+	
+	static action create(dictionary<integer, Subscriber> subscribers, action<> onComplete) returns Subscriber {
+		PublishSubscriber p := PublishSubscriber(subscribers, onComplete);
+		return Subscriber.create().onNext(p.next).onError(p.error).onComplete(p.complete);
+	}
+	
+	action next(any value) {
+		Subscriber s;
+		for s in subscribers.values() {
+			s.next(value);
+		}
+	}
+	
+	action error(any e) {
+		Subscriber s;
+		for s in subscribers.values(){
+			s.error(e);
+		}		
+	}
+	
+	action complete() {
+		Subscriber s;
+		for s in subscribers.values() {
+			s.complete();
+		}
+		onComplete();
+	}
+}
+
+event PublishOnDisconnection {
+	dictionary<integer, Subscriber> subscribers;
+	integer subscriberId;
+	
+	static action create(dictionary<integer, Subscriber> subscribers, integer subscriberId) returns action<> {
+		return PublishOnDisconnection(subscribers, subscriberId).onDisconnect;
+	}
+	
+	action onDisconnect() {
+		subscribers.remove(subscriberId);
+	}
+}
+
+event PublishHandler {
+	action<Subscriber> returns ISubscription parentOnConnection;
+	dictionary<integer, Subscriber> subscribers;
+	optional<ISubscription> subscription;
+	Subscriber publishSubscriber;
+	boolean isComplete;
+	
+	static action create(action<Subscriber> returns ISubscription parentOnConnection) returns PublishHandler {
+		return PublishHandler(parentOnConnection, new dictionary<integer, Subscriber>, new optional<ISubscription>, new Subscriber, false);
+	}
+	
+	action connect() returns IDisposable {
+		if not isComplete {
+			// If there haven't been any previous subscribers then create a subscription
+			if subscription.empty() {
+				publishSubscriber := PublishSubscriber.create(subscribers, onComplete);
+				subscription := parentOnConnection(publishSubscriber);
+			}
+		} else {
+			// If there haven't been any previous subscribers then create a subscription
+			if subscription.empty() {
+				publishSubscriber := PublishSubscriber.create(subscribers, onComplete);
+				publishSubscriber.complete();
+			}
+		}
+		return Disposable.create(reset).asIDisposable();
+	}
+	
+	action onConnection(Subscriber subscriber) returns ISubscription {
+		subscribers.add(subscriber.id, subscriber);
+		Subscription s := Subscription.create();
+		s.add(PublishOnDisconnection.create(subscribers, subscriber.id));
+		return s.asISubscription();
+	}
+	
+	action onComplete() {
+		reset();
+		isComplete := true;
+	}
+	
+	action reset() {
+		ifpresent subscription {
+			subscription.unsubscribe();
+		}
+		subscription := new optional<ISubscription>;
+		subscribers.clear();
+	}
+}

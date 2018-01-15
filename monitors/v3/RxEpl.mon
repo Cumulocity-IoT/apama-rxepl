@@ -1,0 +1,44 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+monitor RxEpl {
+	ISubject s;
+	float i := 10.0;
+	action onload() {
+		s := BehaviourSubject.create(i).asISubject();
+		
+		on wait(5.0) {
+			IObservable o := s.getObservable()
+				.map(multiplyBy10)
+				.subscribe(Subscription.create().onNext(printToConsole).onCompleted(subscribeDone));
+			
+			on wait(5.0) {
+				IObservable o := s.getObservable()
+					.map(multiplyBy10)
+					.subscribe(Subscription.create().onNext(printToConsole).onCompleted(subscribeDone));
+				
+			}
+		}
+	}
+	
+	action subscribeDone() {
+		log "Complete";
+	}
+	
+	action errorHandler(Exception e, any triggerValue) returns any {
+		return 0.0;
+	}
+	
+	action mapToObservable(any value) returns any {
+		return Observable.of([value, value]);
+	}
+	
+	action printToConsole(any value) {
+		log value.valueToString();
+	}
+	
+	action multiplyBy10(any value) returns any {
+		return <float>value * 10.0;
+	}
+}

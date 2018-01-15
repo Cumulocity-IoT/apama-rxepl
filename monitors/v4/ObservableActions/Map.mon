@@ -1,0 +1,34 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event MapSubscriber {
+	Subscriber subscriber;
+	action<any> returns any mapper;
+	static action create(Subscriber subscriber, action<any> returns any mapper) returns Subscriber {
+		MapSubscriber m := MapSubscriber(subscriber, mapper);
+		return subscriber.copy().onNext(m.next);
+	}
+	
+	action next(any value) {
+		try {
+			subscriber.next(mapper(value));
+		} catch(Exception e) {
+			subscriber.error(e);
+		}
+	}
+}
+
+event MapOnConnection {
+	action<Subscriber> returns ISubscription parentOnConnection;
+	action<any> returns any mapper;
+	
+	static action create(action<Subscriber> returns ISubscription parentOnConnection, action<any> returns any mapper) returns action<Subscriber> returns ISubscription {
+		return MapOnConnection(parentOnConnection, mapper).onConnection;
+	}
+	
+	action onConnection(Subscriber subscriber) returns ISubscription {
+		Subscriber mapSubscriber := MapSubscriber.create(subscriber, mapper);
+		return parentOnConnection(mapSubscriber);
+	}
+}

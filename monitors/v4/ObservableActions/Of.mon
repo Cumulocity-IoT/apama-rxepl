@@ -1,0 +1,42 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event OfOnPull {
+	Subscriber subscriber;
+	sequence<any> values;
+	integer i;
+	
+	static action create(sequence<any> values, Subscriber subscriber) returns action<> {
+		return OfOnPull(subscriber, values, 0).onPull;
+	}
+	
+	action onPull() {
+		if i < values.size() {
+			i := i + 1;
+			subscriber.next(values[i-1]);
+		} else {
+			subscriber.complete();
+		}
+	}
+}
+
+event OfOnConnection {
+	any values;
+	static action create(any values) returns action<Subscriber> returns ISubscription {
+		return OfOnConnection(values).onConnection;
+	}
+	
+	action onConnection(Subscriber subscriber) returns ISubscription {
+		if subscriber._isPulling {
+			subscriber._onPull.set(OfOnPull.create(Utils.anyToSequenceAny(values), subscriber));
+		} else {			
+			any value;
+			for value in Utils.anyToSequenceAny(values) {
+				subscriber.next(value);
+			}
+			subscriber.complete();
+		}
+		return Subscription.create().asISubscription();
+	}
+}

@@ -1,0 +1,79 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event DeferredUnsubscribe {
+	action<> _unsubscribe;
+	boolean unsubscribeCalled;
+	
+	static action create() returns DeferredUnsubscribe {
+		return new DeferredUnsubscribe;
+	}
+	
+	action unsubscribe() {
+		unsubscribeCalled := true;
+		ifpresent _unsubscribe {
+			_unsubscribe();
+		}
+	}
+	
+	action resolve(action<> unsubscribe) {
+		self._unsubscribe := unsubscribe; 
+		if unsubscribeCalled {
+			unsubscribe();
+		}
+	}
+}
+
+event TakeSubscriber {
+	Subscriber subscriber;
+	integer count;
+	boolean isComplete;
+	action<> onCountReached;
+	
+	static action create(Subscriber subscriber, integer count, action<> onCountReached) returns Subscriber {
+		TakeSubscriber m := TakeSubscriber(subscriber, count, false, onCountReached);
+		return subscriber.copy().onNext(m.next).onComplete(m.complete);
+	}
+	
+	action next(any value) {
+		if count > 0 {
+			count := count - 1;
+			subscriber.next(value);
+			if count = 0 and not isComplete {
+				isComplete := true;
+				subscriber.complete();
+				onCountReached();
+			}
+		}
+	}
+	
+	action error(any e) {
+		if not isComplete {
+			subscriber.error(e);
+		}
+	}
+	
+	action complete() {
+		if not isComplete {
+			subscriber.complete();
+		}
+	}
+}
+
+event TakeOnConnection {
+	action<Subscriber> returns ISubscription parentOnConnection;
+	integer count;
+	
+	static action create(action<Subscriber> returns ISubscription parentOnConnection, integer count) returns action<Subscriber> returns ISubscription {
+		return TakeOnConnection(parentOnConnection, count).onConnection;
+	}
+	
+	action onConnection(Subscriber subscriber) returns ISubscription {
+		DeferredUnsubscribe deferredUnsubscribe := DeferredUnsubscribe.create();
+		Subscriber takeSubscriber := TakeSubscriber.create(subscriber, count, deferredUnsubscribe.unsubscribe);
+		ISubscription subscription := parentOnConnection(takeSubscriber);
+		deferredUnsubscribe.resolve(subscription.unsubscribe);
+		return subscription;
+	}
+}
