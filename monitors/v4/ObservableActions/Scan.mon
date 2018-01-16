@@ -1,0 +1,46 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event ScanSubscriber {
+	Subscriber subscriber;
+	action<any, any> returns any scanner;
+	any accumulator;
+	boolean scanValue;
+	
+	static action create(Subscriber subscriber, action<any, any> returns any scanner, any initialValue, boolean scanFirstValue) returns Subscriber {
+		ScanSubscriber m := ScanSubscriber(subscriber, scanner, initialValue, scanFirstValue);
+		return subscriber.copy().onNext(m.next);
+	}
+	
+	action next(any value) {
+		if scanValue {
+			try {
+				accumulator := scanner(accumulator, value);
+				subscriber.next(accumulator);
+			} catch(Exception e) {
+				subscriber.error(e);
+			}
+		} else {
+			scanValue := true;
+			accumulator := value;
+			subscriber.next(value);
+		}
+	}
+}
+
+event ScanOnConnection {
+	action<Subscriber> returns ISubscription parentOnConnection;
+	action<any, any> returns any scanner;
+	any initialValue;
+	boolean hasInitialValue;
+	
+	static action create(action<Subscriber> returns ISubscription parentOnConnection, action<any, any> returns any scanner, any initialValue, boolean hasInitialValue) returns action<Subscriber> returns ISubscription {
+		return ScanOnConnection(parentOnConnection, scanner, initialValue, hasInitialValue).onConnection;
+	}
+	
+	action onConnection(Subscriber subscriber) returns ISubscription {
+		Subscriber mapSubscriber := ScanSubscriber.create(subscriber, scanner, initialValue, hasInitialValue);
+		return parentOnConnection(mapSubscriber);
+	}
+}

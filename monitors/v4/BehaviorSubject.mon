@@ -15,13 +15,13 @@ event BehaviorSubjectHandler {
 	action onConnection(Subscriber subscriber) returns ISubscription {
 		if not isComplete {
 			subscribers.add(subscriber.id, subscriber);
-			Subscription s := Subscription.create();
+			Subscription s := Subscription.create(subscriber._onUnsubscribeListeners);
 			s.add(SubjectOnDisconnection.create(subscribers, subscriber.id));
 			subscriber.next(currentValue);
 			return s.asISubscription();
 		} else {
 			subscriber.complete();
-			return Subscription.create().asISubscription();
+			return Subscription.create(subscriber._onUnsubscribeListeners).asISubscription();
 		}
 	}
 	
@@ -74,17 +74,17 @@ event BehaviorSubject {
 		return IBehaviorSubject(self,
 		                getValue, asISubject,
 		                next, error, complete, asIObservable,
-		                observable.subscribe, observable.map, observable.publish, observable.connect, observable.refCount, observable.share, observable.take, observable.takeLast, observable.first, observable.last, observable.skip);
+		                observable.subscribe, observable.map, observable.publish, observable.connect, observable.refCount, observable.share, observable.take, observable.takeLast, observable.first, observable.last, observable.skip, observable.skipLast, observable.filter, observable.scan, observable.scanWithInitial);
 	}
 	
 	action asISubject() returns ISubject {
 		return ISubject(self,
 		                next, error, complete, asIObservable,
-		                observable.subscribe, observable.map, observable.publish, observable.connect, observable.refCount, observable.share, observable.take, observable.takeLast, observable.first, observable.last, observable.skip);
+		                observable.subscribe, observable.map, observable.publish, observable.connect, observable.refCount, observable.share, observable.take, observable.takeLast, observable.first, observable.last, observable.skip, observable.skipLast, observable.filter, observable.scan, observable.scanWithInitial);
 	}
 	
 	action asIObservable() returns IObservable {
 		return IObservable(self, 
-		                   observable.subscribe, observable.map, observable.publish, observable.connect, observable.refCount, observable.share, observable.take, observable.takeLast, observable.first, observable.last, observable.skip);
+		                   observable.subscribe, observable.map, observable.publish, observable.connect, observable.refCount, observable.share, observable.take, observable.takeLast, observable.first, observable.last, observable.skip, observable.skipLast, observable.filter, observable.scan, observable.scanWithInitial);
 	}
 }

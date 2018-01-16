@@ -29,10 +29,9 @@ event TakeSubscriber {
 	Subscriber subscriber;
 	integer count;
 	boolean isComplete;
-	action<> onCountReached;
 	
-	static action create(Subscriber subscriber, integer count, action<> onCountReached) returns Subscriber {
-		TakeSubscriber m := TakeSubscriber(subscriber, count, false, onCountReached);
+	static action create(Subscriber subscriber, integer count) returns Subscriber {
+		TakeSubscriber m := TakeSubscriber(subscriber, count, false);
 		return subscriber.copy().onNext(m.next).onComplete(m.complete);
 	}
 	
@@ -43,7 +42,6 @@ event TakeSubscriber {
 			if count = 0 and not isComplete {
 				isComplete := true;
 				subscriber.complete();
-				onCountReached();
 			}
 		}
 	}
@@ -70,10 +68,6 @@ event TakeOnConnection {
 	}
 	
 	action onConnection(Subscriber subscriber) returns ISubscription {
-		DeferredUnsubscribe deferredUnsubscribe := DeferredUnsubscribe.create();
-		Subscriber takeSubscriber := TakeSubscriber.create(subscriber, count, deferredUnsubscribe.unsubscribe);
-		ISubscription subscription := parentOnConnection(takeSubscriber);
-		deferredUnsubscribe.resolve(subscription.unsubscribe);
-		return subscription;
+		return parentOnConnection(TakeSubscriber.create(subscriber, count));
 	}
 }

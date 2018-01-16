@@ -33,11 +33,19 @@ event Observable {
 		
 		return o.asIObservable();
 	}
-	
+
 	static action fromValues(any values) returns IObservable {
 		Observable o := _create(true);
 		
 		o.onConnection := FromOnConnection.create(values);
+		
+		return o.asIObservable();
+	}
+	
+	static action fromIterator(action<> returns any iterator) returns IObservable {
+		Observable o := _create(true);
+		
+		o.onConnection := FromIteratorOnConnection.create(iterator);
 		
 		return o.asIObservable();
 	}
@@ -54,10 +62,10 @@ event Observable {
 	 * Generates a series of event with an incrementing float value
 	 * @param interval the time between subsequent events
 	 */
-	static action interval(float interval) returns IObservable {
+	static action interval(float seconds) returns IObservable {
 		Observable o := _create(false);
 		
-		o.onConnection := IntervalOnConnection.create(interval);
+		o.onConnection := IntervalOnConnection.create(seconds);
 		
 		return o.asIObservable();	
 	}
@@ -80,7 +88,7 @@ event Observable {
 	}
 	
 	action publish() returns IObservable {
-		PublishHandler p := PublishHandler.create(onConnection);
+		PublishHandler p := PublishHandler.create(onConnection, cold);
 		Observable o := _createConnectable(p.connect);
 		
 		o.onConnection := p.onConnection;
@@ -140,6 +148,38 @@ event Observable {
 		
 		return o.asIObservable();			
 	}
+
+	action skipLast(integer count) returns IObservable {
+		Observable o := _create(cold);
+		
+		o.onConnection := SkipLastOnConnection.create(onConnection, count);
+		
+		return o.asIObservable();			
+	}
+	
+	action filter(action<any> returns boolean predicate) returns IObservable {
+		Observable o := _create(cold);
+		
+		o.onConnection := FilterOnConnection.create(onConnection, predicate);
+		
+		return o.asIObservable();			
+	}
+
+	action scan(action<any, any> returns any scanner) returns IObservable {
+		Observable o := _create(cold);
+		
+		o.onConnection := ScanOnConnection.create(onConnection, scanner, new any, false);
+		
+		return o.asIObservable();		
+	}
+	
+	action scanWithInitial(action<any, any> returns any scanner, any initialValue) returns IObservable {
+		Observable o := _create(cold);
+		
+		o.onConnection := ScanOnConnection.create(onConnection, scanner, initialValue, true);
+		
+		return o.asIObservable();		
+	}
 	
 	static action invalidConnect() returns IDisposable {
 		throw Exception("Can only connect a published Observable", "UnsupportedOperation");
@@ -147,6 +187,6 @@ event Observable {
 		
 	action asIObservable() returns IObservable {
 		return IObservable(self, 
-		                   subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip);
+		                   subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial);
 	}
 }

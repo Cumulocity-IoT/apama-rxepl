@@ -162,11 +162,64 @@ monitor RxEpl {
 //		ISubscription subscription := o.subscribe(Subscriber.create().onNext(printValue).onComplete(printComplete));
 //	}
 	
+//	action onload() {
+//		o := Observable.interval(1.0)
+//			.share()
+//			.skip(5)
+//			.take(5);
+//		
+//		ISubscription subscription := o.subscribe(Subscriber.create().onNext(printValue).onComplete(printComplete));
+//	}
+	
+//	action onload() {
+//		o := Observable.fromIterator(incrementingIterator)
+//			.share()
+//			.skip(5000000)
+//			.take(2);
+//		
+//		ISubscription subscription := o.subscribe(Subscriber.create().onNext(printValue).onComplete(printComplete));
+//	}
+	
+//	action onload() {
+//		o := Observable.fromIterator(incrementingIterator)
+//			.filter(isEven)
+//			.take(6);
+//		
+//		ISubscription subscription := o.subscribe(Subscriber.create().onNext(printValue).onComplete(printComplete));
+//	}
+	
+//	action onload() {
+//		o := Observable.fromIterator(incrementingIterator)
+//			.scan(sumWithPrevious)
+//			.take(6);
+//		
+//		ISubscription subscription := o.subscribe(Subscriber.create().onNext(printValue).onComplete(printComplete));
+//	}
+	
 	action onload() {
 		o := Observable.interval(1.0)
-			.skip(1);
+			.scanWithInitial(sumWithPrevious, 5.0)
+			.take(5);
 		
 		ISubscription subscription := o.subscribe(Subscriber.create().onNext(printValue).onComplete(printComplete));
+	}
+	
+	action sumWithPrevious(any previous, any value) returns any {
+		return <float> previous + <float> value;
+	}
+	
+	float i := 0.0;
+	action incrementingIterator() returns any {
+		i := i + 1.0;
+		return i;
+	}
+
+	action isGT15(any value) returns boolean {
+		return <float> value > 11.0;
+	}
+	
+	action isEven(any value) returns boolean {
+		return (<float> value).round() % 2 = 0;
 	}
 	
 	action printComplete() {

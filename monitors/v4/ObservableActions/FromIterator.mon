@@ -1,0 +1,82 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event FromIteratorOnPull {
+	Subscriber subscriber;
+	action<> returns any iterator;
+	
+	static action create(action<> returns any iterator, Subscriber subscriber) returns action<> {
+		return FromIteratorOnPull(subscriber, iterator).onPull;
+	}
+	
+	action onPull() {
+		any value := new any;
+		
+		try {
+			value := iterator();
+		} catch(Exception e) {
+			subscriber.error(e);
+		}
+		
+		ifpresent value {
+			subscriber.next(value);
+		} else {
+			subscriber.complete();
+		}
+	}
+}
+
+event FromIteratorSyncHandler {
+	Subscriber subscriber;
+	action<> returns any iterator;
+	LimitSyncInvoke syncInvokeLimitter;
+	boolean stopped;
+	
+	static action createAndCall(action<> returns any iterator, Subscriber subscriber) {
+		FromIteratorSyncHandler handler := FromIteratorSyncHandler(subscriber, iterator, new LimitSyncInvoke, false);
+		subscriber._onUnsubscribe(handler.stop);
+		handler.syncInvokeLimitter := LimitSyncInvoke.create(GlobalConstants.MAX_SYNC_VALUES, handler.call);
+		handler.syncInvokeLimitter.invoke();
+	}
+	
+	action call() {
+		if stopped {
+			return;
+		}
+		any value := new any;
+		
+		try {
+			value := iterator();
+		} catch(Exception e) {
+			subscriber.error(e);
+		}
+		
+		ifpresent value {
+			subscriber.next(value);
+			syncInvokeLimitter.invoke();
+		} else {
+			subscriber.complete();
+		}
+	}
+	
+	action stop() {
+		stopped := true;
+	}
+}
+
+event FromIteratorOnConnection {
+	action<> returns any iterator;
+	static action create(action<> returns any iterator) returns action<Subscriber> returns ISubscription {
+		return FromIteratorOnConnection(iterator).onConnection;
+	}
+	
+	action onConnection(Subscriber subscriber) returns ISubscription {
+		if subscriber._isPulling {
+			subscriber._onPull.set(FromIteratorOnPull.create(iterator, subscriber));
+		} else {
+			FromIteratorSyncHandler.createAndCall(iterator, subscriber);
+		}
+		return Subscription.create(subscriber._onUnsubscribeListeners).asISubscription();
+	}
+}

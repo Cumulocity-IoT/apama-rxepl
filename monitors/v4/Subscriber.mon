@@ -32,6 +32,12 @@ event Subscriber {
 	OnPull _onPull;
 	boolean _isPulling;
 	
+	sequence<action<> > _onUnsubscribeListeners;
+	
+	action _onUnsubscribe(action<> onUnsubscribe) {
+		_onUnsubscribeListeners.append(onUnsubscribe);
+	}
+	
 	static action create() returns Subscriber {
 		Subscriber s := new Subscriber;
 		s.id := integer.getUnique();

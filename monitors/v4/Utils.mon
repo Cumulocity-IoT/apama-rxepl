@@ -19,6 +19,7 @@ event Utils {
 					string actualType := value.getTypeName().substring("optional<".length(), -1);
 					string actualValue := value.valueToString().substring("optional(".length(), -1);
 					value := any.parse("any(" + actualType + "," + actualValue + ")");
+					return anyToSequenceAny(value);
 				}
 				return value.getEntries();
 			}

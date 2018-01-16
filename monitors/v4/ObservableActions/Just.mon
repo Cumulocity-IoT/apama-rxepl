@@ -34,6 +34,6 @@ event JustOnConnection {
 			subscriber.next(value);
 			subscriber.complete();
 		}
-		return Subscription.create().asISubscription();
+		return Subscription.create(subscriber._onUnsubscribeListeners).asISubscription();
 	}
 }

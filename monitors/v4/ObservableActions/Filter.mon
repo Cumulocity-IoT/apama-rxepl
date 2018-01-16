@@ -1,0 +1,44 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event FilterSubscriber {
+	Subscriber subscriber;
+	action<any> returns boolean predicate;
+	action<> pull;
+	
+	static action create(Subscriber subscriber, action<any> returns boolean predicate) returns Subscriber {
+		FilterSubscriber s := FilterSubscriber(subscriber, predicate, new action<>);
+		if subscriber._isPulling {
+			s.pull := LimitSyncInvoke.create(GlobalConstants.MAX_SYNC_VALUES, subscriber._pull).invoke;
+		}
+		return subscriber.copy().onNext(s.next);
+	}
+	
+	action next(any value) {
+		try {
+			if predicate(value) {
+				subscriber.next(value);
+			} else {
+				ifpresent pull {
+					pull();
+				}
+			}
+		} catch(Exception e) {
+			subscriber.error(e);
+		}
+	}
+}
+
+event FilterOnConnection {
+	action<Subscriber> returns ISubscription parentOnConnection;
+	action<any> returns boolean predicate;
+	
+	static action create(action<Subscriber> returns ISubscription parentOnConnection, action<any> returns boolean predicate) returns action<Subscriber> returns ISubscription {
+		return FilterOnConnection(parentOnConnection, predicate).onConnection;
+	}
+	
+	action onConnection(Subscriber subscriber) returns ISubscription {
+		return parentOnConnection(FilterSubscriber.create(subscriber, predicate));
+	}
+}

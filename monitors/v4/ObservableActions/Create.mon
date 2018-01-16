@@ -4,11 +4,10 @@ using com.apama.exceptions.Exception;
 
 event CreateObserver {
 	Subscriber subscriber;
-	action<> onComplete;
 	boolean isComplete;
 	
-	static action create(Subscriber subscriber, action<action<> > addUnsubscribeHandler, action<> onComplete) returns IObserver {
-		CreateObserver o := CreateObserver(subscriber, onComplete, false);
+	static action create(Subscriber subscriber, action<action<> > addUnsubscribeHandler) returns IObserver {
+		CreateObserver o := CreateObserver(subscriber, false);
 		return IObserver(o.next, o.error, o.complete, addUnsubscribeHandler);
 	}
 	
@@ -28,7 +27,6 @@ event CreateObserver {
 		if not isComplete {
 			subscriber.complete();
 		}
-		onComplete();
 	}
 }
 
@@ -39,8 +37,8 @@ event CreateOnConnection {
 	}
 	
 	action onConnection(Subscriber subscriber) returns ISubscription {
-		Subscription s := Subscription.create();
-		resolver(CreateObserver.create(subscriber, s.add, s.unsubscribe));
+		Subscription s := Subscription.create(subscriber._onUnsubscribeListeners);
+		resolver(CreateObserver.create(subscriber, s.add));
 		return s.asISubscription();
 	}
 }

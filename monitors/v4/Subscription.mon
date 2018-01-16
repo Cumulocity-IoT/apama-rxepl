@@ -5,8 +5,8 @@ using com.apama.exceptions.Exception;
 event Subscription {
 	sequence<action<> > teardownCallbacks;
 	
-	static action create() returns Subscription {
-		return new Subscription;
+	static action create(sequence<action<> > teardownCallbacks) returns Subscription {
+		return Subscription(teardownCallbacks);
 	}
 	
 	action add(action<> onTeardown) {
