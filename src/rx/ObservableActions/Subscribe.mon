@@ -1,0 +1,89 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event DeferredUnsubscribe {
+	action<> _unsubscribe;
+	boolean unsubscribeCalled;
+	
+	static action create() returns DeferredUnsubscribe {
+		return new DeferredUnsubscribe;
+	}
+	
+	action unsubscribe() {
+		unsubscribeCalled := true;
+		ifpresent _unsubscribe {
+			_unsubscribe();
+		}
+	}
+	
+	action resolve(action<> unsubscribe) {
+		self._unsubscribe := unsubscribe; 
+		if unsubscribeCalled {
+			unsubscribe();
+		}
+	}
+}
+
+event SubscribeSubscriber {
+	action<> completeSubscriber;
+	action<> onComplete;
+	static action create(Subscriber subscriber, action<> onComplete) returns Subscriber {
+		return subscriber.copy().onComplete(SubscribeSubscriber(subscriber.complete, onComplete).complete);
+	}
+	
+	action complete() {
+		completeSubscriber();
+		onComplete();
+	}
+}
+
+event PullingSubscriber {
+	Subscriber subscriber;
+	boolean isSubscribed;
+	LimitSyncInvoke syncInvokeLimitter;
+	
+	static action create(Subscriber subscriber) returns PullingSubscriber {
+		return PullingSubscriber(subscriber, true, LimitSyncInvoke.create(GlobalConstants.MAX_SYNC_VALUES, subscriber._pull));
+	}
+	
+	action onUnsubscribe() {
+		isSubscribed := false;
+	}
+	
+	action createSubscriber() returns Subscriber {
+		return subscriber.copy().onNext(next);
+	}
+	
+	action next(any value) {
+		subscriber.next(value);
+		if isSubscribed {
+			syncInvokeLimitter.invoke();
+		}
+	}
+}
+
+event SubscribeOnConnection {
+	action<Subscriber> returns ISubscription parentOnConnection;
+	boolean pulling;
+	static action create(action<Subscriber> returns ISubscription parentOnConnection, boolean pulling) returns action<Subscriber> returns ISubscription {
+		return SubscribeOnConnection(parentOnConnection, pulling).onConnection;
+	}
+	
+	action onConnection(Subscriber subscriber) returns ISubscription {
+		if pulling {
+			DeferredUnsubscribe deferredUnsubscribe := DeferredUnsubscribe.create();
+			PullingSubscriber pullingSubscriber := PullingSubscriber.create(SubscribeSubscriber.create(subscriber, deferredUnsubscribe.unsubscribe));
+			ISubscription s := parentOnConnection(pullingSubscriber.createSubscriber());
+			s.add(pullingSubscriber.onUnsubscribe);
+			deferredUnsubscribe.resolve(s.unsubscribe);
+			subscriber._pull();
+			return s;
+		} else {
+			DeferredUnsubscribe deferredUnsubscribe := DeferredUnsubscribe.create();
+			ISubscription s := parentOnConnection(SubscribeSubscriber.create(subscriber, deferredUnsubscribe.unsubscribe));
+			deferredUnsubscribe.resolve(s.unsubscribe);
+			return s;
+		}
+	}
+}

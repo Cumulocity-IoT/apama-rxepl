@@ -1,0 +1,84 @@
+package utils;
+
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.Subscriber;
+
+event TestFailed {
+  string message;
+}
+event TestComplete {}
+
+event Test {
+  string name;
+
+  action complete() {
+    send TestComplete() to name;
+  }
+  
+  action fail(string message) {
+    send TestFailed(message) to name;
+  }
+}
+
+event TestObservables {
+  static action createSync() returns IObservable {
+    return Observable.fromValues([0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0]);
+  }
+  
+  static action createAsync() returns IObservable {
+    return Observable.interval(0.01).take(10);
+  }
+}
+
+event ExpectValues {
+  sequence<any> expectedValues;
+  action<> pass;
+  action<string> fail;
+  boolean isComplete;
+
+  static action create(sequence<any> expectedValues, action<> pass, action<string> fail) returns Subscriber {
+    ExpectValues evs := ExpectValues(expectedValues, pass, fail, false);
+    Subscriber s := Subscriber.create().onNext(evs.next).onError(evs.error).onComplete(evs.complete);
+    s._onUnsubscribe(evs.teardown);
+    return s;
+  }
+  
+  action next(any value) {
+    log "Next Called: " + value.toString();
+    if expectedValues.size() = 0 {
+        fail("Unexpected value received: " + value.toString());
+    } else if value != expectedValues[0] {
+    	fail("Value: " + value.toString() + " did not match expected: " + expectedValues[0].toString());
+    } else {
+    	expectedValues.remove(0);
+    }
+  }
+  
+  action error(any e) {
+    log "Error Called: " + e.toString();
+    fail("Received Error: " + e.valueToString());
+  }
+  
+  action complete() {
+    log "Complete Called";
+    if isComplete {
+        fail("Complete called multiple times");
+    }
+    if expectedValues.size() = 0 {
+      isComplete := true;
+      // pass as long as teardown is called
+    } else {
+        fail("Did not receive expected values: " + expectedValues.toString());
+    }
+  }
+  
+  action teardown() {
+    log "Teardown called";
+    if isComplete {
+      pass();
+    } else {
+      fail("Teardown before complete");
+    }
+  }
+}

@@ -1,0 +1,24 @@
+using com.industry.rx_epl.Observable;
+
+using utils.Test;
+using utils.ExpectValues;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	action onload() {		
+	    any discard := Observable.fromIterator(iterator)
+	      	.subscribe(ExpectValues.create([<any>1,2,3,4], test.complete, test.fail));
+	}
+	
+	integer i := 0;
+	
+	action iterator() returns any {
+		i := i + 1;
+		if i < 5 {
+			return i;
+		} else {
+			return new any;
+		}
+	}
+}

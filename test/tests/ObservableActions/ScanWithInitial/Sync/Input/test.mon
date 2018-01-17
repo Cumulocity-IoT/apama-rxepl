@@ -1,0 +1,18 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	action onload() {
+	    any discard := TestObservables.createSync()
+			.skip(5)
+	      	.scanWithInitial(sum, 15.0)
+	      	.subscribe(ExpectValues.create([<any>20.0, 26.0, 33.0, 41.0, 50.0], test.complete, test.fail));
+	} 
+	
+	action sum(any accumulator, any value) returns any {
+		return <float> accumulator + <float> value;
+	}
+}

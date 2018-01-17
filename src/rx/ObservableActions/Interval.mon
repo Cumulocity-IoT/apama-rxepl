@@ -1,0 +1,34 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event IntervalOnDisconnection {
+	listener onWaitListener;
+	
+	static action create(listener onWaitListener) returns action<> {
+		return IntervalOnDisconnection(onWaitListener).onDisconnection;
+	}
+	
+	action onDisconnection() {
+		onWaitListener.quit();
+		log "Interval wait listener killed" at DEBUG;
+	}
+}
+
+event IntervalOnConnection {
+	float timePeriod;
+	static action create(float timePeriod) returns action<Subscriber> returns ISubscription {
+		return IntervalOnConnection(timePeriod).onConnection;
+	}
+	
+	action onConnection(Subscriber subscriber) returns ISubscription {
+		WrappedFloat currentValue := WrappedFloat(0.0);
+		listener onWaitListener := on all wait(timePeriod) {
+			subscriber.next(currentValue.get());
+			currentValue.add(1.0);
+		}
+		Subscription s := Subscription.create(subscriber._onUnsubscribeListeners);
+		s.add(IntervalOnDisconnection.create(onWaitListener));
+		return s.asISubscription();
+	}
+}

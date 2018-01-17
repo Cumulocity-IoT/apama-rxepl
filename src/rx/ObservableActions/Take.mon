@@ -1,0 +1,55 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event TakeSubscriber {
+	Subscriber subscriber;
+	integer count;
+	boolean isComplete;
+	
+	static action create(Subscriber subscriber, integer count) returns Subscriber {
+		TakeSubscriber m := TakeSubscriber(subscriber, count, false);
+		return subscriber.copy().onNext(m.next).onComplete(m.complete);
+	}
+	
+	action next(any value) {
+		count := count - 1;
+		if count > 0 {
+			subscriber.next(value);
+		} else {
+			if isComplete {
+				// This shouldn't happen - but a bad generator might cause it to
+				log "Operator 'Take' received unexpected extra value, observable should have unsubscribed" at ERROR;
+			} else {
+				if subscriber._isPulling {
+					// Stop any future pulling - we know it's going to complete
+					subscriber._onPull.set(Utils.noOp);
+				}
+				subscriber.next(value);
+				isComplete := true;
+				subscriber.complete();
+			}
+		}
+	}
+	
+	action error(any e) {
+		subscriber.error(e);
+	}
+	
+	action complete() {
+		subscriber.complete();
+	}
+}
+
+event TakeOnConnection {
+	action<Subscriber> returns ISubscription parentOnConnection;
+	integer count;
+	
+	static action create(action<Subscriber> returns ISubscription parentOnConnection, integer count) returns action<Subscriber> returns ISubscription {
+		return TakeOnConnection(parentOnConnection, count).onConnection;
+	}
+	
+	action onConnection(Subscriber subscriber) returns ISubscription {
+		return parentOnConnection(TakeSubscriber.create(subscriber, count));
+	}
+}

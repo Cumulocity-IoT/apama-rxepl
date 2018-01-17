@@ -1,0 +1,13 @@
+using com.industry.rx_epl.Observable;
+
+using utils.Test;
+using utils.ExpectValues;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	action onload() {		
+	    any discard := Observable.just("HelloWorld")
+	      	.subscribe(ExpectValues.create([<any>"HelloWorld"], test.complete, test.fail));
+	}
+}

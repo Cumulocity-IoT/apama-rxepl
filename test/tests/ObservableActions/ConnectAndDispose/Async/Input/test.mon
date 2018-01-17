@@ -1,0 +1,70 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IDisposable;
+using com.industry.rx_epl.Subscriber;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	boolean isConnected := false;
+	boolean isDisposed := false;
+	
+	action onload() {
+	     IObservable connectableObservable := Observable.interval(0.1)
+                                                      .map(makeSureNotCalledUntilConnected)
+                                                      .publish();
+	    
+	     any subscription := connectableObservable.subscribe(createSubscriber());
+	     
+	     on wait(0.1) {
+	    	 isConnected := true;
+	    	 IDisposable connection := connectableObservable.connect();
+	    	 on wait(0.5) {
+	    		 isDisposed := true;
+	    		 connection.dispose();
+	    	 }
+	     }
+	}
+	
+	action makeSureNotCalledUntilConnected(any value) returns any {
+		if not isConnected {
+			test.fail("Should not be called until connected");
+		}
+		return value;
+	}
+	
+	action createSubscriber() returns Subscriber {
+		Subscriber s := Subscriber.create().onNext(assertCorrectValue).onError(onErrorFail).onComplete(onCompleteFail);
+		s._onUnsubscribe(onTeardown);
+		return s;
+	}
+  
+  action onTeardown() {
+    if isDisposed {
+      test.complete();
+    } else {
+      test.fail("Torn down without being disposed");
+    }
+  }
+	
+	action onCompleteFail() {
+		test.fail("Should not complete");
+	}
+	
+	action onErrorFail(any e) {
+		test.fail("Should not throw error");
+	}
+	
+	float i := 0.0;
+	action assertCorrectValue(any value) {
+    if i != <float> value {
+			test.fail("Incorrect value received");
+		} else {
+			i := i + 1.0;
+		}
+	}
+}

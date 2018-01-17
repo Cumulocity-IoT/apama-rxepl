@@ -1,0 +1,43 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IDisposable;
+using com.industry.rx_epl.Subscriber;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	boolean isConnected := false;
+	boolean isDisposed := false;
+	
+	action onload() {
+	     IObservable connectableObservable := TestObservables.createSync()
+			.take(3)
+			.map(makeSureNotCalledUntilConnected)
+			.publish();
+
+	     any subscription := connectableObservable.subscribe(ExpectValues.create([<any>0.0, 1.0, 2.0], onTeardown, test.fail));
+	     
+	     isConnected := true;
+	     any connection := connectableObservable.connect();
+	     // Can't disconnect because it completes synchronously - when it generates more than 10 it becomes async automatically which we should test elsewhere
+	     if not isDisposed {
+	    	 test.fail("Was not disposed synchronously");
+	     }
+	}
+	
+	action onTeardown() {
+		isDisposed := true;
+		test.complete();
+	}
+	
+	action makeSureNotCalledUntilConnected(any value) returns any {
+		if not isConnected {
+			test.fail("Should not be called until connected");
+		}
+		return value;
+	}
+}

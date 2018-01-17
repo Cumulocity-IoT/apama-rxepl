@@ -1,0 +1,23 @@
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IObserver;
+
+using utils.Test;
+using utils.ExpectValues;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	action onload() {		
+	    any discard := Observable.create(generator)
+	      	.subscribe(ExpectValues.create([<any>0,1,2,3,4,5,6,7,8,9], test.complete, test.fail));
+	}
+	
+	action generator(IObserver resolver) {
+		integer i := 0;
+		while i < 10 {
+			resolver.next(i);
+			i := i + 1;
+		}
+		resolver.complete();
+	}
+}

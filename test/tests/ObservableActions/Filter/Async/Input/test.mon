@@ -1,0 +1,17 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	action onload() {
+	    any discard := TestObservables.createAsync()
+			.filter(isEven)
+	      	.subscribe(ExpectValues.create([<any>0.0, 2.0, 4.0, 6.0, 8.0], test.complete, test.fail));
+	} 
+	
+	action isEven(any value) returns boolean {
+		return (<float> value).round() % 2 = 0;
+	}
+}
