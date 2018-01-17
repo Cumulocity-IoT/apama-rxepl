@@ -32,11 +32,8 @@ event Subscriber {
 	OnPull _onPull;
 	boolean _isPulling;
 	
-	sequence<action<> > _onUnsubscribeListeners;
-	
-	action _onUnsubscribe(action<> onUnsubscribe) {
-		_onUnsubscribeListeners.insert(onUnsubscribe, 0);
-	}
+	optional<ISubscription> _subscription;
+	sequence<action<> > unsubscribeListeners;
 	
 	static action create() returns Subscriber {
 		Subscriber s := new Subscriber;
@@ -45,7 +42,7 @@ event Subscriber {
 		return s;
 	}
 	
-	action copy() returns Subscriber {
+	static action copy() returns IObservable {
 		Subscriber s := Subscriber.create().onNext(self.next).onError(self.error).onComplete(self.complete);
 		s._onPull := _onPull;
 		s._isPulling := _isPulling;
@@ -72,6 +69,26 @@ event Subscriber {
 		_onPull.pull();
 	}
 	
+	action getId() returns integer {
+		return id;
+	}
+
+	action addUnsubscribeListener(action<> onUnsubscribe) {
+		unsubscribeListeners.insert(onUnsubscribe, 0);
+	}
+	
+	action getUnsubscribeListeners() returns sequence<action<> > {
+		return unsubscribeListeners;
+	}
+	
+	action _unsubscribe() {
+		ifpresent _subscription {
+			_subscription.unsubscribe();
+		} else {
+			log "Unable to unsubscribe, not yet subscribed" at ERROR;
+		}
+	}
+	
 	static action defaultError(any e) {
 		switch(e) {
 			case Exception: {
@@ -81,5 +98,9 @@ event Subscriber {
 				throw Exception(e.valueToString(), "ObservableError");
 			}
 		}
+	}
+	
+	action asIObserver() returns IObserver {
+		return IObserver(self, getId, next, error, complete, addUnsubscribeListener, getUnsubscribeListeners);
 	}
 }

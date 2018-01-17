@@ -3,10 +3,10 @@ package com.industry.rx_epl;
 using com.apama.exceptions.Exception;
 
 event CreateObserver {
-	Subscriber subscriber;
+	IObserver subscriber;
 	boolean isComplete;
 	
-	static action create(Subscriber subscriber, action<action<> > addUnsubscribeHandler) returns IObserver {
+	static action create(IObserver subscriber, action<action<> > addUnsubscribeHandler) returns IObserver {
 		CreateObserver o := CreateObserver(subscriber, false);
 		return IObserver(o.next, o.error, o.complete, addUnsubscribeHandler);
 	}
@@ -32,13 +32,14 @@ event CreateObserver {
 
 event CreateOnConnection {
 	action<IObserver> resolver;
-	static action create(action<IObserver> resolver) returns action<Subscriber> returns ISubscription {
+	static action create(action<IObserver> resolver) returns action<IObserver> returns ISubscription {
 		return CreateOnConnection(resolver).onConnection;
 	}
 	
 	action onConnection(Subscriber subscriber) returns ISubscription {
-		Subscription s := Subscription.create(subscriber._onUnsubscribeListeners);
-		resolver(CreateObserver.create(subscriber, s.add));
-		return s.asISubscription();
+		// Must create subscription before calling ay next, error, complete
+		ISubscription subscription := Subscription.create(subscriber).asISubscription();
+		resolver(CreateObserver.create(subscriber, subscription.add));
+		return subscription;
 	}
 }

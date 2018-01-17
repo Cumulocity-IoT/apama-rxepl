@@ -36,9 +36,17 @@ event ExpectValues {
   action<> pass;
   action<string> fail;
   boolean isComplete;
+  boolean noComplete;
 
   static action create(sequence<any> expectedValues, action<> pass, action<string> fail) returns Subscriber {
-    ExpectValues evs := ExpectValues(expectedValues, pass, fail, false);
+    ExpectValues evs := ExpectValues(expectedValues, pass, fail, false, false);
+    Subscriber s := Subscriber.create().onNext(evs.next).onError(evs.error).onComplete(evs.complete);
+    s._onUnsubscribe(evs.teardown);
+    return s;
+  }
+  
+  static action createNoComplete(sequence<any> expectedValues, action<> pass, action<string> fail) returns Subscriber {
+    ExpectValues evs := ExpectValues(expectedValues, pass, fail, false, true);
     Subscriber s := Subscriber.create().onNext(evs.next).onError(evs.error).onComplete(evs.complete);
     s._onUnsubscribe(evs.teardown);
     return s;
@@ -62,8 +70,8 @@ event ExpectValues {
   
   action complete() {
     log "Complete Called";
-    if isComplete {
-        fail("Complete called multiple times");
+    if isComplete xor noComplete {
+        fail("Unexpected complete received");
     }
     if expectedValues.size() = 0 {
       isComplete := true;
@@ -75,10 +83,10 @@ event ExpectValues {
   
   action teardown() {
     log "Teardown called";
-    if isComplete {
+    if isComplete or noComplete {
       pass();
     } else {
-      fail("Teardown before complete");
+      fail("Unexpected teardown");
     }
   }
 }

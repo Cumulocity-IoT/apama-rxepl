@@ -3,41 +3,42 @@ package com.industry.rx_epl;
 using com.apama.exceptions.Exception;
 
 event TakeSubscriber {
-	Subscriber subscriber;
+	Subscriber downstreamSubscriber;
+    Subscriber upstreamSubscriber;
 	integer count;
-	boolean isComplete;
+	boolean hasSentLast;
 	
-	static action create(Subscriber subscriber, integer count) returns Subscriber {
-		TakeSubscriber m := TakeSubscriber(subscriber, count, false);
-		return subscriber.copy().onNext(m.next).onComplete(m.complete);
+	static action create(Subscriber downstreamSubscriber, integer count) returns Subscriber {
+		TakeSubscriber m := TakeSubscriber(downstreamSubscriber, new Subscriber, count, false);
+		// Copy everything except the onPull - Needs to have custom handling so that we don't pull from upstream after sending last next
+		Subscriber upstreamSubscriber := downstreamSubscriber.copy().onNext(m.next);
+        upstreamSubscriber._onPull := OnPull.create();
+        m.upstreamSubscriber := upstreamSubscriber;
+        downstreamSubscriber._onPull.set(m.onPull);
+		return upstreamSubscriber;
 	}
 	
+	action onPull() {
+		if not hasSentLast {
+			// Don't need to sync limit this because the sync limitting will be done by the downstream
+			upstreamSubscriber._pull();
+		}
+	}
+    
 	action next(any value) {
 		count := count - 1;
 		if count > 0 {
-			subscriber.next(value);
+			downstreamSubscriber.next(value);
 		} else {
-			if isComplete {
+			if hasSentLast {
 				// This shouldn't happen - but a bad generator might cause it to
 				log "Operator 'Take' received unexpected extra value, observable should have unsubscribed" at ERROR;
 			} else {
-				if subscriber._isPulling {
-					// Stop any future pulling - we know it's going to complete
-					subscriber._onPull.set(Utils.noOp);
-				}
-				subscriber.next(value);
-				isComplete := true;
-				subscriber.complete();
+				hasSentLast := true;
+				downstreamSubscriber.next(value);
+				downstreamSubscriber.complete();
 			}
 		}
-	}
-	
-	action error(any e) {
-		subscriber.error(e);
-	}
-	
-	action complete() {
-		subscriber.complete();
 	}
 }
 

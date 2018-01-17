@@ -22,13 +22,14 @@ event IntervalOnConnection {
 	}
 	
 	action onConnection(Subscriber subscriber) returns ISubscription {
+		// Must create subscription before calling ay next, error, complete
+		ISubscription subscription := Subscription.create(subscriber).asISubscription();
 		WrappedFloat currentValue := WrappedFloat(0.0);
 		listener onWaitListener := on all wait(timePeriod) {
 			subscriber.next(currentValue.get());
 			currentValue.add(1.0);
 		}
-		Subscription s := Subscription.create(subscriber._onUnsubscribeListeners);
-		s.add(IntervalOnDisconnection.create(onWaitListener));
-		return s.asISubscription();
+		subscription.add(IntervalOnDisconnection.create(onWaitListener));
+		return subscription;
 	}
 }

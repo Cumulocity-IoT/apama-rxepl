@@ -18,7 +18,7 @@ monitor TestObservable {
                                                       .map(makeSureNotCalledUntilConnected)
                                                       .publish();
 	    
-	     any subscription := connectableObservable.subscribe(createSubscriber());
+	     any subscription := connectableObservable.subscribe(ExpectValues.createNoComplete([<any>0.0,1.0,2.0,3.0,4.0],onTeardown, test.fail));
 	     
 	     on wait(0.1) {
 	    	 isConnected := true;
@@ -37,34 +37,11 @@ monitor TestObservable {
 		return value;
 	}
 	
-	action createSubscriber() returns Subscriber {
-		Subscriber s := Subscriber.create().onNext(assertCorrectValue).onError(onErrorFail).onComplete(onCompleteFail);
-		s._onUnsubscribe(onTeardown);
-		return s;
-	}
-  
-  action onTeardown() {
-    if isDisposed {
-      test.complete();
-    } else {
-      test.fail("Torn down without being disposed");
-    }
-  }
-	
-	action onCompleteFail() {
-		test.fail("Should not complete");
-	}
-	
-	action onErrorFail(any e) {
-		test.fail("Should not throw error");
-	}
-	
-	float i := 0.0;
-	action assertCorrectValue(any value) {
-    if i != <float> value {
-			test.fail("Incorrect value received");
-		} else {
-			i := i + 1.0;
-		}
+	action onTeardown() {
+		if isDisposed {
+			test.complete();
+	    } else {
+	    	test.fail("Torn down without being disposed");
+	    }
 	}
 }

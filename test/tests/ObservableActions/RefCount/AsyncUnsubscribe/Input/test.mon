@@ -1,0 +1,103 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IDisposable;
+using com.industry.rx_epl.Subscriber;
+using com.industry.rx_epl.ISubscription;
+
+event CheckFiresAtMostXTimes {
+	integer count;
+	action<string> fail;
+	static action create(integer maxTimes, action<string> fail) returns action<any> returns any {
+		return CheckFiresAtMostXTimes(maxTimes, fail).called;
+	}
+	
+	action called(any value) returns any {
+		count := count - 1;
+		if count < 0 {
+			fail("Called too many times");
+		}
+		return value;
+	}
+}
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	boolean isConnected := false;
+	integer teardownCount := 0;
+	
+	ISubscription subscription1;
+	ISubscription subscription2;
+	ISubscription subscription3;
+	ISubscription subscription4;
+	ISubscription subscription5;
+	
+	action onload() {
+	     IObservable connectableObservable := Observable.interval(0.1)
+			.map(makeSureNotCalledUntilConnected)
+			.map(CheckFiresAtMostXTimes.create(3 + 4, test.fail)) // 3 for the first connection 4 for the second
+			.take(4)
+			.publish().refCount(); // publish().refCount() is the same as calling .share()
+
+	     isConnected := true;
+	     subscription1 := connectableObservable.subscribe(ExpectValues.createNoComplete([<any>0.0, 1.0], onTeardown, test.fail));
+	     subscription1.add(onTeardown);
+	     subscription2 := connectableObservable.subscribe(ExpectValues.createNoComplete([<any>0.0, 1.0, 2.0], onTeardown, test.fail));
+	     subscription2.add(onTeardown);
+	     
+	     on wait(0.1) {
+	    	 subscription3 := connectableObservable.subscribe(ExpectValues.createNoComplete([<any>1.0, 2.0], onTeardown, test.fail));
+		     subscription3.add(onTeardown);
+	     }
+	     
+	     on wait(0.2) {
+	    	 subscription4 := connectableObservable.subscribe(ExpectValues.createNoComplete([<any>2.0], onTeardown, test.fail));
+	    	 subscription1.unsubscribe();
+	     }
+	     
+	     on wait(0.3) {
+	    	 // After unsubscribing everything the connection will be disposed
+	    	 subscription2.unsubscribe();
+	    	 subscription3.unsubscribe();
+	    	 subscription4.unsubscribe();
+	     }
+	     
+	     on wait(0.4) {
+	    	 // Connecting after the refCount has dropped to 0 creates a new connection to the soure observable - hence the interval starts from 0 again
+	    	 ISubscription subscription5 := connectableObservable.subscribe(ExpectValues.create([<any>0.0, 1.0, 2.0, 3.0], onTeardown, test.fail));
+	    	 
+	    	 on wait(0.4) {
+	    		 subscription5.add(doNotCall);
+	    		 // Shouldn't do anything - the unsubscribe will have been called already after the observable completed
+	    		 subscription5.unsubscribe();
+	    	 }
+	    	 
+	    	 on wait(0.5) {
+	    		 // Should get a complete when connecting to a completed
+	    		 any subscription6 := connectableObservable.subscribe(ExpectValues.create(new sequence<any>, onTeardown, test.fail));
+	    	 }
+	     }
+	}
+	
+	action onTeardown() {
+		teardownCount := teardownCount + 1;
+		if teardownCount = 6 {
+			test.complete();
+		}
+	}
+	
+	action makeSureNotCalledUntilConnected(any value) returns any {
+		if not isConnected {
+			test.fail("Should not be called until connected");
+		}
+		return value;
+	}
+	
+	action doNotCall() {
+		test.fail("Should not have been called");
+	}
+}

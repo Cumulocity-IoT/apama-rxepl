@@ -81,7 +81,7 @@ event PublishHandler {
 	
 	action connect() returns IDisposable {
 		if not isComplete {
-			// If there haven't been any previous subscribers then create a subscription
+			// If there isn't an upstream subscription then create one
 			if upstreamSubscription.empty() {
 				upstreamSubscriber := PublishSubscriber.create(subscribers, onComplete, cold);
 				upstreamSubscription := parentOnConnection(upstreamSubscriber);
@@ -101,13 +101,14 @@ event PublishHandler {
 	
 	action onComplete() {
 		isComplete := true;
-    upstreamSubscription.getOrThrow().unsubscribe(); // onComplete wouldn't be called if the upstreamSubscription didn't exist
+        upstreamSubscription.getOrThrow().unsubscribe(); // onComplete wouldn't be called if the upstreamSubscription didn't exist
 	}
 	
 	action reset() {
 		ifpresent upstreamSubscription {
 			upstreamSubscription.unsubscribe();
 		}
+		upstreamSubscription := new optional<ISubscription>;
 		SubscriberAndSubscription ss;
 		for ss in subscribers.values() {
 			ss.subscription.unsubscribe();
@@ -115,14 +116,15 @@ event PublishHandler {
 	}
 	
 	action onConnection(Subscriber subscriber) returns ISubscription {
-		Subscription s := Subscription.create(subscriber._onUnsubscribeListeners);
+		// Must create subscription before calling ay next, error, complete
+		Subscription downstreamSubscription := Subscription.create(subscriber);
 		if not isComplete {
-			SubscriberAndSubscription ss := SubscriberAndSubscription(subscriber, s);
+			SubscriberAndSubscription ss := SubscriberAndSubscription(subscriber, downstreamSubscription);
 			subscribers.add(subscriber.id, ss);
-			s.add(PublishOnDisconnection.create(subscribers, subscriber.id));
+			downstreamSubscription.add(PublishOnDisconnection.create(subscribers, subscriber.id));
 		} else {
 			subscriber.complete();
 		}
-		return s.asISubscription();
+		return downstreamSubscription.asISubscription();
 	}
 }

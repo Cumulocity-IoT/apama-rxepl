@@ -28,12 +28,14 @@ event JustOnConnection {
 	}
 	
 	action onConnection(Subscriber subscriber) returns ISubscription {
+		// Must create subscription before calling ay next, error, complete
+		ISubscription subscription := Subscription.create(subscriber).asISubscription();
 		if subscriber._isPulling {
 			subscriber._onPull.set(JustOnPull.create(value, subscriber));
 		} else {
 			subscriber.next(value);
 			subscriber.complete();
 		}
-		return Subscription.create(subscriber._onUnsubscribeListeners).asISubscription();
+		return subscription;
 	}
 }

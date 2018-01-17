@@ -28,6 +28,8 @@ event FromOnConnection {
 	}
 	
 	action onConnection(Subscriber subscriber) returns ISubscription {
+		// Must create subscription before calling ay next, error, complete
+		ISubscription subscription := Subscription.create(subscriber).asISubscription();
 		if subscriber._isPulling {
 			subscriber._onPull.set(FromOnPull.create(Utils.anyToSequenceAny(values), subscriber));
 		} else {			
@@ -37,6 +39,6 @@ event FromOnConnection {
 			}
 			subscriber.complete();
 		}
-		return Subscription.create(subscriber._onUnsubscribeListeners).asISubscription();
+		return subscription;
 	}
 }

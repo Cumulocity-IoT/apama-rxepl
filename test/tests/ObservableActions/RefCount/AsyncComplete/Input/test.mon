@@ -1,0 +1,70 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IDisposable;
+using com.industry.rx_epl.Subscriber;
+
+event CheckFiresAtMostXTimes {
+	integer count;
+	action<string> fail;
+	static action create(integer maxTimes, action<string> fail) returns action<any> returns any {
+		return CheckFiresAtMostXTimes(maxTimes, fail).called;
+	}
+	
+	action called(any value) returns any {
+		count := count - 1;
+		if count < 0 {
+			fail("Called too many times");
+		}
+		return value;
+	}
+}
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	boolean isConnected := false;
+	integer teardownCount := 0;
+	
+	action onload() {
+	     IObservable connectableObservable := Observable.interval(0.1)
+			.map(makeSureNotCalledUntilConnected)
+			.map(CheckFiresAtMostXTimes.create(3, test.fail))
+			.take(3)
+			.publish().refCount(); // publish().refCount() is the same as calling .share()
+
+	     isConnected := true;
+	     any subscription1 := connectableObservable.subscribe(ExpectValues.create([<any>0.0, 1.0, 2.0], onTeardown, test.fail));
+	     any subscription2 := connectableObservable.subscribe(ExpectValues.create([<any>0.0, 1.0, 2.0], onTeardown, test.fail));
+	     
+	     on wait(0.1) {
+		     any subscription3 := connectableObservable.subscribe(ExpectValues.create([<any>1.0, 2.0], onTeardown, test.fail));
+	     }
+	     
+	     on wait(0.2) {
+	    	 any subscription4 := connectableObservable.subscribe(ExpectValues.create([<any>2.0], onTeardown, test.fail));
+	     }
+	     
+	     on wait(0.5) {
+	    	 // Should call complete if connecting to a completed observable
+		     any subscription5 := connectableObservable.subscribe(ExpectValues.create(new sequence<any>, onTeardown, test.fail));
+	     }
+	}
+	
+	action onTeardown() {
+		teardownCount := teardownCount + 1;
+		if teardownCount = 5 {
+			test.complete();
+		}
+	}
+	
+	action makeSureNotCalledUntilConnected(any value) returns any {
+		if not isConnected {
+			test.fail("Should not be called until connected");
+		}
+		return value;
+	}
+}

@@ -3,11 +3,18 @@ package com.industry.rx_epl;
 using com.apama.exceptions.Exception;
 
 event IObserver {
+	any subscriber;
+	
+	action<> returns integer getId;
+	
 	action<any> next;
 	action<any> error;
 	action<> complete;
 	
+	
 	action<action<> > onUnsubscribe;
+	
+	action<> returns sequence<action<> > getUnsubscriptionListeners;
 }
 
 event IDisposable {
@@ -25,12 +32,13 @@ event ISubscription {
 	 */
 	action<action<> > add;
 	action<> unsubscribe;
+	action<> returns boolean subscribed;
 }
 
 event IObservable {
 	any observable;
 
-	action<Subscriber> returns ISubscription subscribe;
+	action<IObserver> returns ISubscription subscribe;
 	action<action<any> returns any> returns IObservable map;
 	action<> returns IObservable publish;
 	action<> returns IDisposable connect;
@@ -56,7 +64,7 @@ event ISubject {
 	
 	action<> returns IObservable asIObservable;
 
-	action<Subscriber> returns ISubscription subscribe;
+	action<IObserver> returns ISubscription subscribe;
 	action<action<any> returns any> returns IObservable map;
 	action<> returns IObservable publish;
 	action<> returns IDisposable connect;
@@ -86,7 +94,7 @@ event IBehaviorSubject {
 	
 	action<> returns IObservable asIObservable;
 
-	action<Subscriber> returns ISubscription subscribe;
+	action<IObserver> returns ISubscription subscribe;
 	action<action<any> returns any> returns IObservable map;
 	action<> returns IObservable publish;
 	action<> returns IDisposable connect;

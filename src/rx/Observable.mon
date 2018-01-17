@@ -3,7 +3,7 @@ package com.industry.rx_epl;
 using com.apama.exceptions.Exception;
 
 event Observable {	
-	action<Subscriber> returns ISubscription onConnection;
+	action<IObserver> returns ISubscription onConnection;
 	
 	boolean connectable;
 	boolean cold;
