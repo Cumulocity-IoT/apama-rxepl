@@ -20,9 +20,11 @@ event IObserver {
 	action<> returns boolean subscribed;
 	action<> subscribe;
 	
-	action pull() {
+	action<> pull;
+	
+	action _pull() {
 		if isPulling() {
-			onPull(LimitSyncInvoke.create(GlobalConstants.MAX_SYNC_VALUES, upstreamPull).invoke);
+			onPull(upstreamPull);
 		} else {
 			throw Exception("Can't pull a non-pulling Observer", "InvalidOperation");
 		}
@@ -33,7 +35,8 @@ event IObserver {
 	}
 	
 	action createUpstream() returns IObserver {
-		IObserver upstream := IObserver(self, getId, next, error, complete, new action<>, isPulling, new action<action<> >, onUnsubscribe, unsubscribe, subscribed, subscribe);
+		IObserver upstream := IObserver(self, getId, next, error, complete, new action<>, isPulling, new action<action<> >, onUnsubscribe, unsubscribe, subscribed, subscribe, new action<>);
+		upstream.pull := LimitSyncInvoke.create(GlobalConstants.MAX_SYNC_VALUES, upstream._pull).invoke;
 		upstreamPull := upstream.pull;
 		ifpresent onPull {} else {
 			onPull := defaultOnPull;

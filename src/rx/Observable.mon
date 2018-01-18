@@ -200,12 +200,28 @@ event Observable {
 		return o.asIObservable();		
 	}
 	
+	action distinct() returns IObservable {
+		Observable o := _create(cold);
+		
+		o.onConnection := DistinctByOnConnection.create(onConnection, new action<any> returns any);
+		
+		return o.asIObservable();		
+	}
+	
+	action distinctBy(action<any> returns any keyGetter) returns IObservable {
+		Observable o := _create(cold);
+		
+		o.onConnection := DistinctByOnConnection.create(onConnection, keyGetter);
+		
+		return o.asIObservable();		
+	}
+	
 	static action invalidConnect() returns IDisposable {
 		throw Exception("Can only connect a published Observable", "UnsupportedOperation");
 	}
 		
 	action asIObservable() returns IObservable {
 		return IObservable(self, 
-		                   subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial);
+		                   subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy);
 	}
 }

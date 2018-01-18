@@ -85,8 +85,10 @@ event Subscriber {
 	}
 	
 	action asIObserver() returns IObserver {
-		return IObserver(self, 
-		                 getId, next, error, complete, new action<>, isNotPulling, new action<action<> >, onUnsubscribe, unsubscribe, subscribed, subscribe);
+		IObserver o := IObserver(self, 
+	                 getId, next, error, complete, new action<>, isNotPulling, new action<action<> >, onUnsubscribe, unsubscribe, subscribed, subscribe, new action<>);
+		o.pull := LimitSyncInvoke.create(GlobalConstants.MAX_SYNC_VALUES, o._pull).invoke;
+		return o;
 	}
 }
 

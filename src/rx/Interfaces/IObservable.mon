@@ -18,4 +18,6 @@ event IObservable {
 	action<action<any> returns boolean> returns IObservable filter;
 	action<action<any, any> returns any> returns IObservable scan;
 	action<action<any, any> returns any, any> returns IObservable scanWithInitial;
+	action<> returns IObservable distinct;
+	action<action<any> returns any> returns IObservable distinctBy;
 }
