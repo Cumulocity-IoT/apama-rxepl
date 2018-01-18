@@ -6,6 +6,8 @@ event Observable {
 	action<IObserver> returns ISubscription onConnection;
 	
 	boolean connectable;
+	IDisposable connection;
+	
 	boolean cold;
 	
 	action<> returns IDisposable connect;
@@ -17,15 +19,16 @@ event Observable {
 		return o;
 	}
 	
-	static action _createConnectable(action<> returns IDisposable connect) returns Observable {
+	static action _createConnectable(IDisposable connection, action<> returns IDisposable connect) returns Observable {
 		Observable o := new Observable;
 		o.connect := connect;
 		o.connectable := true;
+		o.connection := connection;
 		o.cold := false;
 		return o;
 	}
 
-	static action create(action<IObserver> resolver) returns IObservable {
+	static action create(action<IResolver> resolver) returns IObservable {
 		// A user defined resolver cannot handle pull requests so it's hot
 		Observable o := _create(false);
 		
@@ -73,11 +76,15 @@ event Observable {
 	action subscribe(Subscriber subscriber) returns ISubscription {
 		Observable o := _create(cold);
 		
-		subscriber._isPulling := cold;
+		IObserver observer := subscriber.asIObserver();
 		
-		o.onConnection := SubscribeOnConnection.create(onConnection, cold); 
+		if cold {
+			observer.isPulling := Subscriber.isPulling;
+		}
 		
-		return o.onConnection(subscriber);
+		o.onConnection := SubscribeOnConnection.create(onConnection); 
+		
+		return o.onConnection(observer);
 	}
 	
 	action map(action<any> returns any mapper) returns IObservable {
@@ -88,8 +95,9 @@ event Observable {
 	}
 	
 	action publish() returns IObservable {
-		PublishHandler p := PublishHandler.create(onConnection, cold);
-		Observable o := _createConnectable(p.connect);
+		IDisposable connection := IDisposable(1, new action<>);
+		PublishHandler p := PublishHandler.create(onConnection, connection, cold);
+		Observable o := _createConnectable(connection, p.connect);
 		
 		o.onConnection := p.onConnection;
 		
@@ -101,7 +109,7 @@ event Observable {
 			throw Exception("Can only refCount a published Observable", "UnsupportedOperation");
 		}
 		Observable o := _create(false);
-		o.onConnection := RefCountOnConnection.create(connect, onConnection);
+		o.onConnection := RefCountOnConnection.create(connection, connect, onConnection);
 		return o.asIObservable();
 	}
 	

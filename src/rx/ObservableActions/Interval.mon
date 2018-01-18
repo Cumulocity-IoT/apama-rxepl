@@ -17,19 +17,18 @@ event IntervalOnDisconnection {
 
 event IntervalOnConnection {
 	float timePeriod;
-	static action create(float timePeriod) returns action<Subscriber> returns ISubscription {
+	static action create(float timePeriod) returns action<IObserver> returns ISubscription {
 		return IntervalOnConnection(timePeriod).onConnection;
 	}
 	
-	action onConnection(Subscriber subscriber) returns ISubscription {
-		// Must create subscription before calling ay next, error, complete
-		ISubscription subscription := Subscription.create(subscriber).asISubscription();
+	action onConnection(IObserver subscriber) returns ISubscription {
 		WrappedFloat currentValue := WrappedFloat(0.0);
 		listener onWaitListener := on all wait(timePeriod) {
 			subscriber.next(currentValue.get());
 			currentValue.add(1.0);
 		}
-		subscription.add(IntervalOnDisconnection.create(onWaitListener));
-		return subscription;
+		subscriber.onUnsubscribe(IntervalOnDisconnection.create(onWaitListener));
+		// Must create subscription before calling ay next, error, complete
+		return Subscription.create(subscriber).asISubscription();
 	}
 }

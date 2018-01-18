@@ -1,0 +1,43 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event IObserver {
+	any observer;
+	
+	action<> returns integer getId;
+	
+	action<any> next;
+	action<any> error;
+	action<> complete;
+	
+	action<> upstreamPull;
+	action<> returns boolean isPulling;
+	action<action<> > onPull;
+	
+	action<action<> > onUnsubscribe;
+	action<> unsubscribe;
+	action<> returns boolean subscribed;
+	action<> subscribe;
+	
+	action pull() {
+		if isPulling() {
+			onPull(LimitSyncInvoke.create(GlobalConstants.MAX_SYNC_VALUES, upstreamPull).invoke);
+		} else {
+			throw Exception("Can't pull a non-pulling Observer", "InvalidOperation");
+		}
+	}
+	
+	action defaultOnPull(action<> upstreamOnPull) {
+		upstreamOnPull();
+	}
+	
+	action createUpstream() returns IObserver {
+		IObserver upstream := IObserver(self, getId, next, error, complete, new action<>, isPulling, new action<action<> >, onUnsubscribe, unsubscribe, subscribed, subscribe);
+		upstreamPull := upstream.pull;
+		ifpresent onPull {} else {
+			onPull := defaultOnPull;
+		}
+		return upstream;
+	}
+}

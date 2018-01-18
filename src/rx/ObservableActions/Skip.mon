@@ -3,23 +3,19 @@ package com.industry.rx_epl;
 using com.apama.exceptions.Exception;
 
 event SkipSubscriber {
-	Subscriber subscriber;
+	IObserver subscriber;
 	integer count;
-	action<> pull;
 	
-	static action create(Subscriber subscriber, integer count) returns Subscriber {
-		SkipSubscriber s := SkipSubscriber(subscriber, count, new action<>);
-		if subscriber._isPulling {
-			s.pull := LimitSyncInvoke.create(GlobalConstants.MAX_SYNC_VALUES, subscriber._pull).invoke;
-		}
-		return subscriber.copy().onNext(s.next);
+	static action create(IObserver subscriber, integer count) returns IObserver {
+		SkipSubscriber s := SkipSubscriber(subscriber, count);
+		return IObserverBuilder.create(subscriber.createUpstream()).onNext(s.next).build();
 	}
 	
 	action next(any value) {
 		if count > 0 {
 			count := count - 1;
-			ifpresent pull {
-				pull();
+			if subscriber.isPulling() {
+				subscriber.pull();
 			}
 		} else {
 			subscriber.next(value);
@@ -28,14 +24,14 @@ event SkipSubscriber {
 }
 
 event SkipOnConnection {
-	action<Subscriber> returns ISubscription parentOnConnection;
+	action<IObserver> returns ISubscription parentOnConnection;
 	integer count;
 	
-	static action create(action<Subscriber> returns ISubscription parentOnConnection, integer count) returns action<Subscriber> returns ISubscription {
+	static action create(action<IObserver> returns ISubscription parentOnConnection, integer count) returns action<IObserver> returns ISubscription {
 		return SkipOnConnection(parentOnConnection, count).onConnection;
 	}
 	
-	action onConnection(Subscriber subscriber) returns ISubscription {
+	action onConnection(IObserver subscriber) returns ISubscription {
 		return parentOnConnection(SkipSubscriber.create(subscriber, count));
 	}
 }

@@ -3,11 +3,11 @@ package com.industry.rx_epl;
 using com.apama.exceptions.Exception;
 
 event MapSubscriber {
-	Subscriber subscriber;
+	IObserver subscriber;
 	action<any> returns any mapper;
-	static action create(Subscriber subscriber, action<any> returns any mapper) returns Subscriber {
+	static action create(IObserver subscriber, action<any> returns any mapper) returns IObserver {
 		MapSubscriber m := MapSubscriber(subscriber, mapper);
-		return subscriber.copy().onNext(m.next);
+		return IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).build();
 	}
 	
 	action next(any value) {
@@ -20,15 +20,15 @@ event MapSubscriber {
 }
 
 event MapOnConnection {
-	action<Subscriber> returns ISubscription parentOnConnection;
+	action<IObserver> returns ISubscription parentOnConnection;
 	action<any> returns any mapper;
 	
-	static action create(action<Subscriber> returns ISubscription parentOnConnection, action<any> returns any mapper) returns action<Subscriber> returns ISubscription {
+	static action create(action<IObserver> returns ISubscription parentOnConnection, action<any> returns any mapper) returns action<IObserver> returns ISubscription {
 		return MapOnConnection(parentOnConnection, mapper).onConnection;
 	}
 	
-	action onConnection(Subscriber subscriber) returns ISubscription {
-		Subscriber mapSubscriber := MapSubscriber.create(subscriber, mapper);
+	action onConnection(IObserver subscriber) returns ISubscription {
+		IObserver mapSubscriber := MapSubscriber.create(subscriber, mapper);
 		return parentOnConnection(mapSubscriber);
 	}
 }

@@ -5,8 +5,8 @@ using com.apama.exceptions.Exception;
 event SubscribeSubscriber {
 	action<> completeSubscriber;
 	action<> onComplete;
-	static action create(Subscriber subscriber, action<> onComplete) returns Subscriber {
-		return subscriber.copy().onComplete(SubscribeSubscriber(subscriber.complete, onComplete).complete);
+	static action create(IObserver subscriber, action<> onComplete) returns IObserver {
+		return IObserverBuilder.create(subscriber.createUpstream()).onComplete(SubscribeSubscriber(subscriber.complete, onComplete).complete).build();
 	}
 	
 	action complete() {
@@ -16,42 +16,38 @@ event SubscribeSubscriber {
 }
 
 event PullingSubscriber {
-	Subscriber subscriber;
-	action<> pull;
+	IObserver subscriber;
 	
-	static action create(Subscriber subscriber) returns PullingSubscriber {
-		return PullingSubscriber(subscriber, true, LimitSyncInvoke.create(GlobalConstants.MAX_SYNC_VALUES, subscriber._pull).invoke);
+	static action create(IObserver subscriber) returns IObserver {
+		return PullingSubscriber(subscriber).createSubscriber();
 	}
 	
-	action createSubscriber() returns Subscriber {
-		return subscriber.copy().onNext(next);
+	action createSubscriber() returns IObserver {
+		return IObserverBuilder.create(subscriber.createUpstream()).onNext(next).build();
 	}
 	
 	action next(any value) {
 		subscriber.next(value);
-		if subscriber._isPulling and not subscriber._subscription.empty() and subscriber._subscription.getOrThrow().subscribed() {
-			pull();
+		if subscriber.isPulling() and subscriber.subscribed() {
+			subscriber.pull();
 		}
 	}
 }
 
 event SubscribeOnConnection {
-	action<Subscriber> returns ISubscription parentOnConnection;
-	boolean pulling;
-	static action create(action<Subscriber> returns ISubscription parentOnConnection, boolean pulling) returns action<Subscriber> returns ISubscription {
-		return SubscribeOnConnection(parentOnConnection, pulling).onConnection;
+	action<IObserver> returns ISubscription parentOnConnection;
+	static action create(action<IObserver> returns ISubscription parentOnConnection) returns action<IObserver> returns ISubscription {
+		return SubscribeOnConnection(parentOnConnection).onConnection;
 	}
 	
-	action onConnection(Subscriber subscriber) returns ISubscription {
-		if pulling {
-			PullingSubscriber pullingSubscriber := PullingSubscriber.create(SubscribeSubscriber.create(subscriber, deferredUnsubscribe.unsubscribe));
-			ISubscription s := parentOnConnection(pullingSubscriber.createSubscriber());
-			subscriber._pull();
+	action onConnection(IObserver subscriber) returns ISubscription {
+		if subscriber.isPulling() {
+			IObserver pullingSubscriber := PullingSubscriber.create(SubscribeSubscriber.create(subscriber, subscriber.unsubscribe));
+			ISubscription s := parentOnConnection(pullingSubscriber);
+			subscriber.pull();
 			return s;
 		} else {
-			DeferredUnsubscribe deferredUnsubscribe := DeferredUnsubscribe.create();
-			ISubscription s := parentOnConnection(SubscribeSubscriber.create(subscriber, deferredUnsubscribe.unsubscribe));
-			deferredUnsubscribe.resolve(s.unsubscribe);
+			ISubscription s := parentOnConnection(SubscribeSubscriber.create(subscriber, subscriber.unsubscribe));
 			return s;
 		}
 	}

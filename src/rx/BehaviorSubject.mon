@@ -3,45 +3,45 @@ package com.industry.rx_epl;
 using com.apama.exceptions.Exception;
 
 event BehaviorSubjectHandler {
-	dictionary<integer, Subscriber> subscribers;
+	dictionary<integer, IObserver> subscribers;
 	optional<ISubscription> subscription;
 	boolean isComplete;
 	any currentValue;
 	
 	static action create(any initialValue) returns BehaviorSubjectHandler {
-		return BehaviorSubjectHandler(new dictionary<integer, Subscriber>, new optional<ISubscription>, false, initialValue);
+		return BehaviorSubjectHandler(new dictionary<integer, IObserver>, new optional<ISubscription>, false, initialValue);
 	}
 	
-	action onConnection(Subscriber subscriber) returns ISubscription {
+	action onConnection(IObserver subscriber) returns ISubscription {
 		if not isComplete {
-			subscribers.add(subscriber.id, subscriber);
-			Subscription s := Subscription.create(subscriber._onUnsubscribeListeners);
-			s.add(SubjectOnDisconnection.create(subscribers, subscriber.id));
+			subscribers.add(subscriber.getId(), subscriber);
+			subscriber.onUnsubscribe(SubjectOnDisconnection.create(subscribers, subscriber.getId()));
+			Subscription s := Subscription.create(subscriber);
 			subscriber.next(currentValue);
 			return s.asISubscription();
 		} else {
 			subscriber.complete();
-			return Subscription.create(subscriber._onUnsubscribeListeners).asISubscription();
+			return Subscription.create(subscriber).asISubscription();
 		}
 	}
 	
 	action next(any value) {
 		currentValue := value;
-		Subscriber s;
+		IObserver s;
 		for s in subscribers.values() {
 			s.next(value);
 		}
 	}
 	
 	action error(any e) {
-		Subscriber s;
+		IObserver s;
 		for s in subscribers.values(){
 			s.error(e);
 		}		
 	}
 	
 	action complete() {
-		Subscriber s;
+		IObserver s;
 		for s in subscribers.values() {
 			s.complete();
 		}

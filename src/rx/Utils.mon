@@ -75,3 +75,15 @@ event LimitSyncInvoke {
 		count := 0;
 	}
 }
+
+event Id {
+	integer value;
+	
+	static action create() returns Id {
+		return Id(integer.getUnique());
+	}
+	
+	action get() returns integer {
+		return value;
+	}
+}

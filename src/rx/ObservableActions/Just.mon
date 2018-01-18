@@ -3,15 +3,15 @@ package com.industry.rx_epl;
 using com.apama.exceptions.Exception;
 
 event JustOnPull {
-	Subscriber subscriber;
+	IObserver subscriber;
 	any value;
 	boolean firstPull;
 	
-	static action create(any value, Subscriber subscriber) returns action<> {
+	static action create(any value, IObserver subscriber) returns action<action<> > {
 		return JustOnPull(subscriber, value, true).onPull;
 	}
 	
-	action onPull() {
+	action onPull(action<> doNotCall) {
 		if firstPull {
 			firstPull := false;
 			subscriber.next(value);
@@ -23,15 +23,15 @@ event JustOnPull {
 
 event JustOnConnection {
 	any value;
-	static action create(any value) returns action<Subscriber> returns ISubscription {
+	static action create(any value) returns action<IObserver> returns ISubscription {
 		return JustOnConnection(value).onConnection;
 	}
 	
-	action onConnection(Subscriber subscriber) returns ISubscription {
+	action onConnection(IObserver subscriber) returns ISubscription {
 		// Must create subscription before calling ay next, error, complete
 		ISubscription subscription := Subscription.create(subscriber).asISubscription();
-		if subscriber._isPulling {
-			subscriber._onPull.set(JustOnPull.create(value, subscriber));
+		if subscriber.isPulling() {
+			subscriber.onPull := JustOnPull.create(value, subscriber);
 		} else {
 			subscriber.next(value);
 			subscriber.complete();

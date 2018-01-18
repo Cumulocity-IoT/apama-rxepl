@@ -2,26 +2,6 @@ package com.industry.rx_epl;
 
 using com.apama.exceptions.Exception;
 
-event OnPull {
-	action<> onPull;
-	
-	static action create() returns OnPull {
-		return new OnPull;
-	}
-	
-	static action createWithValue(action<> onPull) returns OnPull {
-		return OnPull(onPull);
-	}
-	
-	action set(action<> onPull) {
-		self.onPull := onPull;
-	}
-	
-	action pull() {
-		onPull();
-	}
-}
-
 event Subscriber {
 	integer id;
 	
@@ -29,32 +9,18 @@ event Subscriber {
 	action<any> error;
 	action<> complete;
 	
-	OnPull _onPull;
-	boolean _isPulling;
-	
-	optional<ISubscription> _subscription;
+	boolean _subscribed;
 	sequence<action<> > unsubscribeListeners;
 	
 	static action create() returns Subscriber {
-		Subscriber s := new Subscriber;
-		s.id := integer.getUnique();
-		s.error := defaultError;
-		return s;
-	}
-	
-	static action copy() returns IObservable {
-		Subscriber s := Subscriber.create().onNext(self.next).onError(self.error).onComplete(self.complete);
-		s._onPull := _onPull;
-		s._isPulling := _isPulling;
-		s._onUnsubscribeListeners := _onUnsubscribeListeners;
-		return s;
+		return Subscriber(integer.getUnique(), defaultNext, defaultError, defaultComplete, false, new sequence<action<> >);
 	}
 	
 	action onNext(action<any> next) returns Subscriber {
 		self.next := next;
 		return self;
 	}
-	
+
 	action onError(action<any> error) returns Subscriber {
 		self.error := error;
 		return self;
@@ -65,28 +31,34 @@ event Subscriber {
 		return self;
 	}
 	
-	action _pull() {
-		_onPull.pull();
-	}
-	
 	action getId() returns integer {
 		return id;
 	}
-
-	action addUnsubscribeListener(action<> onUnsubscribe) {
-		unsubscribeListeners.insert(onUnsubscribe, 0);
+	
+	action onUnsubscribe(action<> onUnsubscribe) {
+		unsubscribeListeners.append(onUnsubscribe);
 	}
 	
-	action getUnsubscribeListeners() returns sequence<action<> > {
-		return unsubscribeListeners;
-	}
-	
-	action _unsubscribe() {
-		ifpresent _subscription {
-			_subscription.unsubscribe();
-		} else {
-			log "Unable to unsubscribe, not yet subscribed" at ERROR;
+	action unsubscribe() {
+		if _subscribed {
+			_subscribed := false;
+			action<> unsubListener;
+			for unsubListener in unsubscribeListeners {
+				unsubListener();
+			}
 		}
+	}
+	
+	action subscribed() returns boolean {
+		return _subscribed;
+	}
+	
+	action subscribe() {
+		_subscribed := true;
+	}
+	
+	static action defaultNext(any value) {
+		// Do nothing
 	}
 	
 	static action defaultError(any e) {
@@ -100,7 +72,47 @@ event Subscriber {
 		}
 	}
 	
+	static action defaultComplete() {
+		// Do nothing
+	}
+
+	static action isPulling() returns boolean {
+		return true;
+	}
+	
+	static action isNotPulling() returns boolean {
+		return false;
+	}
+	
 	action asIObserver() returns IObserver {
-		return IObserver(self, getId, next, error, complete, addUnsubscribeListener, getUnsubscribeListeners);
+		return IObserver(self, 
+		                 getId, next, error, complete, new action<>, isNotPulling, new action<action<> >, onUnsubscribe, unsubscribe, subscribed, subscribe);
+	}
+}
+
+event IObserverBuilder {
+	IObserver observer;
+	
+	static action create(IObserver subscriber) returns IObserverBuilder {
+		return IObserverBuilder(subscriber);
+	}
+	
+	action onNext(action<any> onNext) returns IObserverBuilder {
+		observer.next := onNext;
+		return self;
+	}
+	
+	action onError(action<any> onError) returns IObserverBuilder {
+		observer.error := onError;
+		return self;
+	}
+	
+	action onComplete(action<> onComplete) returns IObserverBuilder {
+		observer.complete := onComplete;
+		return self;
+	}
+	
+	action build() returns IObserver {
+		return observer;
 	}
 }

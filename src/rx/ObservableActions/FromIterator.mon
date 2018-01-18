@@ -3,14 +3,14 @@ package com.industry.rx_epl;
 using com.apama.exceptions.Exception;
 
 event FromIteratorOnPull {
-	Subscriber subscriber;
+	IObserver subscriber;
 	action<> returns any iterator;
 	
-	static action create(action<> returns any iterator, Subscriber subscriber) returns action<> {
+	static action create(action<> returns any iterator, IObserver subscriber) returns action<action<> > {
 		return FromIteratorOnPull(subscriber, iterator).onPull;
 	}
 	
-	action onPull() {
+	action onPull(action<> doNotCall) {
 		any value := new any;
 		
 		try {
@@ -27,17 +27,17 @@ event FromIteratorOnPull {
 	}
 }
 
-event FromIteratorSyncHandler {
-	Subscriber subscriber;
+event FromIteratorNonPulling {
+	IObserver subscriber;
 	action<> returns any iterator;
-	LimitSyncInvoke syncInvokeLimitter;
 	boolean stopped;
+	action<> syncLimittedCall;
 	
-	static action createAndCall(action<> returns any iterator, Subscriber subscriber) {
-		FromIteratorSyncHandler handler := FromIteratorSyncHandler(subscriber, iterator, new LimitSyncInvoke, false);
-		subscriber._onUnsubscribe(handler.stop);
-		handler.syncInvokeLimitter := LimitSyncInvoke.create(GlobalConstants.MAX_SYNC_VALUES, handler.call);
-		handler.syncInvokeLimitter.invoke();
+	static action createAndCall(action<> returns any iterator, IObserver subscriber) {
+		FromIteratorNonPulling handler := FromIteratorNonPulling(subscriber, iterator, false, new action<>);
+		handler.syncLimittedCall := LimitSyncInvoke.create(GlobalConstants.MAX_SYNC_VALUES, handler.call).invoke;
+		subscriber.onUnsubscribe(handler.stop);
+		handler.syncLimittedCall();
 	}
 	
 	action call() {
@@ -54,7 +54,7 @@ event FromIteratorSyncHandler {
 		
 		ifpresent value {
 			subscriber.next(value);
-			syncInvokeLimitter.invoke();
+			syncLimittedCall();
 		} else {
 			subscriber.complete();
 		}
@@ -67,17 +67,17 @@ event FromIteratorSyncHandler {
 
 event FromIteratorOnConnection {
 	action<> returns any iterator;
-	static action create(action<> returns any iterator) returns action<Subscriber> returns ISubscription {
+	static action create(action<> returns any iterator) returns action<IObserver> returns ISubscription {
 		return FromIteratorOnConnection(iterator).onConnection;
 	}
 	
-	action onConnection(Subscriber subscriber) returns ISubscription {
+	action onConnection(IObserver subscriber) returns ISubscription {
 		// Must create subscription before calling ay next, error, complete
 		ISubscription subscription := Subscription.create(subscriber).asISubscription();
-		if subscriber._isPulling {
-			subscriber._onPull.set(FromIteratorOnPull.create(iterator, subscriber));
+		if subscriber.isPulling() {
+			subscriber.onPull := FromIteratorOnPull.create(iterator, subscriber);
 		} else {
-			FromIteratorSyncHandler.createAndCall(iterator, subscriber);
+			FromIteratorNonPulling.createAndCall(iterator, subscriber);
 		}
 		return subscription;
 	}

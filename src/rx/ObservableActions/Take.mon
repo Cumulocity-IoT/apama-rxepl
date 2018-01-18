@@ -3,54 +3,50 @@ package com.industry.rx_epl;
 using com.apama.exceptions.Exception;
 
 event TakeSubscriber {
-	Subscriber downstreamSubscriber;
-    Subscriber upstreamSubscriber;
+	IObserver subscriber;
 	integer count;
 	boolean hasSentLast;
 	
-	static action create(Subscriber downstreamSubscriber, integer count) returns Subscriber {
-		TakeSubscriber m := TakeSubscriber(downstreamSubscriber, new Subscriber, count, false);
-		// Copy everything except the onPull - Needs to have custom handling so that we don't pull from upstream after sending last next
-		Subscriber upstreamSubscriber := downstreamSubscriber.copy().onNext(m.next);
-        upstreamSubscriber._onPull := OnPull.create();
-        m.upstreamSubscriber := upstreamSubscriber;
-        downstreamSubscriber._onPull.set(m.onPull);
+	static action create(IObserver subscriber, integer count) returns IObserver {
+		TakeSubscriber m := TakeSubscriber(subscriber, count, false);
+		IObserver upstreamSubscriber := IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).build();
+		subscriber.onPull := m.onPull;
 		return upstreamSubscriber;
 	}
 	
-	action onPull() {
+	action onPull(action<> upstreamPull) {
 		if not hasSentLast {
 			// Don't need to sync limit this because the sync limitting will be done by the downstream
-			upstreamSubscriber._pull();
+			upstreamPull();
 		}
 	}
     
 	action next(any value) {
 		count := count - 1;
 		if count > 0 {
-			downstreamSubscriber.next(value);
+			subscriber.next(value);
 		} else {
 			if hasSentLast {
 				// This shouldn't happen - but a bad generator might cause it to
 				log "Operator 'Take' received unexpected extra value, observable should have unsubscribed" at ERROR;
 			} else {
 				hasSentLast := true;
-				downstreamSubscriber.next(value);
-				downstreamSubscriber.complete();
+				subscriber.next(value);
+				subscriber.complete();
 			}
 		}
 	}
 }
 
 event TakeOnConnection {
-	action<Subscriber> returns ISubscription parentOnConnection;
+	action<IObserver> returns ISubscription parentOnConnection;
 	integer count;
 	
-	static action create(action<Subscriber> returns ISubscription parentOnConnection, integer count) returns action<Subscriber> returns ISubscription {
+	static action create(action<IObserver> returns ISubscription parentOnConnection, integer count) returns action<IObserver> returns ISubscription {
 		return TakeOnConnection(parentOnConnection, count).onConnection;
 	}
 	
-	action onConnection(Subscriber subscriber) returns ISubscription {
+	action onConnection(IObserver subscriber) returns ISubscription {
 		return parentOnConnection(TakeSubscriber.create(subscriber, count));
 	}
 }

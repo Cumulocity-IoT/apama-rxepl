@@ -3,29 +3,26 @@ package com.industry.rx_epl;
 using com.apama.exceptions.Exception;
 
 event TakeLastOnPull {
-	Subscriber subscriber;
+	IObserver downstreamSubscriber;
 	sequence<any> values;
 	integer i;
-	action<> pullFromUpstream;
-	action<> onComplete;
 	boolean isFirstPull;
 	
-	static action create(sequence<any> values, Subscriber subscriber, action<> pullFromUpstream, action<> onComplete) returns action<> {
-		return TakeLastOnPull(subscriber, values, 0, pullFromUpstream, onComplete, true).onPull;
+	static action create(sequence<any> values, IObserver downstreamSubscriber) returns action<action<> > {
+		return TakeLastOnPull(downstreamSubscriber, values, 0, true).onPull;
 	}
 	
-	action onPull() {
+	action onPull(action<> upstreamPull) {
 		// Wait until we get the first pull from downstream to pull from the upstream
 		if isFirstPull {
 			isFirstPull := false;
-			pullFromUpstream();
+			upstreamPull();
 		} else {
 			if i < values.size() {
 				i := i + 1;
-				subscriber.next(values[i-1]);
+				downstreamSubscriber.next(values[i-1]);
 			} else {
-				subscriber.complete();
-				onComplete();
+				downstreamSubscriber.complete();
 			}
 		}
 	}
@@ -33,79 +30,61 @@ event TakeLastOnPull {
 
 
 event TakeLastSubscriber {
-	Subscriber downstreamSubscriber;
+	IObserver downstreamSubscriber;
 	integer count;
 	sequence<any> values;
 	action<> pullFromUpstream;
 	boolean isComplete;
 	
-	static action create(Subscriber downstreamSubscriber, integer count) returns Subscriber {
+	static action create(IObserver downstreamSubscriber, integer count) returns IObserver {
 		TakeLastSubscriber m := TakeLastSubscriber(downstreamSubscriber, count, new sequence<any>, new action<>, false);
-		Subscriber upstreamSubscriber := downstreamSubscriber.copy().onNext(m.next).onComplete(m.complete);
+		IObserver upstreamSubscriber := IObserverBuilder.create(downstreamSubscriber.createUpstream()).onNext(m.next).onComplete(m.complete).build();
 		
-		// If the doenstream subscriber is a pulling subscriber then we're also a pulling subscriber
-		if downstreamSubscriber._isPulling {
-			downstreamSubscriber._onPull.set(TakeLastOnPull.create(m.values, downstreamSubscriber, upstreamSubscriber._pull, m.teardown));
-			upstreamSubscriber._onPull := OnPull.create();
-			m.pullFromUpstream := LimitSyncInvoke.create(GlobalConstants.MAX_SYNC_VALUES, upstreamSubscriber._pull).invoke;
+		// If the downstream subscriber is a pulling subscriber then we're also a pulling subscriber
+		if downstreamSubscriber.isPulling() {
+			downstreamSubscriber.onPull := TakeLastOnPull.create(m.values, downstreamSubscriber);
+			m.pullFromUpstream := upstreamSubscriber.pull;
 		}
 		return upstreamSubscriber;
 	}
 	
 	action next(any value) {
-		if not isComplete {
-			values.append(value);
-			if values.size() > count {
-				values.remove(0);
-			}
-			
-			ifpresent pullFromUpstream {
-				pullFromUpstream();
-			}
+		values.append(value);
+		if values.size() > count {
+			values.remove(0);
 		}
-	}
-	
-	action error(any e) {
-		if not isComplete {
-			downstreamSubscriber.error(e);
+		
+		ifpresent pullFromUpstream {
+			pullFromUpstream();
 		}
 	}
 	
 	action complete() {
-		if not isComplete {
-			isComplete := true;
-			if downstreamSubscriber._isPulling {
-				// We can just pull as though we're the downstream to trigger the TakeLastOnPull,
-				// the downstream must have pulled by this point otherwise we wouldn't have received a complete
-				downstreamSubscriber._pull();
-			} else {
-				any value;
-				for value in values {
-					downstreamSubscriber.next(value);
-				}
-				downstreamSubscriber.complete();
-				teardown();
+		isComplete := true;
+		if downstreamSubscriber.isPulling() {
+			// We can just pull as though we're the downstream to trigger the TakeLastOnPull,
+			// the downstream must have pulled by this point otherwise we wouldn't have received a complete
+			downstreamSubscriber.pull();
+		} else {
+			any value;
+			for value in values {
+				downstreamSubscriber.next(value);
 			}
+			downstreamSubscriber.complete();
 		}
-	}
-	
-	action teardown() {
-		downstreamSubscriber := new Subscriber;
-		pullFromUpstream := new action<>;
-		values := new sequence<any>;
 	}
 }
 
 event TakeLastOnConnection {
-	action<Subscriber> returns ISubscription parentOnConnection;
+	action<IObserver> returns ISubscription parentOnConnection;
 	integer count;
 	
-	static action create(action<Subscriber> returns ISubscription parentOnConnection, integer count) returns action<Subscriber> returns ISubscription {
+	static action create(action<IObserver> returns ISubscription parentOnConnection, integer count) returns action<IObserver> returns ISubscription {
 		return TakeLastOnConnection(parentOnConnection, count).onConnection;
 	}
 	
-	action onConnection(Subscriber subscriber) returns ISubscription {
-		Subscriber takeLastSubscriber := TakeLastSubscriber.create(subscriber, count);
+	action onConnection(IObserver subscriber) returns ISubscription {
+		IObserver takeLastSubscriber := TakeLastSubscriber.create(subscriber, count);
 		return parentOnConnection(takeLastSubscriber);
 	}
 }

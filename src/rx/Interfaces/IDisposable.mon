@@ -1,0 +1,22 @@
+package com.industry.rx_epl;
+
+event IDisposable {
+	integer id;
+	action<> onDispose;
+	
+	action dispose() {
+		if not disposed() {
+			action<> dispose := onDispose;
+			onDispose := new action<>;
+			dispose();
+		}
+	}
+	
+	action disposed() returns boolean {
+		ifpresent onDispose {
+			return false;
+		} else {
+			return true;
+		}
+	}
+}

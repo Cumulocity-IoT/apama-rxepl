@@ -1,5 +1,5 @@
 using com.industry.rx_epl.Observable;
-using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IResolver;
 
 using utils.Test;
 using utils.ExpectValues;
@@ -12,7 +12,7 @@ monitor TestObservable {
 	      	.subscribe(ExpectValues.create([<any>0,1,2,3,4,5,6,7,8,9], test.complete, test.fail));
 	}
 	
-	action generator(IObserver resolver) {
+	action generator(IResolver resolver) {
 		integer i := 0;
 		while i < 10 {
 			resolver.next(i);

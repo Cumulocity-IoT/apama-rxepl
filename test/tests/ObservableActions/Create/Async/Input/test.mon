@@ -1,5 +1,5 @@
 using com.industry.rx_epl.Observable;
-using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IResolver;
 
 using utils.Test;
 using utils.ExpectValues;
@@ -13,7 +13,7 @@ monitor TestObservable {
 	}
 
 	integer i := 0;
-	action generator(IObserver resolver) {
+	action generator(IResolver resolver) {
 		
 		on all wait(0.1) and not wait(0.5) {
 			resolver.next(i);

@@ -1,0 +1,11 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event IResolver {
+	action<any> next;
+	action<any> error;
+	action<> complete;
+	
+	action<action<> > onUnsubscribe;
+}

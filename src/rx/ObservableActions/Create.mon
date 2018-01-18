@@ -6,9 +6,9 @@ event CreateObserver {
 	IObserver subscriber;
 	boolean isComplete;
 	
-	static action create(IObserver subscriber, action<action<> > addUnsubscribeHandler) returns IObserver {
+	static action create(IObserver subscriber) returns IResolver {
 		CreateObserver o := CreateObserver(subscriber, false);
-		return IObserver(o.next, o.error, o.complete, addUnsubscribeHandler);
+		return IResolver(o.next, o.error, o.complete, subscriber.onUnsubscribe);
 	}
 	
 	action next(any value) {
@@ -31,15 +31,15 @@ event CreateObserver {
 }
 
 event CreateOnConnection {
-	action<IObserver> resolver;
-	static action create(action<IObserver> resolver) returns action<IObserver> returns ISubscription {
+	action<IResolver> resolver;
+	static action create(action<IResolver> resolver) returns action<IObserver> returns ISubscription {
 		return CreateOnConnection(resolver).onConnection;
 	}
 	
-	action onConnection(Subscriber subscriber) returns ISubscription {
+	action onConnection(IObserver subscriber) returns ISubscription {
 		// Must create subscription before calling ay next, error, complete
 		ISubscription subscription := Subscription.create(subscriber).asISubscription();
-		resolver(CreateObserver.create(subscriber, subscription.add));
+		resolver(CreateObserver.create(subscriber));
 		return subscription;
 	}
 }

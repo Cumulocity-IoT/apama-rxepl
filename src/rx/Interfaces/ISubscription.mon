@@ -1,0 +1,12 @@
+package com.industry.rx_epl;
+
+event ISubscription {
+	any subcription;
+	
+	/** 
+	 * Adds a teardown callback for this subscription
+	 */
+	action<action<> > onUnsubscribe;
+	action<> unsubscribe;
+	action<> returns boolean subscribed;
+}

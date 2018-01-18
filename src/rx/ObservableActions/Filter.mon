@@ -3,16 +3,12 @@ package com.industry.rx_epl;
 using com.apama.exceptions.Exception;
 
 event FilterSubscriber {
-	Subscriber subscriber;
+	IObserver subscriber;
 	action<any> returns boolean predicate;
-	action<> pull;
 	
-	static action create(Subscriber subscriber, action<any> returns boolean predicate) returns Subscriber {
-		FilterSubscriber s := FilterSubscriber(subscriber, predicate, new action<>);
-		if subscriber._isPulling {
-			s.pull := LimitSyncInvoke.create(GlobalConstants.MAX_SYNC_VALUES, subscriber._pull).invoke;
-		}
-		return subscriber.copy().onNext(s.next);
+	static action create(IObserver subscriber, action<any> returns boolean predicate) returns IObserver {
+		FilterSubscriber s := FilterSubscriber(subscriber, predicate);
+		return IObserverBuilder.create(subscriber.createUpstream()).onNext(s.next).build();
 	}
 	
 	action next(any value) {
@@ -20,8 +16,8 @@ event FilterSubscriber {
 			if predicate(value) {
 				subscriber.next(value);
 			} else {
-				ifpresent pull {
-					pull();
+				if subscriber.isPulling() {
+					subscriber.pull();
 				}
 			}
 		} catch(Exception e) {
@@ -31,14 +27,14 @@ event FilterSubscriber {
 }
 
 event FilterOnConnection {
-	action<Subscriber> returns ISubscription parentOnConnection;
+	action<IObserver> returns ISubscription parentOnConnection;
 	action<any> returns boolean predicate;
 	
-	static action create(action<Subscriber> returns ISubscription parentOnConnection, action<any> returns boolean predicate) returns action<Subscriber> returns ISubscription {
+	static action create(action<IObserver> returns ISubscription parentOnConnection, action<any> returns boolean predicate) returns action<IObserver> returns ISubscription {
 		return FilterOnConnection(parentOnConnection, predicate).onConnection;
 	}
 	
-	action onConnection(Subscriber subscriber) returns ISubscription {
+	action onConnection(IObserver subscriber) returns ISubscription {
 		return parentOnConnection(FilterSubscriber.create(subscriber, predicate));
 	}
 }

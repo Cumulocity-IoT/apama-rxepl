@@ -41,14 +41,14 @@ event ExpectValues {
   static action create(sequence<any> expectedValues, action<> pass, action<string> fail) returns Subscriber {
     ExpectValues evs := ExpectValues(expectedValues, pass, fail, false, false);
     Subscriber s := Subscriber.create().onNext(evs.next).onError(evs.error).onComplete(evs.complete);
-    s._onUnsubscribe(evs.teardown);
+    s.onUnsubscribe(evs.teardown);
     return s;
   }
   
   static action createNoComplete(sequence<any> expectedValues, action<> pass, action<string> fail) returns Subscriber {
     ExpectValues evs := ExpectValues(expectedValues, pass, fail, false, true);
     Subscriber s := Subscriber.create().onNext(evs.next).onError(evs.error).onComplete(evs.complete);
-    s._onUnsubscribe(evs.teardown);
+    s.onUnsubscribe(evs.teardown);
     return s;
   }
   

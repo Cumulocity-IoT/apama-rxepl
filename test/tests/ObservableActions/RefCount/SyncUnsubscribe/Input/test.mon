@@ -30,21 +30,21 @@ monitor TestObservable {
 	integer teardownCount := 0;
 	
 	action onload() {
-	     IObservable connectableObservable := TestObservables.createSync()
-			.map(makeSureNotCalledUntilConnected)
-			.map(CheckFiresAtMostXTimes.create(3 + 5, test.fail))
-			.take(5)
-			.publish().refCount(); // publish().refCount() is the same as calling .share()
+    IObservable connectableObservable := TestObservables.createSync()
+      .map(makeSureNotCalledUntilConnected)
+      .map(CheckFiresAtMostXTimes.create(3 + 5, test.fail))
+      .take(5)
+      .publish().refCount(); // publish().refCount() is the same as calling .share()
 
-	     isConnected := true;
-	     // A take after the refCount will cause an unsubscription
-	     any subscription1 := connectableObservable.take(3).subscribe(ExpectValues.create([<any>0.0, 1.0, 2.0], onTeardown, test.fail));
-	     
-    	 // Connecting after the refCount has dropped to 0 creates a new connection to the source observable - hence the interval starts from 0 again
-	     any subscription2 := connectableObservable.subscribe(ExpectValues.create([<any>0.0, 1.0, 2.0, 3.0, 4.0], onTeardown, test.fail));
-	     
-    	 // Should call complete if connecting to a completed observable
-	     any subscription3 := connectableObservable.subscribe(ExpectValues.create(new sequence<any>, onTeardown, test.fail));
+    isConnected := true;
+    // A take after the refCount will cause an unsubscription
+    any subscription1 := connectableObservable.take(3).subscribe(ExpectValues.create([<any>0.0, 1.0, 2.0], onTeardown, test.fail));
+
+    // Connecting after the refCount has dropped to 0 creates a new connection to the source observable - hence the interval starts from 0 again
+    any subscription2 := connectableObservable.subscribe(ExpectValues.create([<any>0.0, 1.0, 2.0, 3.0, 4.0], onTeardown, test.fail));
+
+    // Should call complete if connecting to a completed observable
+    any subscription3 := connectableObservable.subscribe(ExpectValues.create(new sequence<any>, onTeardown, test.fail));
 	}
 	
 	action onTeardown() {

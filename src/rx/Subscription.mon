@@ -3,41 +3,16 @@ package com.industry.rx_epl;
 using com.apama.exceptions.Exception;
 
 event Subscription {
-	sequence<action<> > teardownCallbacks;
-	boolean isSubscribed;
+	IObserver subscriber;
 	
-	static action create(Subscriber subscriber) returns Subscription {
-		Subscription s := Subscription(subscriber._onUnsubscribeListeners, true);
-		s.teardownCallbacks.insert(s.setUnsubscribed, 0);
-		subscriber._subscription := s;
+	action<action<> > add;
+	action<> unsubscribe;
+	action<> returns boolean subscribed;
+	
+	static action create(IObserver subscriber) returns Subscription {
+		Subscription s := Subscription(subscriber, subscriber.onUnsubscribe, subscriber.unsubscribe, subscriber.subscribed);
+		subscriber.subscribe();
 		return s;
-	}
-	
-	action add(action<> onTeardown) {
-		teardownCallbacks.append(onTeardown);
-	}
-	
-	action unsubscribe() {
-		// Can only unsubscribe once
-		if isSubscribed {
-			// Make a shallow copy by appending all of the items to a new sequence (Don't use clone, it creates a deep copy)
-			sequence<action<> > teardownCallbacksCopy := new sequence<action<> >;
-			teardownCallbacksCopy.appendSequence(teardownCallbacks);
-			
-			teardownCallbacks.clear();
-			action<> teardownCallback;
-			for teardownCallback in teardownCallbacksCopy {
-				teardownCallback();
-			}
-		}
-	}
-	
-	action setUnsubscribed() {
-		isSubscribed := false;
-	}
-	
-	action subscribed() returns boolean {
-		return isSubscribed;
 	}
 	
 	action asISubscription() returns ISubscription {

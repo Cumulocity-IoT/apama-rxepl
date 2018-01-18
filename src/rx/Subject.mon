@@ -3,10 +3,10 @@ package com.industry.rx_epl;
 using com.apama.exceptions.Exception;
 
 event SubjectOnDisconnection {
-	dictionary<integer, Subscriber> subscribers;
+	dictionary<integer, IObserver> subscribers;
 	integer subscriberId;
 	
-	static action create(dictionary<integer, Subscriber> subscribers, integer subscriberId) returns action<> {
+	static action create(dictionary<integer, IObserver> subscribers, integer subscriberId) returns action<> {
 		return SubjectOnDisconnection(subscribers, subscriberId).onDisconnect;
 	}
 	
@@ -16,42 +16,42 @@ event SubjectOnDisconnection {
 }
 
 event SubjectHandler {
-	dictionary<integer, Subscriber> subscribers;
+	dictionary<integer, IObserver> subscribers;
 	optional<ISubscription> subscription;
 	boolean isComplete;
 	
 	static action create() returns SubjectHandler {
-		return SubjectHandler(new dictionary<integer, Subscriber>, new optional<ISubscription>, false);
+		return SubjectHandler(new dictionary<integer, IObserver>, new optional<ISubscription>, false);
 	}
 	
-	action onConnection(Subscriber subscriber) returns ISubscription {
+	action onConnection(IObserver subscriber) returns ISubscription {
 		if not isComplete {
-			subscribers.add(subscriber.id, subscriber);
-			Subscription s := Subscription.create(subscriber._onUnsubscribeListeners);
-			s.add(SubjectOnDisconnection.create(subscribers, subscriber.id));
+			subscribers.add(subscriber.getId(), subscriber);
+			subscriber.onUnsubscribe(SubjectOnDisconnection.create(subscribers, subscriber.getId()));
+			Subscription s := Subscription.create(subscriber);
 			return s.asISubscription();
 		} else {
 			subscriber.complete();
-			return Subscription.create(subscriber._onUnsubscribeListeners).asISubscription();
+			return Subscription.create(subscriber).asISubscription();
 		}
 	}
 	
 	action next(any value) {
-		Subscriber s;
+		IObserver s;
 		for s in subscribers.values() {
 			s.next(value);
 		}
 	}
 	
 	action error(any e) {
-		Subscriber s;
+		IObserver s;
 		for s in subscribers.values(){
 			s.error(e);
 		}		
 	}
 	
 	action complete() {
-		Subscriber s;
+		IObserver s;
 		for s in subscribers.values() {
 			s.complete();
 		}

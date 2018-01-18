@@ -3,20 +3,20 @@ package com.industry.rx_epl;
 using com.apama.exceptions.Exception;
 
 event RefCountOnConnection {
-	action<> returns IDisposable connect;
-	action<Subscriber> returns ISubscription parentOnConnection;
-	integer refCount;
 	IDisposable connection;
+	action<> returns IDisposable connect;
+	action<IObserver> returns ISubscription parentOnConnection;
+	integer refCount;
 	boolean connecting;
 	boolean disposeSynchronously;
 	
-	static action create(action<> returns IDisposable connect, action<Subscriber> returns ISubscription parentOnConnection) returns action<Subscriber> returns ISubscription {
-		return RefCountOnConnection(connect, parentOnConnection, 0, Disposable.createDisposed(), false, false).onConnection;
+	static action create(IDisposable connection, action<> returns IDisposable connect, action<IObserver> returns ISubscription parentOnConnection) returns action<IObserver> returns ISubscription {
+		return RefCountOnConnection(connection, connect, parentOnConnection, 0, false, false).onConnection;
 	}
 	
-	action onConnection(Subscriber subscriber) returns ISubscription {
+	action onConnection(IObserver subscriber) returns ISubscription {
 		refCount := refCount + 1;
-		subscriber._onUnsubscribe(decrementRefCount);
+		subscriber.onUnsubscribe(decrementRefCount);
 		ISubscription subscription := parentOnConnection(subscriber);
 		if connection.disposed() {
 			connection := connect();

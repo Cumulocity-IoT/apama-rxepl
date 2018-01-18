@@ -45,13 +45,13 @@ monitor TestObservable {
 
 	     isConnected := true;
 	     subscription1 := connectableObservable.subscribe(ExpectValues.createNoComplete([<any>0.0, 1.0], onTeardown, test.fail));
-	     subscription1.add(onTeardown);
+	     subscription1.onUnsubscribe(onTeardown);
 	     subscription2 := connectableObservable.subscribe(ExpectValues.createNoComplete([<any>0.0, 1.0, 2.0], onTeardown, test.fail));
-	     subscription2.add(onTeardown);
+	     subscription2.onUnsubscribe(onTeardown);
 	     
 	     on wait(0.1) {
 	    	 subscription3 := connectableObservable.subscribe(ExpectValues.createNoComplete([<any>1.0, 2.0], onTeardown, test.fail));
-		     subscription3.add(onTeardown);
+		     subscription3.onUnsubscribe(onTeardown);
 	     }
 	     
 	     on wait(0.2) {
@@ -71,7 +71,7 @@ monitor TestObservable {
 	    	 ISubscription subscription5 := connectableObservable.subscribe(ExpectValues.create([<any>0.0, 1.0, 2.0, 3.0], onTeardown, test.fail));
 	    	 
 	    	 on wait(0.4) {
-	    		 subscription5.add(doNotCall);
+	    		 subscription5.onUnsubscribe(doNotCall);
 	    		 // Shouldn't do anything - the unsubscribe will have been called already after the observable completed
 	    		 subscription5.unsubscribe();
 	    	 }

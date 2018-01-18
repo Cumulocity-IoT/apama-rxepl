@@ -1,0 +1,31 @@
+package com.industry.rx_epl;
+
+event IBehaviorSubject {
+	any subject;
+	
+	action<> returns any getValue;
+
+	action<> returns ISubject asISubject;
+	
+	action<any> next;
+	action<any> error;
+	action<> complete;
+	
+	action<> returns IObservable asIObservable;
+
+	action<Subscriber> returns ISubscription subscribe;
+	action<action<any> returns any> returns IObservable map;
+	action<> returns IObservable publish;
+	action<> returns IDisposable connect;
+	action<> returns IObservable refCount;
+	action<> returns IObservable share;
+	action<integer> returns IObservable take;
+	action<integer> returns IObservable takeLast;
+	action<> returns IObservable first;
+	action<> returns IObservable last;
+	action<integer> returns IObservable skip;
+	action<integer> returns IObservable skipLast;
+	action<action<any> returns boolean> returns IObservable filter;
+	action<action<any, any> returns any> returns IObservable scan;
+	action<action<any, any> returns any, any> returns IObservable scanWithInitial;
+}

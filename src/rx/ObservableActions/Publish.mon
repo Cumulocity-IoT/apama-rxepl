@@ -3,7 +3,7 @@ package com.industry.rx_epl;
 using com.apama.exceptions.Exception;
 
 event SubscriberAndSubscription {
-	Subscriber subscriber;
+	IObserver subscriber;
 	Subscription subscription;
 }
 
@@ -11,13 +11,14 @@ event PublishSubscriber {
 	dictionary<integer, SubscriberAndSubscription> subscribers;
 	action<> onComplete;
 	action<> pull;
+	action<> returns boolean isUnsubscribed;
 	
-	static action create(dictionary<integer, SubscriberAndSubscription> subscribers, action<> onComplete, boolean cold) returns Subscriber {
-		PublishSubscriber p := PublishSubscriber(subscribers, onComplete, new action<>);
-		Subscriber s := Subscriber.create().onNext(p.next).onError(p.error).onComplete(p.complete);
+	static action create(dictionary<integer, SubscriberAndSubscription> subscribers, action<> onComplete, action<> returns boolean isUnsubscribed, boolean cold) returns IObserver {
+		PublishSubscriber p := PublishSubscriber(subscribers, onComplete, new action<>, isUnsubscribed);
+		IObserver s := Subscriber.create().onNext(p.next).onError(p.error).onComplete(p.complete).asIObserver();
 		if cold {
-			s._isPulling := true;
-			p.pull := LimitSyncInvoke.create(GlobalConstants.MAX_SYNC_VALUES, s._pull).invoke;
+			s.isPulling := Subscriber.isPulling;
+			p.pull := s.pull;
 		}
 		return s;
 	}
@@ -27,8 +28,10 @@ event PublishSubscriber {
 		for ss in subscribers.values() {
 			ss.subscriber.next(value);
 		}
-		ifpresent pull {
-			pull();
+		if not isUnsubscribed() {
+			ifpresent pull {
+				pull();
+			}
 		}
 	}
 	
@@ -68,26 +71,28 @@ event PublishOnDisconnection {
 }
 
 event PublishHandler {
-	action<Subscriber> returns ISubscription parentOnConnection;
+	action<IObserver> returns ISubscription parentOnConnection;
+	IDisposable connection;
 	dictionary<integer, SubscriberAndSubscription> subscribers;
 	optional<ISubscription> upstreamSubscription;
-	Subscriber upstreamSubscriber;
+	IObserver upstreamSubscriber;
 	boolean isComplete;
 	boolean cold;
 	
-	static action create(action<Subscriber> returns ISubscription parentOnConnection, boolean cold) returns PublishHandler {
-		return PublishHandler(parentOnConnection, new dictionary<integer, SubscriberAndSubscription>, new optional<ISubscription>, new Subscriber, false, cold);
+	static action create(action<IObserver> returns ISubscription parentOnConnection, IDisposable connection, boolean cold) returns PublishHandler {
+		return PublishHandler(parentOnConnection, connection, new dictionary<integer, SubscriberAndSubscription>, new optional<ISubscription>, new IObserver, false, cold);
 	}
 	
 	action connect() returns IDisposable {
 		if not isComplete {
 			// If there isn't an upstream subscription then create one
 			if upstreamSubscription.empty() {
-				upstreamSubscriber := PublishSubscriber.create(subscribers, onComplete, cold);
+				upstreamSubscriber := PublishSubscriber.create(subscribers, onComplete, isUnsubscribed, cold);
+				connection.onDispose := reset;
 				upstreamSubscription := parentOnConnection(upstreamSubscriber);
 				if cold {
 					// Don't need to Sync limit this - it'll only be called once (during connection)
-					upstreamSubscriber._pull();
+					upstreamSubscriber.pull();
 				}
 			}
 		} else {
@@ -96,7 +101,11 @@ event PublishHandler {
 				ss.subscriber.complete();
 			}
 		}
-		return Disposable.create(reset).asIDisposable();
+		return connection;
+	}
+	
+	action isUnsubscribed() returns boolean {
+		return upstreamSubscription.empty();
 	}
 	
 	action onComplete() {
@@ -115,13 +124,13 @@ event PublishHandler {
 		}
 	}
 	
-	action onConnection(Subscriber subscriber) returns ISubscription {
+	action onConnection(IObserver subscriber) returns ISubscription {
 		// Must create subscription before calling ay next, error, complete
 		Subscription downstreamSubscription := Subscription.create(subscriber);
 		if not isComplete {
 			SubscriberAndSubscription ss := SubscriberAndSubscription(subscriber, downstreamSubscription);
-			subscribers.add(subscriber.id, ss);
-			downstreamSubscription.add(PublishOnDisconnection.create(subscribers, subscriber.id));
+			subscribers.add(subscriber.getId(), ss);
+			downstreamSubscription.add(PublishOnDisconnection.create(subscribers, subscriber.getId()));
 		} else {
 			subscriber.complete();
 		}
