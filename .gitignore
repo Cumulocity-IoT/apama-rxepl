@@ -3,3 +3,4 @@
 .project
 config
 output
+**/*.pyc

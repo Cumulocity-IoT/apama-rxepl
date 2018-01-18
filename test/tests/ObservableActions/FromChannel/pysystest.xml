@@ -2,8 +2,8 @@
 <pysystest type="auto" state="runnable">
     
   <description> 
-    <title>From</title>    
-    <purpose><![CDATA[From]]></purpose>
+    <title>FromChannel</title>    
+    <purpose><![CDATA[FromChannel]]></purpose>
   </description>
 
   <classification>

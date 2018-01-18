@@ -1,0 +1,36 @@
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.WrappedAny;
+
+using utils.Test;
+using utils.ExpectValues;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	action onload() {		
+	    IObservable o := Observable.fromChannel("test");
+	    
+	   any discard := o.take(5)
+      		.subscribe(ExpectValues.create([<any>1,2,3,4,5], countTeardowns, test.fail));
+	    
+		discard := o.take(3)
+	      	.subscribe(ExpectValues.create([<any>1,2,3], countTeardowns, test.fail));
+	    
+	    on wait(0.1) {
+	    	send WrappedAny(1) to "test";
+	    	send WrappedAny(2) to "test";
+	    	send WrappedAny(3) to "test";
+	    	send WrappedAny(4) to "test";
+	    	send WrappedAny(5) to "test";
+	    }
+	}
+	
+	integer i;
+	action countTeardowns() {
+		i := i + 1;
+		if i = 2 {
+			test.complete();
+		}
+	}
+}
