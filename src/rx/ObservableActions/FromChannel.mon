@@ -1,0 +1,73 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event WrappedAny {
+	any value;
+}
+
+event WrappedValueFromChannel {
+	string channelName;
+	integer uniqueId;
+	any value;
+}
+
+event KillValueWrapper {}
+
+event FromChannelOnDisconnection {
+	listener channelListener;
+	context valueWrappingContext;
+	
+	static action create(listener channelListener, context valueWrappingContext) returns action<> {
+		return FromChannelOnDisconnection(channelListener, valueWrappingContext).onDisconnection;
+	}
+	
+	action onDisconnection() {
+		channelListener.quit();
+		send KillValueWrapper() to valueWrappingContext;
+		log "Channel listener killed" at DEBUG;
+	}
+}
+
+
+event FromChannelOnConnection {
+	string channelName;
+	
+	static action create(string channelName) returns action<IObserver> returns ISubscription {
+		return FromChannelOnConnection(channelName).onConnection;
+	}
+	
+	/**
+	 * Starts a new context to receive values only from a single channel, wraps them and sends them back to the spawning context
+	 */
+	action onConnection(IObserver subscriber) returns ISubscription {
+		// Needs a uniqueId so that fromChannel can be called multiple times from the same context
+		integer uniqueId := integer.getUnique();
+		listener fromChannelListener := on all WrappedValueFromChannel(channelName = channelName, uniqueId = uniqueId) as wrappedValue {
+			subscriber.next(wrappedValue.value);
+		}
+		
+		context valueWrappingContext := context("FromChannelValueWrapper");
+		spawn channelValueWrapper(channelName, context.current(), uniqueId) to valueWrappingContext;
+		
+		// Start a temporary listener to await the starting of the context
+		
+		
+		subscriber.onUnsubscribe(FromChannelOnDisconnection.create(fromChannelListener, valueWrappingContext));
+		return Subscription.create(subscriber).asISubscription();
+	}
+	
+	static action channelValueWrapper(string channelName, context parentContext, integer uniqueId) {
+		monitor.subscribe(channelName);
+		on all any() as anyValue and not KillValueWrapper() {
+			switch(anyValue) {
+				case WrappedAny : {
+					send WrappedValueFromChannel(channelName, uniqueId, anyValue.value) to parentContext;
+				}
+				default : {
+					send  WrappedValueFromChannel(channelName, uniqueId, anyValue) to parentContext;
+				}
+			}
+		}
+	}
+}

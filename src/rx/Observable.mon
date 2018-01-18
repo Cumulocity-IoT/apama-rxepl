@@ -60,6 +60,17 @@ event Observable {
 		
 		return o.asIObservable();		
 	}
+	
+	/**
+	 * Note: the channel listener start asynchronously - so won't receive events until a short time later
+	 */
+	static action fromChannel(string channelName) returns IObservable {
+		Observable o := _create(false);
+		
+		o.onConnection := FromChannelOnConnection.create(channelName);
+		
+		return o.asIObservable();		
+	}
 
 	/**
 	 * Generates a series of event with an incrementing float value
