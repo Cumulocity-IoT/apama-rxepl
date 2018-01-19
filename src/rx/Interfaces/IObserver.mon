@@ -2,6 +2,18 @@ package com.industry.rx_epl;
 
 using com.apama.exceptions.Exception;
 
+event IObserverId {
+	integer id;
+	
+	static action create() returns action<> returns integer {
+		return IObserverId(integer.getUnique()).get;
+	}
+	
+	action get() returns integer {
+		return id;
+	}
+}
+
 event IObserver {
 	any observer;
 	
@@ -35,7 +47,7 @@ event IObserver {
 	}
 	
 	action createUpstream() returns IObserver {
-		IObserver upstream := IObserver(self, getId, next, error, complete, new action<>, isPulling, new action<action<> >, onUnsubscribe, unsubscribe, subscribed, subscribe, new action<>);
+		IObserver upstream := IObserver(self, IObserverId.create(), next, error, complete, new action<>, isPulling, new action<action<> >, onUnsubscribe, unsubscribe, subscribed, subscribe, new action<>);
 		upstream.pull := LimitSyncInvoke.create(GlobalConstants.MAX_SYNC_VALUES, upstream._pull).invoke;
 		upstreamPull := upstream.pull;
 		ifpresent onPull {} else {

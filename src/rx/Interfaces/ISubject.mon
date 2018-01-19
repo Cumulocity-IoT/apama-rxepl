@@ -29,4 +29,5 @@ event ISubject {
 	action<> returns IObservable distinct;
 	action<action<any> returns any> returns IObservable distinctBy;
 	action<sequence<IObservable>, action<sequence<any> > returns any> returns IObservable combineLatest;
+	action<sequence<IObservable>, action<sequence<any> > returns any> returns IObservable withLatestFrom;
 }

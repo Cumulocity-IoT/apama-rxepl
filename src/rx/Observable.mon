@@ -244,12 +244,23 @@ event Observable {
 		return o.asIObservable();	
 	}
 	
+	action withLatestFrom(sequence<IObservable> otherObservables, action<sequence<any> > returns any combiner) returns IObservable {
+		Observable o := _create(false);
+		
+		sequence<IObservable> observables := [self.asIObservable()];
+		observables.appendSequence(otherObservables);
+		
+		o.onConnection := WithLatestFromOnConnection.create(observables, combiner);
+		
+		return o.asIObservable();	
+	}
+	
 	static action invalidConnect() returns IDisposable {
 		throw Exception("Can only connect a published Observable", "UnsupportedOperation");
 	}
 		
 	action asIObservable() returns IObservable {
 		return IObservable(self, 
-		                   isCold, connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatest);
+		                   isCold, connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatest, withLatestFrom);
 	}
 }

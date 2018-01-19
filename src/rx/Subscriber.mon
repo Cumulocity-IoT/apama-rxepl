@@ -2,9 +2,7 @@ package com.industry.rx_epl;
 
 using com.apama.exceptions.Exception;
 
-event Subscriber {
-	integer id;
-	
+event Subscriber {	
 	action<any> next;
 	action<any> error;
 	action<> complete;
@@ -13,7 +11,7 @@ event Subscriber {
 	sequence<action<> > unsubscribeListeners;
 	
 	static action create() returns Subscriber {
-		return Subscriber(integer.getUnique(), defaultNext, defaultError, defaultComplete, false, new sequence<action<> >);
+		return Subscriber(defaultNext, defaultError, defaultComplete, false, new sequence<action<> >);
 	}
 	
 	action onNext(action<any> next) returns Subscriber {
@@ -29,10 +27,6 @@ event Subscriber {
 	action onComplete(action<> complete) returns Subscriber {
 		self.complete := complete;
 		return self;
-	}
-	
-	action getId() returns integer {
-		return id;
 	}
 	
 	action onUnsubscribe(action<> onUnsubscribe) {
@@ -86,7 +80,7 @@ event Subscriber {
 	
 	action asIObserver() returns IObserver {
 		IObserver o := IObserver(self, 
-	                 getId, next, error, complete, new action<>, isNotPulling, new action<action<> >, onUnsubscribe, unsubscribe, subscribed, subscribe, new action<>);
+		                         IObserverId.create(), next, error, complete, new action<>, isNotPulling, new action<action<> >, onUnsubscribe, unsubscribe, subscribed, subscribe, new action<>);
 		o.pull := LimitSyncInvoke.create(GlobalConstants.MAX_SYNC_VALUES, o._pull).invoke;
 		return o;
 	}
