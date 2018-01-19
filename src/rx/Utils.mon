@@ -47,6 +47,22 @@ event WrappedInteger {
 	}
 }
 
+event WrappedBoolean {
+	boolean value;
+	
+	action get() returns boolean {
+		return value;
+	}
+	
+	action setTrue() {
+		value := true;
+	}
+	
+	action setFalse() {
+		value := false;
+	}
+}
+
 /**
  * Limits the max number of synchronous calls to an action, after which the call will be made asynchronously.
  * This stops stackoverflow exceptions

@@ -1,0 +1,50 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event DelaySubscriber {
+	IObserver subscriber;
+	float delay;
+	WrappedBoolean isComplete; // Have to use a wrapped boolean as the listener takes a copy of local variables
+	boolean cold;
+	
+	static action create(IObserver subscriber, float delay, boolean cold) returns IObserver {
+		DelaySubscriber m := DelaySubscriber(subscriber, delay, WrappedBoolean(false), cold);
+		IObserver o := IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).onComplete(m.complete).build();
+		if cold {
+			o.isPulling := Subscriber.isPulling;
+		}
+		return o;
+	}
+	
+	action next(any value) {
+		on wait(delay) {
+			if not isComplete.get() {
+				subscriber.next(value);
+			}
+		}
+		if cold {
+			subscriber.pull();
+		}
+	}
+	
+	action complete() {
+		isComplete.setTrue();
+		subscriber.complete();
+	}
+}
+
+event DelayOnConnection {
+	action<IObserver> returns ISubscription parentOnConnection;
+	float delay;
+	boolean cold;
+	
+	static action create(action<IObserver> returns ISubscription parentOnConnection, float delay, boolean cold) returns action<IObserver> returns ISubscription {
+		return DelayOnConnection(parentOnConnection, delay, cold).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		IObserver delaySubscriber := DelaySubscriber.create(subscriber, delay, cold);
+		return parentOnConnection(delaySubscriber);
+	}
+}
