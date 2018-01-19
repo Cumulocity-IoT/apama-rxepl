@@ -1,0 +1,39 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Observable;
+
+event TestEvent {
+	integer i;
+	float abc;
+	
+	static action create(integer i) returns TestEvent {
+		return TestEvent(i, 1.0.rand());
+	}
+}
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	action onload() {
+	    any discard := Observable.fromValues([
+	                                          TestEvent(1, 2.0), 
+	                                          TestEvent.create(1), 
+	                                          TestEvent(2, 2.0), 
+	                                          TestEvent.create(1), 
+	                                          TestEvent.create(2),
+	                                          TestEvent(0, 2.0),
+	                                          TestEvent.create(1),
+	                                          TestEvent.create(2),
+	                                          TestEvent(3, 2.0)
+	                                          ])
+			.distinctBy(getIValue)
+			.take(4)
+	      	.subscribe(ExpectValues.create([<any>TestEvent(1, 2.0),TestEvent(2, 2.0),TestEvent(0, 2.0),TestEvent(3, 2.0)], test.complete, test.fail));
+	}
+	
+	action getIValue(any testEventAsAny) returns any {
+		return (<TestEvent> testEventAsAny).i;
+	}
+}

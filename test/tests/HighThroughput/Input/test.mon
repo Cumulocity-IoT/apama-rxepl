@@ -1,0 +1,22 @@
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Observable;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	action onload() {
+		sequence<any> values := [<any> 0];
+		
+		integer i := 0;
+		while i < 2000000 {
+			i := i + 1;
+			values.append(i);
+		}
+		
+	    any discard := Observable.fromValues(values)
+	      .takeLast(3)
+	      .subscribe(ExpectValues.create([<any>1999998, 1999999, 2000000], test.complete, test.fail));
+	}  
+}
