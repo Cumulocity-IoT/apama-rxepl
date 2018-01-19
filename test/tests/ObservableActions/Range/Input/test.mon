@@ -7,8 +7,7 @@ monitor TestObservable {
 	Test test := Test("TestResult");
   
 	action onload() {		
-	    any discard := Observable.interval(0.1)
-			.take(3)
-	      	.subscribe(ExpectValues.create([<any>0, 1, 2], test.complete, test.fail));
+	    any discard := Observable.range(15,21)
+	      	.subscribe(ExpectValues.create([<any>15,16,17,18,19,20], test.complete, test.fail));
 	}
 }

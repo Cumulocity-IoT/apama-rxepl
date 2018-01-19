@@ -37,15 +37,15 @@ monitor TestObservable {
 			.publish().refCount(); // publish().refCount() is the same as calling .share()
 
 	     isConnected := true;
-	     any subscription1 := connectableObservable.subscribe(ExpectValues.create([<any>0.0, 1.0, 2.0], onTeardown, test.fail));
-	     any subscription2 := connectableObservable.subscribe(ExpectValues.create([<any>0.0, 1.0, 2.0], onTeardown, test.fail));
+	     any subscription1 := connectableObservable.subscribe(ExpectValues.create([<any>0,1,2], onTeardown, test.fail));
+	     any subscription2 := connectableObservable.subscribe(ExpectValues.create([<any>0,1,2], onTeardown, test.fail));
 	     
 	     on wait(0.1) {
-		     any subscription3 := connectableObservable.subscribe(ExpectValues.create([<any>1.0, 2.0], onTeardown, test.fail));
+		     any subscription3 := connectableObservable.subscribe(ExpectValues.create([<any>1,2], onTeardown, test.fail));
 	     }
 	     
 	     on wait(0.2) {
-	    	 any subscription4 := connectableObservable.subscribe(ExpectValues.create([<any>2.0], onTeardown, test.fail));
+	    	 any subscription4 := connectableObservable.subscribe(ExpectValues.create([<any>2], onTeardown, test.fail));
 	     }
 	     
 	     on wait(0.5) {

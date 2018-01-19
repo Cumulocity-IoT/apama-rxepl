@@ -27,7 +27,11 @@ event TestObservables {
   }
   
   static action createAsync() returns IObservable {
-    return Observable.interval(0.01).take(10);
+    return Observable.interval(0.01).map(intToFloat).take(10);
+  }
+  
+  static action intToFloat(any intValue) returns any {
+	  return (<integer> intValue).toFloat();
   }
 }
 

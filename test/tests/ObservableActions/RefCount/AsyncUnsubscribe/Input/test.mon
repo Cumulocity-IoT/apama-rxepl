@@ -44,18 +44,18 @@ monitor TestObservable {
 			.publish().refCount(); // publish().refCount() is the same as calling .share()
 
 	     isConnected := true;
-	     subscription1 := connectableObservable.subscribe(ExpectValues.createNoComplete([<any>0.0, 1.0], onTeardown, test.fail));
+	     subscription1 := connectableObservable.subscribe(ExpectValues.createNoComplete([<any>0,1], onTeardown, test.fail));
 	     subscription1.onUnsubscribe(onTeardown);
-	     subscription2 := connectableObservable.subscribe(ExpectValues.createNoComplete([<any>0.0, 1.0, 2.0], onTeardown, test.fail));
+	     subscription2 := connectableObservable.subscribe(ExpectValues.createNoComplete([<any>0,1,2], onTeardown, test.fail));
 	     subscription2.onUnsubscribe(onTeardown);
 	     
 	     on wait(0.1) {
-	    	 subscription3 := connectableObservable.subscribe(ExpectValues.createNoComplete([<any>1.0, 2.0], onTeardown, test.fail));
+	    	 subscription3 := connectableObservable.subscribe(ExpectValues.createNoComplete([<any>1,2], onTeardown, test.fail));
 		     subscription3.onUnsubscribe(onTeardown);
 	     }
 	     
 	     on wait(0.2) {
-	    	 subscription4 := connectableObservable.subscribe(ExpectValues.createNoComplete([<any>2.0], onTeardown, test.fail));
+	    	 subscription4 := connectableObservable.subscribe(ExpectValues.createNoComplete([<any>2], onTeardown, test.fail));
 	    	 subscription1.unsubscribe();
 	     }
 	     
@@ -68,7 +68,7 @@ monitor TestObservable {
 	     
 	     on wait(0.4) {
 	    	 // Connecting after the refCount has dropped to 0 creates a new connection to the soure observable - hence the interval starts from 0 again
-	    	 ISubscription subscription5 := connectableObservable.subscribe(ExpectValues.create([<any>0.0, 1.0, 2.0, 3.0], onTeardown, test.fail));
+	    	 ISubscription subscription5 := connectableObservable.subscribe(ExpectValues.create([<any>0,1,2,3], onTeardown, test.fail));
 	    	 
 	    	 on wait(0.4) {
 	    		 subscription5.onUnsubscribe(doNotCall);

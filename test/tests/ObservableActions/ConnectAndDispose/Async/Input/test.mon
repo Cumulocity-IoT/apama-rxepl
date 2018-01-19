@@ -18,7 +18,7 @@ monitor TestObservable {
                                                       .map(makeSureNotCalledUntilConnected)
                                                       .publish();
 	    
-	     any subscription := connectableObservable.subscribe(ExpectValues.createNoComplete([<any>0.0,1.0,2.0,3.0,4.0],onTeardown, test.fail));
+	     any subscription := connectableObservable.subscribe(ExpectValues.createNoComplete([<any>0,1,2,3,4],onTeardown, test.fail));
 	     
 	     on wait(0.1) {
 	    	 isConnected := true;

@@ -35,15 +35,15 @@ event Utils {
 	static action noOp() {}
 }
 
-event WrappedFloat {
-	float value;
+event WrappedInteger {
+	integer value;
 	
-	action add(float value) {
-		self.value := self.value + value;
+	action get() returns integer {
+		return value;
 	}
 	
-	action get() returns float {
-		return value;
+	action increment() {
+		value := value + 1;
 	}
 }
 
@@ -73,17 +73,5 @@ event LimitSyncInvoke {
 			Utils.callAsync(method);
 		}
 		count := 0;
-	}
-}
-
-event Id {
-	integer value;
-	
-	static action create() returns Id {
-		return Id(integer.getUnique());
-	}
-	
-	action get() returns integer {
-		return value;
 	}
 }

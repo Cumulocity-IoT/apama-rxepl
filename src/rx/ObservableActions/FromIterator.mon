@@ -31,33 +31,53 @@ event FromIteratorNonPulling {
 	IObserver subscriber;
 	action<> returns any iterator;
 	boolean stopped;
-	action<> syncLimittedCall;
 	
 	static action createAndCall(action<> returns any iterator, IObserver subscriber) {
-		FromIteratorNonPulling handler := FromIteratorNonPulling(subscriber, iterator, false, new action<>);
-		handler.syncLimittedCall := LimitSyncInvoke.create(GlobalConstants.MAX_SYNC_VALUES, handler.call).invoke;
+		FromIteratorNonPulling handler := FromIteratorNonPulling(subscriber, iterator, false);
 		subscriber.onUnsubscribe(handler.stop);
-		handler.syncLimittedCall();
+		handler.call();
+	}
+	
+	action getNext() returns any {
+		any value := new any;
+		
+		value := iterator();
+		
+		return value;
+	}
+	
+	static action isPresent(any value) returns boolean {
+		ifpresent value {
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	action call() {
+		any value;
+		try {
+			value := getNext();
+		} catch(Exception e) {
+			subscriber.error(e);
+			return;
+		}
+		while isPresent(value) {
+			if stopped {
+				return;
+			}
+			subscriber.next(value);
+			try {
+				value := getNext();
+			} catch(Exception e) {
+				subscriber.error(e);
+				return;
+			}
+		}
 		if stopped {
 			return;
 		}
-		any value := new any;
-		
-		try {
-			value := iterator();
-		} catch(Exception e) {
-			subscriber.error(e);
-		}
-		
-		ifpresent value {
-			subscriber.next(value);
-			syncLimittedCall();
-		} else {
-			subscriber.complete();
-		}
+		subscriber.complete();
 	}
 	
 	action stop() {

@@ -22,10 +22,10 @@ event IntervalOnConnection {
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {
-		WrappedFloat currentValue := WrappedFloat(0.0);
+		WrappedInteger currentValue := WrappedInteger(0);
 		listener onWaitListener := on all wait(timePeriod) {
 			subscriber.next(currentValue.get());
-			currentValue.add(1.0);
+			currentValue.increment();
 		}
 		subscriber.onUnsubscribe(IntervalOnDisconnection.create(onWaitListener));
 		// Must create subscription before calling ay next, error, complete

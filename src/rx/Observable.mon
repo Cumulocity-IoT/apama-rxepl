@@ -84,6 +84,15 @@ event Observable {
 		return o.asIObservable();	
 	}
 	
+	static action range(integer start, integer end) returns IObservable {
+		Observable o := _create(true);
+		
+		o.onConnection := RangeOnConnection.create(start, end);
+		
+		return o.asIObservable();
+		
+	}
+	
 	action isCold() returns boolean {
 		return cold;
 	}
