@@ -22,6 +22,7 @@ event IntervalOnConnection {
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {
+		// Need to use a wrapped integer because listeners make a shallow copy of scope
 		WrappedInteger currentValue := WrappedInteger(0);
 		listener onWaitListener := on all wait(timePeriod) {
 			subscriber.next(currentValue.get());

@@ -233,13 +233,13 @@ event Observable {
 		return o.asIObservable();		
 	}
 	
-	action combineLatest(sequence<IObservable> otherObservables) returns IObservable {
+	action combineLatest(sequence<IObservable> otherObservables, action<sequence<any> > returns any combiner) returns IObservable {
 		Observable o := _create(false);
 		
 		sequence<IObservable> observables := [self.asIObservable()];
 		observables.appendSequence(otherObservables);
 		
-		o.onConnection := CombineLatestOnConnection.create(observables);
+		o.onConnection := CombineLatestOnConnection.create(observables, combiner);
 		
 		return o.asIObservable();	
 	}
