@@ -1,0 +1,13 @@
+package com.industry.rx_epl;
+
+event Observables {
+	static action combineLatest(sequence<IObservable> observables) returns IObservable {
+		IObservable first := observables[0];
+		
+		sequence<IObservable> others := (new sequence<IObservable>);
+		others.appendSequence(observables);
+		others.remove(0);
+		
+		return first.combineLatest(others);
+	}
+}

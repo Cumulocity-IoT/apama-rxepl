@@ -13,6 +13,8 @@ event IBehaviorSubject {
 	
 	action<> returns IObservable asIObservable;
 
+	action<> returns boolean isCold;
+	action<IObserver> returns ISubscription connectObserver;
 	action<Subscriber> returns ISubscription subscribe;
 	action<action<any> returns any> returns IObservable map;
 	action<> returns IObservable publish;
@@ -30,4 +32,5 @@ event IBehaviorSubject {
 	action<action<any, any> returns any, any> returns IObservable scanWithInitial;
 	action<> returns IObservable distinct;
 	action<action<any> returns any> returns IObservable distinctBy;
+	action<sequence<IObservable> > returns IObservable combineLatest;
 }

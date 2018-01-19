@@ -1,0 +1,105 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event CombineLatestOnNext {
+	integer id;
+	action<integer, any> onNext;
+	
+	static action create(integer id, action<integer, any> onNext) returns action<any> {
+		return CombineLatestOnNext(id, onNext).next;
+	}
+	
+	action next(any value) {
+		onNext(id, value);
+	}
+}
+
+event CombineLatestOnComplete {
+	integer id;
+	action<integer> onComplete;
+	
+	static action create(integer id, action<integer> onComplete) returns action<> {
+		return CombineLatestOnComplete(id, onComplete).complete;
+	}
+	
+	action complete() {
+		onComplete(id);
+	}
+}
+
+event CombineLatestSubscriberFactory {
+	IObserver downstreamSubscriber;
+	integer subscriberCount;
+	
+	dictionary<integer, any> latestValuesById;
+	dictionary<integer, IObserver> upstreamSubscribersById;
+	dictionary<integer, boolean> completeSubscribersById;
+	
+	static action create(IObserver subscriber) returns CombineLatestSubscriberFactory {
+		return CombineLatestSubscriberFactory(subscriber, 0, new dictionary<integer, any>, new dictionary<integer, IObserver>, new dictionary<integer, boolean>);
+	}
+	
+	action createUpstreamSubscriber(boolean cold) returns IObserver {
+		subscriberCount := subscriberCount + 1;
+		IObserver o := IObserverBuilder.create(downstreamSubscriber.createUpstream()).onNext(CombineLatestOnNext.create(subscriberCount, next)).onComplete(CombineLatestOnComplete.create(subscriberCount, complete)).build();
+		if cold {
+			o.isPulling := Subscriber.isPulling;
+		} else {
+			o.isPulling := Subscriber.isNotPulling;
+		}
+		upstreamSubscribersById.add(subscriberCount, o);
+		return o;
+	}
+	
+	action next(integer id, any value) {
+		latestValuesById.add(id, value);
+		if latestValuesById.size() = subscriberCount {
+			// These are automatically sorted in ascending order of keys
+			downstreamSubscriber.next(latestValuesById.values());
+		}
+		if upstreamSubscribersById[id].isPulling() {
+			upstreamSubscribersById[id].pull();
+		}
+	}
+	
+	action complete(integer id) {
+		completeSubscribersById.add(id, true);
+		if completeSubscribersById.size() = subscriberCount {
+			downstreamSubscriber.complete();
+		}
+	}
+}
+
+event CombineLatestOnConnection {
+	sequence<IObservable> observables;
+	
+	static action create(sequence<IObservable> observables) returns action<IObserver> returns ISubscription {
+		return CombineLatestOnConnection(observables).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		CombineLatestSubscriberFactory factory := CombineLatestSubscriberFactory.create(subscriber);
+		
+		sequence<IObserver> upstreamSubscribers := new sequence<IObserver>;
+		
+		IObservable observable;
+		for observable in observables {
+			upstreamSubscribers.append(factory.createUpstreamSubscriber(observable.isCold()));
+		}
+		
+		ISubscription s := new ISubscription;
+		
+		integer i := 0;
+		while i < upstreamSubscribers.size() {
+			IObserver upstream := upstreamSubscribers[i];
+			s := observables[i].connectObserver(upstream);
+			if upstream.isPulling() {
+				upstream.pull();
+			}
+			i := i + 1;
+		}
+		
+		return s;
+	}
+}
