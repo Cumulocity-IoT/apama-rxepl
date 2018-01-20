@@ -234,10 +234,7 @@ event Observable {
 	action withLatestFrom(sequence<IObservable> otherObservables, action<sequence<any> > returns any combiner) returns IObservable {
 		Observable o := _create();
 		
-		sequence<IObservable> observables := [self.asIObservable()];
-		observables.appendSequence(otherObservables);
-		
-		o.onConnection := WithLatestFromOnConnection.create(observables, combiner);
+		o.onConnection := WithLatestFromOnConnection.create(self.asIObservable(), otherObservables, combiner);
 		
 		return o.asIObservable();	
 	}

@@ -6,18 +6,24 @@ event WithLatestFromSubscriberFactory {
 	IObserver downstreamSubscriber;
 	action<sequence<any> > returns any combiner;
 	integer subscriberCount;
+	integer emittingId;
 	
 	dictionary<integer, any> latestValuesById;
 	dictionary<integer, boolean> completeSubscribersById;
 	dictionary<integer, PullingLoop> pullingLoopById;
 	
 	static action create(IObserver subscriber, action<sequence<any> > returns any combiner) returns WithLatestFromSubscriberFactory {
-		return WithLatestFromSubscriberFactory(subscriber, combiner, 0, new dictionary<integer, any>, new dictionary<integer, boolean>, new dictionary<integer, PullingLoop>);
+		return WithLatestFromSubscriberFactory(subscriber, combiner, 0, 0, new dictionary<integer, any>, new dictionary<integer, boolean>, new dictionary<integer, PullingLoop>);
 	}
 	
-	action createUpstreamSubscriber() returns IObserver {
-		integer id := subscriberCount;
+	action createUpstreamSubscriber(boolean causesEmission) returns IObserver {
 		subscriberCount := subscriberCount + 1;
+		integer id;
+		if causesEmission {
+			id := 0;
+		} else {
+			id := subscriberCount;
+		}
 		IObserver o := IObserverBuilder.create(downstreamSubscriber.createUpstream()).onNext(CombineLatestOnNext.create(id, next)).onComplete(CombineLatestOnComplete.create(id, complete)).build();
 		pullingLoopById.add(id, PullingLoop.create(o.pull));
 		return o;
@@ -25,7 +31,7 @@ event WithLatestFromSubscriberFactory {
 	
 	action next(integer id, any value) {
 		latestValuesById.add(id, value);
-		if id = 0 and latestValuesById.size() = subscriberCount {
+		if id = emittingId and latestValuesById.size() = subscriberCount {
 			// These are automatically sorted in ascending order of keys
 			try {
 				downstreamSubscriber.next(combiner(latestValuesById.values()));
@@ -39,26 +45,32 @@ event WithLatestFromSubscriberFactory {
 	
 	action complete(integer id) {
 		completeSubscribersById.add(id, true);
-		if id = 0 and completeSubscribersById.size() = subscriberCount{
+		if id = subscriberCount - 1 and completeSubscribersById.size() = subscriberCount{
 			downstreamSubscriber.complete();
 		}
 	}
 	
 	action pullAll() {
-		PullingLoop p;
-		for p in pullingLoopById.values() {
-			p.pull();
+		integer id;
+		for id in pullingLoopById.keys() {
+			if id = emittingId {
+				continue;
+			}
+			pullingLoopById[id].pull();
 		}
+		// Make sure that the emitting one is the last one to connect
+		pullingLoopById[emittingId].pull();
 	}
 }
 
 event WithLatestFromOnConnection {
-	sequence<IObservable> observables;
+	IObservable emissionCausingObservable;
+	sequence<IObservable> otherObservables;
 	action<sequence<any> > returns any combiner;
 	boolean receivedValue;
 	
-	static action create(sequence<IObservable> observables, action<sequence<any> > returns any combiner) returns action<IObserver> returns ISubscription {
-		return WithLatestFromOnConnection(observables, combiner, true).onConnection;
+	static action create(IObservable emissionCausingObservable, sequence<IObservable> otherObservables, action<sequence<any> > returns any combiner) returns action<IObserver> returns ISubscription {
+		return WithLatestFromOnConnection(emissionCausingObservable, otherObservables, combiner, true).onConnection;
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {
@@ -67,18 +79,21 @@ event WithLatestFromOnConnection {
 		sequence<IObserver> upstreamSubscribers := new sequence<IObserver>;
 		
 		IObservable observable;
-		for observable in observables {
-			upstreamSubscribers.append(factory.createUpstreamSubscriber());
+		for observable in otherObservables {
+			upstreamSubscribers.append(factory.createUpstreamSubscriber(false));
 		}
+		IObserver emittingUpstream := factory.createUpstreamSubscriber(true);
 		
 		ISubscription s := new ISubscription;
 		
 		integer i := 0;
 		while i < upstreamSubscribers.size() {
 			IObserver upstream := upstreamSubscribers[i];
-			s := observables[i].connectObserver(upstream);
+			s := otherObservables[i].connectObserver(upstream);
 			i := i + 1;
 		}
+		// Make sure that the emissionCausingObservable is the last one to connect
+		s := emissionCausingObservable.connectObserver(emittingUpstream);
 		
 		factory.pullAll();
 		

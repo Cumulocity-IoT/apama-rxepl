@@ -8,12 +8,13 @@ event SubscriberAndSubscription {
 }
 
 event PublishSubscriber {
-	dictionary<integer, SubscriberAndSubscription> subscribers;
+	// Can't store in dictionary need reliable iteration order
+	sequence<SubscriberAndSubscription> subscribers;
 	action<> onComplete;
 	action<> returns boolean isUnsubscribed;
 	PullingLoop pullingLoop;
 	
-	static action create(dictionary<integer, SubscriberAndSubscription> subscribers, action<> onComplete, action<> returns boolean isUnsubscribed) returns IObserver {
+	static action create(sequence<SubscriberAndSubscription> subscribers, action<> onComplete, action<> returns boolean isUnsubscribed) returns IObserver {
 		PublishSubscriber p := PublishSubscriber(subscribers, onComplete, isUnsubscribed, new PullingLoop);
 		IObserver s := Subscriber.create().onNext(p.next).onError(p.error).onComplete(p.complete).asIObserver();
 		p.pullingLoop := PullingLoop.create(s.pull);
@@ -22,7 +23,7 @@ event PublishSubscriber {
 	
 	action next(any value) {
 		SubscriberAndSubscription ss;
-		for ss in subscribers.values() {
+		for ss in subscribers {
 			ss.subscriber.next(value);
 		}
 		if not isUnsubscribed() {
@@ -32,14 +33,14 @@ event PublishSubscriber {
 	
 	action error(any e) {
 		SubscriberAndSubscription ss;
-		for ss in subscribers.values(){
+		for ss in subscribers{
 			ss.subscriber.error(e);
 		}		
 	}
 	
 	action complete() {
 		SubscriberAndSubscription ss;
-		for ss in subscribers.values() {
+		for ss in subscribers {
 			ss.subscriber.complete();
 		}
 		onComplete();
@@ -47,10 +48,10 @@ event PublishSubscriber {
 }
 
 event PublishOnDisconnection {
-	dictionary<integer, SubscriberAndSubscription> subscribers;
+	sequence<SubscriberAndSubscription> subscribers;
 	integer subscriberId;
 	
-	static action create(dictionary<integer, SubscriberAndSubscription> subscribers, integer subscriberId) returns action<> {
+	static action create(sequence<SubscriberAndSubscription> subscribers, integer subscriberId) returns action<> {
 		return PublishOnDisconnection(subscribers, subscriberId).onDisconnect;
 	}
 	
@@ -59,8 +60,12 @@ event PublishOnDisconnection {
 		// Specifically if it is refCounted and we receive a complete because reset is called twice:
 		// once by the auto-completing subscriber
 		// once by the refCounter triggered by the auto-completing subscriber
-		if subscribers.hasKey(subscriberId) {
-			subscribers.remove(subscriberId);
+		integer idx := 0;
+		while idx < subscribers.size() {
+			if subscribers[idx].subscriber.getId() = subscriberId {
+				subscribers.remove(idx);
+				break;
+			}
 		}
 	}
 }
@@ -68,13 +73,13 @@ event PublishOnDisconnection {
 event PublishHandler {
 	action<IObserver> returns ISubscription parentOnConnection;
 	IDisposable connection;
-	dictionary<integer, SubscriberAndSubscription> subscribers;
+	sequence<SubscriberAndSubscription> subscribers;
 	optional<ISubscription> upstreamSubscription;
 	IObserver upstreamSubscriber;
 	boolean isComplete;
 	
 	static action create(action<IObserver> returns ISubscription parentOnConnection, IDisposable connection) returns PublishHandler {
-		return PublishHandler(parentOnConnection, connection, new dictionary<integer, SubscriberAndSubscription>, new optional<ISubscription>, new IObserver, false);
+		return PublishHandler(parentOnConnection, connection, new sequence<SubscriberAndSubscription>, new optional<ISubscription>, new IObserver, false);
 	}
 	
 	action connect() returns IDisposable {
@@ -89,7 +94,7 @@ event PublishHandler {
 			}
 		} else {
 			SubscriberAndSubscription ss;
-			for ss in subscribers.values() {
+			for ss in subscribers {
 				ss.subscriber.complete();
 			}
 		}
@@ -111,7 +116,7 @@ event PublishHandler {
 		}
 		upstreamSubscription := new optional<ISubscription>;
 		SubscriberAndSubscription ss;
-		for ss in subscribers.values() {
+		for ss in subscribers {
 			ss.subscription.unsubscribe();
 		}
 	}
@@ -121,7 +126,7 @@ event PublishHandler {
 		Subscription downstreamSubscription := Subscription.create(subscriber);
 		if not isComplete {
 			SubscriberAndSubscription ss := SubscriberAndSubscription(subscriber, downstreamSubscription);
-			subscribers.add(subscriber.getId(), ss);
+			subscribers.append(ss);
 			downstreamSubscription.add(PublishOnDisconnection.create(subscribers, subscriber.getId()));
 		} else {
 			subscriber.complete();
