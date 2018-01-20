@@ -13,7 +13,6 @@ event IBehaviorSubject {
 	
 	action<> returns IObservable asIObservable;
 
-	action<> returns boolean isCold;
 	action<IObserver> returns ISubscription connectObserver;
 	action<Subscriber> returns ISubscription subscribe;
 	action<action<any> returns any> returns IObservable map;

@@ -8,14 +8,11 @@ event Observable {
 	boolean connectable;
 	IDisposable connection;
 	
-	boolean cold;
-	
 	action<> returns IDisposable connect;
 	
-	static action _create(boolean cold) returns Observable {
+	static action _create() returns Observable {
 		Observable o := new Observable;
 		o.connect := invalidConnect;
-		o.cold := cold;
 		return o;
 	}
 	
@@ -24,13 +21,12 @@ event Observable {
 		o.connect := connect;
 		o.connectable := true;
 		o.connection := connection;
-		o.cold := false;
 		return o;
 	}
 
 	static action create(action<IResolver> resolver) returns IObservable {
 		// A user defined resolver cannot handle pull requests so it's hot
-		Observable o := _create(false);
+		Observable o := _create();
 		
 		o.onConnection := CreateOnConnection.create(resolver);
 		
@@ -38,7 +34,7 @@ event Observable {
 	}
 
 	static action fromValues(any values) returns IObservable {
-		Observable o := _create(true);
+		Observable o := _create();
 		
 		o.onConnection := FromOnConnection.create(values);
 		
@@ -46,7 +42,7 @@ event Observable {
 	}
 	
 	static action fromIterator(action<> returns any iterator) returns IObservable {
-		Observable o := _create(true);
+		Observable o := _create();
 		
 		o.onConnection := FromIteratorOnConnection.create(iterator);
 		
@@ -54,7 +50,7 @@ event Observable {
 	}
 	
 	static action just(any value) returns IObservable {
-		Observable o := _create(true);
+		Observable o := _create();
 		
 		o.onConnection := JustOnConnection.create(value);
 		
@@ -65,7 +61,7 @@ event Observable {
 	 * Note: the channel listener start asynchronously - so won't receive events until a short time later
 	 */
 	static action fromChannel(string channelName) returns IObservable {
-		Observable o := _create(false);
+		Observable o := _create();
 		
 		o.onConnection := FromChannelOnConnection.create(channelName);
 		
@@ -77,7 +73,7 @@ event Observable {
 	 * @param interval the time between subsequent events
 	 */
 	static action interval(float seconds) returns IObservable {
-		Observable o := _create(false);
+		Observable o := _create();
 		
 		o.onConnection := IntervalOnConnection.create(seconds);
 		
@@ -85,16 +81,11 @@ event Observable {
 	}
 	
 	static action range(integer start, integer end) returns IObservable {
-		Observable o := _create(true);
+		Observable o := _create();
 		
 		o.onConnection := RangeOnConnection.create(start, end);
 		
-		return o.asIObservable();
-		
-	}
-	
-	action isCold() returns boolean {
-		return cold;
+		return o.asIObservable();	
 	}
 	
 	action connectObserver(IObserver observer) returns ISubscription {
@@ -102,21 +93,17 @@ event Observable {
 	}
 	
 	action subscribe(Subscriber subscriber) returns ISubscription {
-		Observable o := _create(cold);
+		Observable o := _create();
 		
 		IObserver observer := subscriber.asIObserver();
-		
-		if cold {
-			observer.isPulling := Subscriber.isPulling;
-		}
-		
+
 		o.onConnection := SubscribeOnConnection.create(onConnection); 
 		
 		return o.onConnection(observer);
 	}
 	
 	action map(action<any> returns any mapper) returns IObservable {
-		Observable o := _create(cold);		
+		Observable o := _create();		
 		o.onConnection := MapOnConnection.create(onConnection, mapper);
 		
 		return o.asIObservable();
@@ -124,7 +111,7 @@ event Observable {
 	
 	action publish() returns IObservable {
 		IDisposable connection := IDisposable(1, new action<>);
-		PublishHandler p := PublishHandler.create(onConnection, connection, cold);
+		PublishHandler p := PublishHandler.create(onConnection, connection);
 		Observable o := _createConnectable(connection, p.connect);
 		
 		o.onConnection := p.onConnection;
@@ -136,7 +123,7 @@ event Observable {
 		if not connectable {
 			throw Exception("Can only refCount a published Observable", "UnsupportedOperation");
 		}
-		Observable o := _create(false);
+		Observable o := _create();
 		o.onConnection := RefCountOnConnection.create(connection, connect, onConnection);
 		return o.asIObservable();
 	}
@@ -146,7 +133,7 @@ event Observable {
 	}
 
 	action take(integer count) returns IObservable {
-		Observable o := _create(cold);
+		Observable o := _create();
 		
 		o.onConnection := TakeOnConnection.create(onConnection, count);
 		
@@ -154,7 +141,7 @@ event Observable {
 	}
 
 	action takeLast(integer count) returns IObservable {
-		Observable o := _create(cold);
+		Observable o := _create();
 		
 		o.onConnection := TakeLastOnConnection.create(onConnection, count);
 		
@@ -162,7 +149,7 @@ event Observable {
 	}
 
 	action first() returns IObservable {
-		Observable o := _create(cold);
+		Observable o := _create();
 		
 		o.onConnection := TakeOnConnection.create(onConnection, 1);
 		
@@ -170,7 +157,7 @@ event Observable {
 	}
 	
 	action last() returns IObservable {
-		Observable o := _create(cold);
+		Observable o := _create();
 		
 		o.onConnection := TakeLastOnConnection.create(onConnection, 1);
 		
@@ -178,7 +165,7 @@ event Observable {
 	}
 	
 	action skip(integer count) returns IObservable {
-		Observable o := _create(cold);
+		Observable o := _create();
 		
 		o.onConnection := SkipOnConnection.create(onConnection, count);
 		
@@ -186,7 +173,7 @@ event Observable {
 	}
 
 	action skipLast(integer count) returns IObservable {
-		Observable o := _create(cold);
+		Observable o := _create();
 		
 		o.onConnection := SkipLastOnConnection.create(onConnection, count);
 		
@@ -194,7 +181,7 @@ event Observable {
 	}
 	
 	action filter(action<any> returns boolean predicate) returns IObservable {
-		Observable o := _create(cold);
+		Observable o := _create();
 		
 		o.onConnection := FilterOnConnection.create(onConnection, predicate);
 		
@@ -202,7 +189,7 @@ event Observable {
 	}
 
 	action scan(action<any, any> returns any scanner) returns IObservable {
-		Observable o := _create(cold);
+		Observable o := _create();
 		
 		o.onConnection := ScanOnConnection.create(onConnection, scanner, new any, false);
 		
@@ -210,7 +197,7 @@ event Observable {
 	}
 	
 	action scanWithInitial(action<any, any> returns any scanner, any initialValue) returns IObservable {
-		Observable o := _create(cold);
+		Observable o := _create();
 		
 		o.onConnection := ScanOnConnection.create(onConnection, scanner, initialValue, true);
 		
@@ -218,7 +205,7 @@ event Observable {
 	}
 	
 	action distinct() returns IObservable {
-		Observable o := _create(cold);
+		Observable o := _create();
 		
 		o.onConnection := DistinctByOnConnection.create(onConnection, new action<any> returns any);
 		
@@ -226,7 +213,7 @@ event Observable {
 	}
 	
 	action distinctBy(action<any> returns any keyGetter) returns IObservable {
-		Observable o := _create(cold);
+		Observable o := _create();
 		
 		o.onConnection := DistinctByOnConnection.create(onConnection, keyGetter);
 		
@@ -234,7 +221,7 @@ event Observable {
 	}
 	
 	action combineLatest(sequence<IObservable> otherObservables, action<sequence<any> > returns any combiner) returns IObservable {
-		Observable o := _create(false);
+		Observable o := _create();
 		
 		sequence<IObservable> observables := [self.asIObservable()];
 		observables.appendSequence(otherObservables);
@@ -245,7 +232,7 @@ event Observable {
 	}
 	
 	action withLatestFrom(sequence<IObservable> otherObservables, action<sequence<any> > returns any combiner) returns IObservable {
-		Observable o := _create(false);
+		Observable o := _create();
 		
 		sequence<IObservable> observables := [self.asIObservable()];
 		observables.appendSequence(otherObservables);
@@ -256,17 +243,17 @@ event Observable {
 	}
 	
 	action delay(float seconds) returns IObservable {
-		Observable o := _create(false);
+		Observable o := _create();
 		
-		o.onConnection := DelayOnConnection.create(onConnection, seconds, cold);
+		o.onConnection := DelayOnConnection.create(onConnection, seconds);
 		
 		return o.asIObservable();
 	}
 	
 	action async() returns IObservable {
-		Observable o := _create(false);
+		Observable o := _create();
 		
-		o.onConnection := DelayOnConnection.create(onConnection, 0.0, cold);
+		o.onConnection := DelayOnConnection.create(onConnection, 0.0);
 		
 		return o.asIObservable();
 		
@@ -278,6 +265,6 @@ event Observable {
 		
 	action asIObservable() returns IObservable {
 		return IObservable(self, 
-		                   isCold, connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatest, withLatestFrom, delay, async);
+		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatest, withLatestFrom, delay, async);
 	}
 }

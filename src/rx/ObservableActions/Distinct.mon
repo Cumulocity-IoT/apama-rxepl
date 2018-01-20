@@ -5,11 +5,11 @@ using com.apama.exceptions.Exception;
 event DistinctBySubscriber {
 	IObserver subscriber;
 	action<any> returns any distinctBy;
-	
 	dictionary<any, boolean> valuesSeen;
+	PullingLoop pullingLoop;
 	
 	static action create(IObserver subscriber, action<any> returns any distinctBy) returns IObserver {
-		DistinctBySubscriber m := DistinctBySubscriber(subscriber, distinctBy, new dictionary<any, boolean>);
+		DistinctBySubscriber m := DistinctBySubscriber(subscriber, distinctBy, new dictionary<any, boolean>, PullingLoop.create(subscriber.pull));
 		return IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).build();
 	}
 	
@@ -23,9 +23,7 @@ event DistinctBySubscriber {
 				valuesSeen.add(key, true);
 				subscriber.next(value);
 			} else {
-				if subscriber.isPulling() {
-					subscriber.pull();
-				}
+				pullingLoop.pull();
 			}
 		} catch(Exception e) {
 			subscriber.error(e);

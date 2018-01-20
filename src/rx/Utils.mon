@@ -62,32 +62,3 @@ event WrappedBoolean {
 		value := false;
 	}
 }
-
-/**
- * Limits the max number of synchronous calls to an action, after which the call will be made asynchronously.
- * This stops stackoverflow exceptions
- */
-event LimitSyncInvoke {
-	integer countLimit;
-	action<> method;
-	integer count;
-	boolean hasLogged;
-	
-	static action create(integer countLimit, action<> method) returns LimitSyncInvoke {
-		return LimitSyncInvoke(countLimit, method, 0, false);
-	}
-	
-	action invoke() {
-		count := count + 1;
-		if count - 1 < countLimit {
-			method();
-		} else {
-			if not hasLogged {
-				log "Exceeded max number of synchronous invocations (" + countLimit.toString() + "), splitting into async batches of " + countLimit.toString() + ". Consider making the observable async." at INFO;
-				hasLogged := true;
-			}
-			Utils.callAsync(method);
-		}
-		count := 0;
-	}
-}

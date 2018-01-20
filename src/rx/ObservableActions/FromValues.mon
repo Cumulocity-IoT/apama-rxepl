@@ -30,15 +30,7 @@ event FromOnConnection {
 	action onConnection(IObserver subscriber) returns ISubscription {
 		// Must create subscription before calling ay next, error, complete
 		ISubscription subscription := Subscription.create(subscriber).asISubscription();
-		if subscriber.isPulling() {
-			subscriber.onPull := FromOnPull.create(Utils.anyToSequenceAny(values), subscriber);
-		} else {			
-			any value;
-			for value in Utils.anyToSequenceAny(values) {
-				subscriber.next(value);
-			}
-			subscriber.complete();
-		}
+		subscriber.onPull := FromOnPull.create(Utils.anyToSequenceAny(values), subscriber);
 		return subscription;
 	}
 }

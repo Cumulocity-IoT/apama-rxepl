@@ -6,14 +6,11 @@ event DelaySubscriber {
 	IObserver subscriber;
 	float delay;
 	WrappedBoolean isComplete; // Have to use a wrapped boolean as the listener takes a copy of local variables
-	boolean cold;
+	PullingLoop pullingLoop;
 	
-	static action create(IObserver subscriber, float delay, boolean cold) returns IObserver {
-		DelaySubscriber m := DelaySubscriber(subscriber, delay, WrappedBoolean(false), cold);
+	static action create(IObserver subscriber, float delay) returns IObserver {
+		DelaySubscriber m := DelaySubscriber(subscriber, delay, WrappedBoolean(false), PullingLoop.create(subscriber.pull));
 		IObserver o := IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).onComplete(m.complete).build();
-		if cold {
-			o.isPulling := Subscriber.isPulling;
-		}
 		return o;
 	}
 	
@@ -23,9 +20,7 @@ event DelaySubscriber {
 				subscriber.next(value);
 			}
 		}
-		if cold {
-			subscriber.pull();
-		}
+		pullingLoop.pull();
 	}
 	
 	action complete() {
@@ -37,14 +32,13 @@ event DelaySubscriber {
 event DelayOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	float delay;
-	boolean cold;
 	
-	static action create(action<IObserver> returns ISubscription parentOnConnection, float delay, boolean cold) returns action<IObserver> returns ISubscription {
-		return DelayOnConnection(parentOnConnection, delay, cold).onConnection;
+	static action create(action<IObserver> returns ISubscription parentOnConnection, float delay) returns action<IObserver> returns ISubscription {
+		return DelayOnConnection(parentOnConnection, delay).onConnection;
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {
-		IObserver delaySubscriber := DelaySubscriber.create(subscriber, delay, cold);
+		IObserver delaySubscriber := DelaySubscriber.create(subscriber, delay);
 		return parentOnConnection(delaySubscriber);
 	}
 }

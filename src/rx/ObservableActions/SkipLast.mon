@@ -6,18 +6,17 @@ event SkipLastSubscriber {
 	IObserver subscriber;
 	integer count;
 	sequence<any> values;
+	PullingLoop pullingLoop;
 	
 	static action create(IObserver subscriber, integer count) returns IObserver {
-		SkipLastSubscriber s := SkipLastSubscriber(subscriber, count, new sequence<any>);
+		SkipLastSubscriber s := SkipLastSubscriber(subscriber, count, new sequence<any>, PullingLoop.create(subscriber.pull));
 		return IObserverBuilder.create(subscriber.createUpstream()).onNext(s.next).build();
 	}
 	
 	action next(any value) {
 		values.append(value);
 		if values.size() <= count {
-			if subscriber.isPulling() {
-				subscriber.pull();
-			}
+			pullingLoop.pull();
 		} else {
 			any value := values[0];
 			values.remove(0);

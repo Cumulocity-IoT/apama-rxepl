@@ -27,64 +27,6 @@ event FromIteratorOnPull {
 	}
 }
 
-event FromIteratorNonPulling {
-	IObserver subscriber;
-	action<> returns any iterator;
-	boolean stopped;
-	
-	static action createAndCall(action<> returns any iterator, IObserver subscriber) {
-		FromIteratorNonPulling handler := FromIteratorNonPulling(subscriber, iterator, false);
-		subscriber.onUnsubscribe(handler.stop);
-		handler.call();
-	}
-	
-	action getNext() returns any {
-		any value := new any;
-		
-		value := iterator();
-		
-		return value;
-	}
-	
-	static action isPresent(any value) returns boolean {
-		ifpresent value {
-			return true;
-		} else {
-			return false;
-		}
-	}
-	
-	action call() {
-		any value;
-		try {
-			value := getNext();
-		} catch(Exception e) {
-			subscriber.error(e);
-			return;
-		}
-		while isPresent(value) {
-			if stopped {
-				return;
-			}
-			subscriber.next(value);
-			try {
-				value := getNext();
-			} catch(Exception e) {
-				subscriber.error(e);
-				return;
-			}
-		}
-		if stopped {
-			return;
-		}
-		subscriber.complete();
-	}
-	
-	action stop() {
-		stopped := true;
-	}
-}
-
 event FromIteratorOnConnection {
 	action<> returns any iterator;
 	static action create(action<> returns any iterator) returns action<IObserver> returns ISubscription {
@@ -94,11 +36,7 @@ event FromIteratorOnConnection {
 	action onConnection(IObserver subscriber) returns ISubscription {
 		// Must create subscription before calling ay next, error, complete
 		ISubscription subscription := Subscription.create(subscriber).asISubscription();
-		if subscriber.isPulling() {
-			subscriber.onPull := FromIteratorOnPull.create(iterator, subscriber);
-		} else {
-			FromIteratorNonPulling.createAndCall(iterator, subscriber);
-		}
+		subscriber.onPull := FromIteratorOnPull.create(iterator, subscriber);
 		return subscription;
 	}
 }

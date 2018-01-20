@@ -69,20 +69,9 @@ event Subscriber {
 	static action defaultComplete() {
 		// Do nothing
 	}
-
-	static action isPulling() returns boolean {
-		return true;
-	}
-	
-	static action isNotPulling() returns boolean {
-		return false;
-	}
 	
 	action asIObserver() returns IObserver {
-		IObserver o := IObserver(self, 
-		                         IObserverId.create(), next, error, complete, new action<>, isNotPulling, new action<action<> >, onUnsubscribe, unsubscribe, subscribed, subscribe, new action<>);
-		o.pull := LimitSyncInvoke.create(GlobalConstants.MAX_SYNC_VALUES, o._pull).invoke;
-		return o;
+		return IObserver(self, IObserverId.create(), next, error, complete, new action<>, new action<action<> >, onUnsubscribe, unsubscribe, subscribed, subscribe);
 	}
 }
 

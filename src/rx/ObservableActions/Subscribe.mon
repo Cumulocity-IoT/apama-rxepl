@@ -2,6 +2,34 @@ package com.industry.rx_epl;
 
 using com.apama.exceptions.Exception;
 
+event PullingLoop {
+	action<> _pull;
+	boolean _pullAgain;
+	boolean _inPullingLoop;
+	
+	static action create(action<> pull) returns PullingLoop {
+		return PullingLoop(pull, false, false);
+	}
+	
+	action _doPull() {
+		_pullAgain := true;
+		_inPullingLoop := true;
+		while _pullAgain {
+			_pullAgain := false;
+			_pull();
+		}
+		_inPullingLoop := false;
+	}
+	
+	action pull() {
+		if _inPullingLoop {
+			_pullAgain := true;
+		} else {
+			_doPull();
+		}
+	}
+}
+
 event SubscribeSubscriber {
 	action<> completeSubscriber;
 	action<> onComplete;
@@ -17,9 +45,10 @@ event SubscribeSubscriber {
 
 event PullingSubscriber {
 	IObserver subscriber;
+	PullingLoop pullingLoop;
 	
 	static action create(IObserver subscriber) returns IObserver {
-		return PullingSubscriber(subscriber).createSubscriber();
+		return PullingSubscriber(subscriber, PullingLoop.create(subscriber.pull)).createSubscriber();
 	}
 	
 	action createSubscriber() returns IObserver {
@@ -28,27 +57,21 @@ event PullingSubscriber {
 	
 	action next(any value) {
 		subscriber.next(value);
-		if subscriber.isPulling() and subscriber.subscribed() {
-			subscriber.pull();
-		}
+		pullingLoop.pull();
 	}
 }
 
 event SubscribeOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
+	
 	static action create(action<IObserver> returns ISubscription parentOnConnection) returns action<IObserver> returns ISubscription {
 		return SubscribeOnConnection(parentOnConnection).onConnection;
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {
-		if subscriber.isPulling() {
-			IObserver pullingSubscriber := PullingSubscriber.create(SubscribeSubscriber.create(subscriber, subscriber.unsubscribe));
-			ISubscription s := parentOnConnection(pullingSubscriber);
-			subscriber.pull();
-			return s;
-		} else {
-			ISubscription s := parentOnConnection(SubscribeSubscriber.create(subscriber, subscriber.unsubscribe));
-			return s;
-		}
+		IObserver pullingSubscriber := PullingSubscriber.create(SubscribeSubscriber.create(subscriber, subscriber.unsubscribe));
+		ISubscription s := parentOnConnection(pullingSubscriber);
+		subscriber.pull();
+		return s;
 	}
 }

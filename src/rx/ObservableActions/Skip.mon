@@ -5,18 +5,17 @@ using com.apama.exceptions.Exception;
 event SkipSubscriber {
 	IObserver subscriber;
 	integer count;
+	PullingLoop pullingLoop;
 	
 	static action create(IObserver subscriber, integer count) returns IObserver {
-		SkipSubscriber s := SkipSubscriber(subscriber, count);
+		SkipSubscriber s := SkipSubscriber(subscriber, count, PullingLoop.create(subscriber.pull));
 		return IObserverBuilder.create(subscriber.createUpstream()).onNext(s.next).build();
 	}
 	
 	action next(any value) {
 		if count > 0 {
 			count := count - 1;
-			if subscriber.isPulling() {
-				subscriber.pull();
-			}
+			pullingLoop.pull();
 		} else {
 			subscriber.next(value);
 		}

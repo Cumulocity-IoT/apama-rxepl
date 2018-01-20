@@ -5,9 +5,10 @@ using com.apama.exceptions.Exception;
 event FilterSubscriber {
 	IObserver subscriber;
 	action<any> returns boolean predicate;
+	PullingLoop pullingLoop;
 	
 	static action create(IObserver subscriber, action<any> returns boolean predicate) returns IObserver {
-		FilterSubscriber s := FilterSubscriber(subscriber, predicate);
+		FilterSubscriber s := FilterSubscriber(subscriber, predicate, PullingLoop.create(subscriber.pull));
 		return IObserverBuilder.create(subscriber.createUpstream()).onNext(s.next).build();
 	}
 	
@@ -16,9 +17,7 @@ event FilterSubscriber {
 			if predicate(value) {
 				subscriber.next(value);
 			} else {
-				if subscriber.isPulling() {
-					subscriber.pull();
-				}
+				pullingLoop.pull();
 			}
 		} catch(Exception e) {
 			subscriber.error(e);

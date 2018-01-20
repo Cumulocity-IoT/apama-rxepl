@@ -33,18 +33,17 @@ event TakeLastSubscriber {
 	IObserver downstreamSubscriber;
 	integer count;
 	sequence<any> values;
-	action<> pullFromUpstream;
 	boolean isComplete;
+	PullingLoop upstreamPullingLoop;
 	
 	static action create(IObserver downstreamSubscriber, integer count) returns IObserver {
-		TakeLastSubscriber m := TakeLastSubscriber(downstreamSubscriber, count, new sequence<any>, new action<>, false);
+		TakeLastSubscriber m := TakeLastSubscriber(downstreamSubscriber, count, new sequence<any>, false, new PullingLoop);
 		IObserver upstreamSubscriber := IObserverBuilder.create(downstreamSubscriber.createUpstream()).onNext(m.next).onComplete(m.complete).build();
 		
-		// If the downstream subscriber is a pulling subscriber then we're also a pulling subscriber
-		if downstreamSubscriber.isPulling() {
-			downstreamSubscriber.onPull := TakeLastOnPull.create(m.values, downstreamSubscriber);
-			m.pullFromUpstream := upstreamSubscriber.pull;
-		}
+		m.upstreamPullingLoop := PullingLoop.create(upstreamSubscriber.pull);
+		
+		downstreamSubscriber.onPull := TakeLastOnPull.create(m.values, downstreamSubscriber);
+		
 		return upstreamSubscriber;
 	}
 	
@@ -54,24 +53,13 @@ event TakeLastSubscriber {
 			values.remove(0);
 		}
 		
-		ifpresent pullFromUpstream {
-			pullFromUpstream();
-		}
+		upstreamPullingLoop.pull();
 	}
 	
 	action complete() {
 		isComplete := true;
-		if downstreamSubscriber.isPulling() {
-			// We can just pull as though we're the downstream to trigger the TakeLastOnPull,
-			// the downstream must have pulled by this point otherwise we wouldn't have received a complete
-			downstreamSubscriber.pull();
-		} else {
-			any value;
-			for value in values {
-				downstreamSubscriber.next(value);
-			}
-			downstreamSubscriber.complete();
-		}
+		// Trigger the TakeOnPull by pulling the downstream once - It should automatically continue to pull the rest
+		downstreamSubscriber.pull();
 	}
 }
 
