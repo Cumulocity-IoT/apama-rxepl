@@ -6,18 +6,28 @@ event JustOnPull {
 	IObserver subscriber;
 	any value;
 	boolean firstPull;
+	boolean isComplete;
 	
 	static action create(any value, IObserver subscriber) returns action<action<> > {
-		return JustOnPull(subscriber, value, true).onPull;
+		JustOnPull j := JustOnPull(subscriber, value, true, false);
+		subscriber.onUnsubscribe(j.markComplete);
+		return j.onPull;
 	}
 	
 	action onPull(action<> doNotCall) {
+		if isComplete {
+			return;
+		}
 		if firstPull {
 			firstPull := false;
 			subscriber.next(value);
 		} else {
 			subscriber.complete();
 		}
+	}
+	
+	action markComplete() {
+		isComplete := true;
 	}
 }
 

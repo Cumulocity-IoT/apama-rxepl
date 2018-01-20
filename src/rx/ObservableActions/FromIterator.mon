@@ -5,12 +5,18 @@ using com.apama.exceptions.Exception;
 event FromIteratorOnPull {
 	IObserver subscriber;
 	action<> returns any iterator;
+	boolean isComplete;
 	
 	static action create(action<> returns any iterator, IObserver subscriber) returns action<action<> > {
-		return FromIteratorOnPull(subscriber, iterator).onPull;
+		FromIteratorOnPull f := FromIteratorOnPull(subscriber, iterator, false);
+		subscriber.onUnsubscribe(f.markComplete);
+		return f.onPull;
 	}
 	
 	action onPull(action<> doNotCall) {
+		if isComplete {
+			return;
+		}
 		any value := new any;
 		
 		try {
@@ -24,6 +30,10 @@ event FromIteratorOnPull {
 		} else {
 			subscriber.complete();
 		}
+	}
+	
+	action markComplete() {
+		isComplete := true;
 	}
 }
 

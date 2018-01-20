@@ -8,6 +8,7 @@ event CreateObserver {
 	
 	static action create(IObserver subscriber) returns IResolver {
 		CreateObserver o := CreateObserver(subscriber, false);
+		subscriber.onUnsubscribe(o.markComplete);
 		return IResolver(o.next, o.error, o.complete, subscriber.onUnsubscribe);
 	}
 	
@@ -25,8 +26,13 @@ event CreateObserver {
 	
 	action complete() {
 		if not isComplete {
+			isComplete := true;
 			subscriber.complete();
 		}
+	}
+	
+	action markComplete() {
+		isComplete := true;
 	}
 }
 

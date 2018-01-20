@@ -25,7 +25,9 @@ event DelaySubscriber {
 	
 	action complete() {
 		isComplete.setTrue();
-		subscriber.complete();
+		if not isComplete.get() {
+			subscriber.complete();
+		}
 	}
 }
 

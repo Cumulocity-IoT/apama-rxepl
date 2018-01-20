@@ -23,7 +23,7 @@ monitor TestObservable {
 			.take(4)
 	      	.subscribe(ExpectValues.create([<any>TestEvent(1, 2.0),TestEvent(2, 2.0),TestEvent(0, 2.0),TestEvent(3, 2.0)], test.complete, test.fail));
 	    
-	    on wait(0.1) {
+	    on wait(0.5) {
 	    	send TestEvent(1, 2.0) to "Test";
 	    	send TestEvent.create(1) to "Test";
 	    	send TestEvent(2, 2.0) to "Test";

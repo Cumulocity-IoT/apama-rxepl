@@ -17,7 +17,7 @@ monitor TestObservable {
 		discard := o.take(3)
 	      	.subscribe(ExpectValues.create([<any>1,2,3], countTeardowns, test.fail));
 	    
-	    on wait(0.1) {
+	    on wait(0.5) {
 	    	send WrappedAny(1) to "test";
 	    	send WrappedAny(2) to "test";
 	    	send WrappedAny(3) to "test";

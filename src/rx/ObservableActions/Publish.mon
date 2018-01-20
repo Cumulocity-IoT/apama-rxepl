@@ -40,7 +40,9 @@ event PublishSubscriber {
 	
 	action complete() {
 		SubscriberAndSubscription ss;
-		for ss in subscribers {
+		sequence<SubscriberAndSubscription> subscribersCopy := new sequence<SubscriberAndSubscription>;
+		subscribersCopy.appendSequence(subscribers);
+		for ss in subscribersCopy {
 			ss.subscriber.complete();
 		}
 		onComplete();

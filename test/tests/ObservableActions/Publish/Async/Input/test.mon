@@ -36,7 +36,6 @@ monitor TestObservable {
 			.take(3)
 			.publish();
 
-	     
 	     any subscription1 := connectableObservable.subscribe(ExpectValues.create([<any>0,1,2], onTeardown, test.fail));
 	     any subscription2 := connectableObservable.subscribe(ExpectValues.create([<any>0,1,2], onTeardown, test.fail));
 	     any subscription3 := connectableObservable.subscribe(ExpectValues.create([<any>0,1,2], onTeardown, test.fail));

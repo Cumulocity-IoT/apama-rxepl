@@ -6,9 +6,12 @@ event FromOnPull {
 	IObserver subscriber;
 	sequence<any> values;
 	integer i;
+	boolean isComplete;
 	
 	static action create(sequence<any> values, IObserver subscriber) returns action<action<> > {
-		return FromOnPull(subscriber, values, 0).onPull;
+		FromOnPull p := FromOnPull(subscriber, values, 0, false);
+		subscriber.onUnsubscribe(p.markComplete);
+		return p.onPull;
 	}
 	
 	action onPull(action<> empty) {
@@ -16,8 +19,15 @@ event FromOnPull {
 			i := i + 1;
 			subscriber.next(values[i-1]);
 		} else {
-			subscriber.complete();
+			if not isComplete {
+				isComplete := true;
+				subscriber.complete();
+			}
 		}
+	}
+	
+	action markComplete() {
+		isComplete := true;
 	}
 }
 
