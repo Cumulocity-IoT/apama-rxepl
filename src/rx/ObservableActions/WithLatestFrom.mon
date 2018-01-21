@@ -45,7 +45,7 @@ event WithLatestFromSubscriberFactory {
 	
 	action complete(integer id) {
 		completeSubscribersById.add(id, true);
-		if id = subscriberCount - 1 and completeSubscribersById.size() = subscriberCount{
+		if id = emittingId {
 			downstreamSubscriber.complete();
 		}
 	}

@@ -48,11 +48,18 @@ event ExpectValues {
     s.onUnsubscribe(evs.teardown);
     return s;
   }
-  
+
   static action createNoComplete(sequence<any> expectedValues, action<> pass, action<string> fail) returns Subscriber {
     ExpectValues evs := ExpectValues(expectedValues, pass, fail, false, true);
     Subscriber s := Subscriber.create().onNext(evs.next).onError(evs.error).onComplete(evs.complete);
     s.onUnsubscribe(evs.teardown);
+    return s;
+  }
+  
+  static action createNoTeardown(sequence<any> expectedValues, action<> pass, action<string> fail) returns Subscriber {
+    ExpectValues evs := ExpectValues(expectedValues, pass, fail, false, false);
+    Subscriber s := Subscriber.create().onNext(evs.next).onError(evs.error).onComplete(evs.completeNoTeardown);
+    s.onUnsubscribe(evs.doNotTeardown);
     return s;
   }
   
@@ -85,6 +92,19 @@ event ExpectValues {
     }
   }
   
+  action completeNoTeardown() {
+    log "Complete Called";
+    if isComplete {
+        fail("Unexpected complete received");
+    }
+    if expectedValues.size() = 0 {
+        isComplete := true;
+        pass();
+      } else {
+          fail("Did not receive expected values: " + expectedValues.toString());
+      }
+  }
+  
   action teardown() {
     log "Teardown called";
     if isComplete or noComplete {
@@ -92,5 +112,9 @@ event ExpectValues {
     } else {
       fail("Unexpected teardown");
     }
+  }
+  
+  action doNotTeardown() {
+      fail("Should not have called teardown");
   }
 }

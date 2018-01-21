@@ -35,4 +35,5 @@ event IBehaviorSubject {
 	action<sequence<IObservable>, action<sequence<any> > returns any> returns IObservable withLatestFrom;
 	action<float> returns IObservable delay;
 	action<> returns IObservable async;
+	action<Subscriber> returns IObservable do;
 }

@@ -1,0 +1,26 @@
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.WrappedAny;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	action onload() {
+		IObservable o := Observable.fromValues([<any>0,1,2,3]);
+		
+	    any discard := o.withLatestFrom([o], combineIntoIntArray)
+	      	.subscribe(ExpectValues.create([<any>[0,3], [1,3], [2,3], [3,3]], test.complete, test.fail));
+	} 
+	
+	action combineIntoIntArray(sequence<any> values) returns any {
+		sequence<integer> intArray := new sequence<integer>;
+		any value;
+		for value in values {
+			intArray.append(<integer> value);
+		}
+		return intArray;
+	}
+}

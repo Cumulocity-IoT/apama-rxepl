@@ -1,0 +1,53 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event DoSubscriber {
+	IObserver subscriber;
+	Subscriber doer;
+	static action create(IObserver subscriber, Subscriber doer) returns IObserver {
+		DoSubscriber d := DoSubscriber(subscriber, doer);
+		return IObserverBuilder.create(subscriber.createUpstream()).onNext(d.next).onError(d.error).onComplete(d.complete).build();
+	}
+	
+	action next(any value) {
+		try {
+			doer.next(value);
+		} catch(Exception e) {
+			subscriber.error(e);
+		}
+		subscriber.next(value);
+	}
+	
+	action error(any e) {
+		try {
+			doer.error(e);
+		} catch(Exception e) {
+			subscriber.error(e);
+		}
+		subscriber.error(e);
+	}
+	
+	action complete() {
+		try {
+			doer.complete();
+		} catch(Exception e) {
+			subscriber.error(e);
+		}
+		subscriber.complete();
+	}
+}
+
+event DoOnConnection {
+	action<IObserver> returns ISubscription parentOnConnection;
+	Subscriber doer;
+	
+	static action create(action<IObserver> returns ISubscription parentOnConnection, Subscriber doer) returns action<IObserver> returns ISubscription {
+		return DoOnConnection(parentOnConnection, doer).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		IObserver doSubscriber := DoSubscriber.create(subscriber, doer);
+		return parentOnConnection(doSubscriber);
+	}
+}

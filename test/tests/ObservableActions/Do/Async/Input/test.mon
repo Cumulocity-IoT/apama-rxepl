@@ -1,0 +1,27 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	boolean done := false;
+	
+	action onload() {
+	    any discard := TestObservables.createAsync().take(4)
+			.do(ExpectValues.createNoTeardown([<any>0.0,1.0,2.0,3.0], hasDone, test.fail))
+	      	.subscribe(ExpectValues.create([<any>0.0,1.0,2.0,3.0], onTeardown, test.fail));
+	}
+	
+	action hasDone() {
+		done := true;
+	}
+	
+	action onTeardown() {
+		if done {
+			test.complete();
+		} else {
+			test.fail("Do action was not called correctly");
+		}
+	}
+}

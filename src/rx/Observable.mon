@@ -253,7 +253,14 @@ event Observable {
 		o.onConnection := DelayOnConnection.create(onConnection, 0.0);
 		
 		return o.asIObservable();
+	}
+	
+	action do(Subscriber doer) returns IObservable {
+		Observable o := _create();
 		
+		o.onConnection := DoOnConnection.create(onConnection, doer);
+		
+		return o.asIObservable();
 	}
 	
 	static action invalidConnect() returns IDisposable {
@@ -262,6 +269,6 @@ event Observable {
 		
 	action asIObservable() returns IObservable {
 		return IObservable(self, 
-		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatest, withLatestFrom, delay, async);
+		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatest, withLatestFrom, delay, async, do);
 	}
 }

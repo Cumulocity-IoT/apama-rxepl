@@ -109,7 +109,9 @@ event PublishHandler {
 	
 	action onComplete() {
 		isComplete := true;
-        upstreamSubscription.getOrThrow().unsubscribe(); // onComplete wouldn't be called if the upstreamSubscription didn't exist
+		ifpresent upstreamSubscription {
+			upstreamSubscription.unsubscribe();
+		}
 	}
 	
 	action reset() {
