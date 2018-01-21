@@ -5,17 +5,32 @@ using com.apama.exceptions.Exception;
 event PublishReplayRecordingSubscriber {
 	sequence<any> replayValues;
 	integer maxCount;
+	IObserver subscriber;
+	PullingLoop pullingLoop;
+	boolean isComplete;
 	
 	static action create(sequence<any> replayValues, integer maxCount) returns IObserver {
-		PublishReplayRecordingSubscriber p := PublishReplayRecordingSubscriber(replayValues, maxCount);
-		return Subscriber.create().onNext(p.next).asIObserver();
+		PublishReplayRecordingSubscriber p := PublishReplayRecordingSubscriber(replayValues, maxCount, new IObserver, new PullingLoop, false);
+		IObserver o := Subscriber.create().onNext(p.next).onComplete(p.complete).asIObserver();
+		p.subscriber := o;
+		p.pullingLoop := PullingLoop.create(o.pull);
+		return o;
 	}
 	
 	action next(any value) {
+		if isComplete {
+			return;
+		}
 		replayValues.append(value);
 		if replayValues.size() > maxCount {
 			replayValues.remove(0);
 		}
+		pullingLoop.pull();
+	}
+	
+	action complete() {
+		isComplete := true;
+		subscriber.unsubscribe();
 	}
 }
 
@@ -79,6 +94,7 @@ event PublishReplayHandler {
 	}
 	
 	action onDisconnect() {
+		recordingSubscriber.getOrThrow().unsubscribe();
 		recordingSubscriber := new optional<IObserver>;
 		replayValues.clear();
 	}

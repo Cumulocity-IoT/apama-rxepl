@@ -1,0 +1,43 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IDisposable;
+using com.industry.rx_epl.IResolver;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	boolean isConnected := false;
+	integer teardownCount := 0;
+	
+	action<> sendComplete;
+	
+	action onload() {
+	     IObservable replay := Observable.create(send0to4WithoutComplete).publishReplay(2);
+
+	     any subscription1 := replay.subscribe(ExpectValues.create([<any>0,1,2,3,4], onTeardown, test.fail));
+	     any connection := replay.connect();
+    	 any subscription2 := replay.subscribe(ExpectValues.create([<any>3,4], onTeardown, test.fail));
+    	 sendComplete();
+    	 any subscription3 := replay.subscribe(ExpectValues.create(new sequence<any>, onTeardown, test.fail));
+	}
+	
+	action send0to4WithoutComplete(IResolver resolver) {
+		integer i := 0;
+		while i < 5 {
+			resolver.next(i);
+			i := i + 1;
+		}
+		sendComplete := resolver.complete;
+	}
+	
+	action onTeardown() {
+		teardownCount := teardownCount + 1;
+		if teardownCount = 3 {
+			test.complete();
+		}
+	}
+}

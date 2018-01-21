@@ -68,6 +68,7 @@ event PublishOnDisconnection {
 				subscribers.remove(idx);
 				break;
 			}
+			idx := idx + 1;
 		}
 	}
 }
