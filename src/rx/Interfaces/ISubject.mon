@@ -32,4 +32,6 @@ event ISubject {
 	action<float> returns IObservable delay;
 	action<> returns IObservable async;
 	action<Subscriber> returns IObservable do;
+	action<integer> returns IObservable publishReplay;
+	action<integer> returns IObservable shareReplay;
 }

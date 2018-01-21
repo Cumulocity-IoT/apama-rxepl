@@ -1,7 +1,6 @@
 package com.industry.rx_epl;
 
 event IDisposable {
-	integer id;
 	action<> onDispose;
 	
 	action dispose() {

@@ -110,7 +110,7 @@ event Observable {
 	}
 	
 	action publish() returns IObservable {
-		IDisposable connection := IDisposable(1, new action<>);
+		IDisposable connection := IDisposable(new action<>);
 		PublishHandler p := PublishHandler.create(onConnection, connection);
 		Observable o := _createConnectable(connection, p.connect);
 		
@@ -263,12 +263,34 @@ event Observable {
 		return o.asIObservable();
 	}
 	
+	/**
+	 * Note: on termination of the connection the replay buffer will be emptied
+	 */
+	action publishReplay(integer count) returns IObservable {
+		IDisposable connection := IDisposable(new action<>);
+		
+		Observable publishObservable := <Observable> publish().observable;
+		PublishReplayHandler replayHandler := PublishReplayHandler.create(publishObservable.connection, connection, publishObservable.connect, publishObservable.onConnection, count);
+		Observable o := _createConnectable(connection, replayHandler.downstreamConnect);
+		
+		o.onConnection := replayHandler.onConnection;
+		
+		return o.asIObservable();
+	}
+	
+	/**
+	 * Note: Unlike in rxjs v5.5 (but like rxjs v5.4) - if the refcount drops to 0 then the source will be disconnected from and the replay buffer will be emptied
+	 */
+	action shareReplay(integer count) returns IObservable {
+		return publishReplay(count).refCount();
+	}
+	
 	static action invalidConnect() returns IDisposable {
 		throw Exception("Can only connect a published Observable", "UnsupportedOperation");
 	}
 		
 	action asIObservable() returns IObservable {
 		return IObservable(self, 
-		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatest, withLatestFrom, delay, async, do);
+		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatest, withLatestFrom, delay, async, do, publishReplay, shareReplay);
 	}
 }

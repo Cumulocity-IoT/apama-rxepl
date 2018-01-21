@@ -7,11 +7,9 @@ event RefCountOnConnection {
 	action<> returns IDisposable connect;
 	action<IObserver> returns ISubscription parentOnConnection;
 	integer refCount;
-	boolean connecting;
-	boolean disposeSynchronously;
 	
 	static action create(IDisposable connection, action<> returns IDisposable connect, action<IObserver> returns ISubscription parentOnConnection) returns action<IObserver> returns ISubscription {
-		return RefCountOnConnection(connection, connect, parentOnConnection, 0, false, false).onConnection;
+		return RefCountOnConnection(connection, connect, parentOnConnection, 0).onConnection;
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {
