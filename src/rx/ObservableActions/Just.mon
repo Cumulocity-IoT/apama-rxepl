@@ -2,35 +2,6 @@ package com.industry.rx_epl;
 
 using com.apama.exceptions.Exception;
 
-event JustOnPull {
-	IObserver subscriber;
-	any value;
-	boolean firstPull;
-	boolean isComplete;
-	
-	static action create(any value, IObserver subscriber) returns action<action<> > {
-		JustOnPull j := JustOnPull(subscriber, value, true, false);
-		subscriber.onUnsubscribe(j.markComplete);
-		return j.onPull;
-	}
-	
-	action onPull(action<> doNotCall) {
-		if isComplete {
-			return;
-		}
-		if firstPull {
-			firstPull := false;
-			subscriber.next(value);
-		} else {
-			subscriber.complete();
-		}
-	}
-	
-	action markComplete() {
-		isComplete := true;
-	}
-}
-
 event JustOnConnection {
 	any value;
 	static action create(any value) returns action<IObserver> returns ISubscription {
@@ -40,7 +11,10 @@ event JustOnConnection {
 	action onConnection(IObserver subscriber) returns ISubscription {
 		// Must create subscription before calling ay next, error, complete
 		ISubscription subscription := Subscription.create(subscriber).asISubscription();
-		subscriber.onPull := JustOnPull.create(value, subscriber);
+		subscriber.next(value);
+		if subscriber.subscribed() {
+			subscriber.complete();
+		}
 		return subscription;
 	}
 }

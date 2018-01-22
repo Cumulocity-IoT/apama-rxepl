@@ -6,14 +6,12 @@ event PublishReplayRecordingSubscriber {
 	sequence<any> replayValues;
 	integer maxCount;
 	IObserver subscriber;
-	PullingLoop pullingLoop;
 	boolean isComplete;
 	
 	static action create(sequence<any> replayValues, integer maxCount) returns IObserver {
-		PublishReplayRecordingSubscriber p := PublishReplayRecordingSubscriber(replayValues, maxCount, new IObserver, new PullingLoop, false);
+		PublishReplayRecordingSubscriber p := PublishReplayRecordingSubscriber(replayValues, maxCount, new IObserver, false);
 		IObserver o := Subscriber.create().onNext(p.next).onComplete(p.complete).asIObserver();
 		p.subscriber := o;
-		p.pullingLoop := PullingLoop.create(o.pull);
 		return o;
 	}
 	
@@ -25,7 +23,6 @@ event PublishReplayRecordingSubscriber {
 		if replayValues.size() > maxCount {
 			replayValues.remove(0);
 		}
-		pullingLoop.pull();
 	}
 	
 	action complete() {

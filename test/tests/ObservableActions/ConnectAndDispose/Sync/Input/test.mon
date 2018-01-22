@@ -14,19 +14,18 @@ monitor TestObservable {
 	boolean isDisposed := false;
 	
 	action onload() {
-	     IObservable connectableObservable := TestObservables.createSync()
+	    IObservable connectableObservable := TestObservables.createSync()
 			.take(3)
 			.map(makeSureNotCalledUntilConnected)
 			.publish();
 
-	     any subscription := connectableObservable.subscribe(ExpectValues.create([<any>0.0, 1.0, 2.0], onTeardown, test.fail));
+	    any subscription := connectableObservable.subscribe(ExpectValues.create([<any>0.0, 1.0, 2.0], onTeardown, test.fail));
 	     
-	     isConnected := true;
-	     any connection := connectableObservable.connect();
-	     // Can't disconnect because it completes synchronously - when it generates more than 10 it becomes async automatically which we should test elsewhere
-	     if not isDisposed {
-	    	 test.fail("Was not disposed synchronously");
-	     }
+	    isConnected := true;
+	    any connection := connectableObservable.connect();
+	    if not isDisposed {
+	    	test.fail("Was not disposed synchronously");
+	    }
 	}
 	
 	action onTeardown() {

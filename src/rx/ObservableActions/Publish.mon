@@ -12,12 +12,10 @@ event PublishSubscriber {
 	sequence<SubscriberAndSubscription> subscribers;
 	action<> onComplete;
 	action<> returns boolean isUnsubscribed;
-	PullingLoop pullingLoop;
 	
 	static action create(sequence<SubscriberAndSubscription> subscribers, action<> onComplete, action<> returns boolean isUnsubscribed) returns IObserver {
-		PublishSubscriber p := PublishSubscriber(subscribers, onComplete, isUnsubscribed, new PullingLoop);
+		PublishSubscriber p := PublishSubscriber(subscribers, onComplete, isUnsubscribed);
 		IObserver s := Subscriber.create().onNext(p.next).onError(p.error).onComplete(p.complete).asIObserver();
-		p.pullingLoop := PullingLoop.create(s.pull);
 		return s;
 	}
 	
@@ -25,9 +23,6 @@ event PublishSubscriber {
 		SubscriberAndSubscription ss;
 		for ss in subscribers {
 			ss.subscriber.next(value);
-		}
-		if not isUnsubscribed() {
-			pullingLoop.pull();
 		}
 	}
 	
@@ -77,23 +72,21 @@ event PublishHandler {
 	action<IObserver> returns ISubscription parentOnConnection;
 	IDisposable connection;
 	sequence<SubscriberAndSubscription> subscribers;
-	optional<ISubscription> upstreamSubscription;
-	IObserver upstreamSubscriber;
+	ISubscription upstreamSubscription;
+	optional<IObserver> upstreamSubscriber;
 	boolean isComplete;
 	
 	static action create(action<IObserver> returns ISubscription parentOnConnection, IDisposable connection) returns PublishHandler {
-		return PublishHandler(parentOnConnection, connection, new sequence<SubscriberAndSubscription>, new optional<ISubscription>, new IObserver, false);
+		return PublishHandler(parentOnConnection, connection, new sequence<SubscriberAndSubscription>, new ISubscription, new optional<IObserver>, false);
 	}
 	
 	action connect() returns IDisposable {
 		if not isComplete {
 			// If there isn't an upstream subscription then create one
-			if upstreamSubscription.empty() {
+			if upstreamSubscriber.empty() {
 				upstreamSubscriber := PublishSubscriber.create(subscribers, onComplete, isUnsubscribed);
 				connection.onDispose := reset;
-				upstreamSubscription := parentOnConnection(upstreamSubscriber);
-				// Don't need to loop this - it'll only be called once (during connection), the rest of the looping is handled in the PublishSubscriber
-				upstreamSubscriber.pull();
+				upstreamSubscription := parentOnConnection(upstreamSubscriber.getOrThrow());
 			}
 		} else {
 			SubscriberAndSubscription ss;
@@ -105,21 +98,22 @@ event PublishHandler {
 	}
 	
 	action isUnsubscribed() returns boolean {
-		return upstreamSubscription.empty();
+		return upstreamSubscriber.empty();
 	}
 	
 	action onComplete() {
 		isComplete := true;
-		ifpresent upstreamSubscription {
-			upstreamSubscription.unsubscribe();
+		ifpresent upstreamSubscriber {
+			upstreamSubscriber.unsubscribe();
 		}
 	}
 	
 	action reset() {
-		ifpresent upstreamSubscription {
-			upstreamSubscription.unsubscribe();
+		ifpresent upstreamSubscriber {
+			upstreamSubscriber.unsubscribe();
 		}
-		upstreamSubscription := new optional<ISubscription>;
+		upstreamSubscriber := new optional<IObserver>;
+		upstreamSubscription := new ISubscription;
 		SubscriberAndSubscription ss;
 		for ss in subscribers {
 			ss.subscription.unsubscribe();

@@ -2,37 +2,9 @@ package com.industry.rx_epl;
 
 using com.apama.exceptions.Exception;
 
-event FromOnPull {
-	IObserver subscriber;
-	sequence<any> values;
-	integer i;
-	boolean isComplete;
-	
-	static action create(sequence<any> values, IObserver subscriber) returns action<action<> > {
-		FromOnPull p := FromOnPull(subscriber, values, 0, false);
-		subscriber.onUnsubscribe(p.markComplete);
-		return p.onPull;
-	}
-	
-	action onPull(action<> empty) {
-		if i < values.size() {
-			i := i + 1;
-			subscriber.next(values[i-1]);
-		} else {
-			if not isComplete {
-				isComplete := true;
-				subscriber.complete();
-			}
-		}
-	}
-	
-	action markComplete() {
-		isComplete := true;
-	}
-}
-
 event FromOnConnection {
 	any values;
+	
 	static action create(any values) returns action<IObserver> returns ISubscription {
 		return FromOnConnection(values).onConnection;
 	}
@@ -40,7 +12,14 @@ event FromOnConnection {
 	action onConnection(IObserver subscriber) returns ISubscription {
 		// Must create subscription before calling ay next, error, complete
 		ISubscription subscription := Subscription.create(subscriber).asISubscription();
-		subscriber.onPull := FromOnPull.create(Utils.anyToSequenceAny(values), subscriber);
+		any value;
+		for value in Utils.anyToSequenceAny(values) {
+			subscriber.next(value);
+			if not subscriber.subscribed() {
+				return subscription;
+			}
+		}
+		subscriber.complete();
 		return subscription;
 	}
 }

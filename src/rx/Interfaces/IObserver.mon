@@ -23,30 +23,13 @@ event IObserver {
 	action<any> error;
 	action<> complete;
 	
-	action<> upstreamPull;
-	action<action<> > onPull;
-	
 	action<action<> > onUnsubscribe;
 	action<> unsubscribe;
 	action<> returns boolean subscribed;
 	action<> subscribe;
 	
-	action pull() {
-		ifpresent onPull {
-			onPull(upstreamPull);
-		}
-	}
-	
-	action defaultOnPull(action<> upstreamOnPull) {
-		upstreamOnPull();
-	}
-	
 	action createUpstream() returns IObserver {
-		IObserver upstream := IObserver(self, IObserverId.create(), next, error, complete, new action<>, new action<action<> >, onUnsubscribe, unsubscribe, subscribed, subscribe);
-		upstreamPull := upstream.pull;
-		ifpresent onPull {} else {
-			onPull := defaultOnPull;
-		}
+		IObserver upstream := IObserver(self, IObserverId.create(), next, error, complete, onUnsubscribe, unsubscribe, subscribed, subscribe);
 		return upstream;
 	}
 }

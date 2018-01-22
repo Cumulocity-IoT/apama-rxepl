@@ -6,10 +6,9 @@ event DelaySubscriber {
 	IObserver subscriber;
 	float delay;
 	WrappedBoolean isComplete; // Have to use a wrapped boolean as the listener takes a copy of local variables
-	PullingLoop pullingLoop;
 	
 	static action create(IObserver subscriber, float delay) returns IObserver {
-		DelaySubscriber m := DelaySubscriber(subscriber, delay, WrappedBoolean(false), PullingLoop.create(subscriber.pull));
+		DelaySubscriber m := DelaySubscriber(subscriber, delay, WrappedBoolean(false));
 		IObserver o := IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).onComplete(m.complete).build();
 		return o;
 	}
@@ -20,7 +19,6 @@ event DelaySubscriber {
 				subscriber.next(value);
 			}
 		}
-		pullingLoop.pull();
 	}
 	
 	action complete() {

@@ -13,15 +13,7 @@ event TakeUntilSubscriber {
 		ISubscription untilSubscription := until.take(1).subscribe(Subscriber.create().onComplete(m.untilComplete));
 		m.untilUnsubscribe := untilSubscription.unsubscribe;
 		IObserver upstreamSubscriber := IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).onComplete(m.complete).build();
-		subscriber.onPull := m.onPull;
 		return upstreamSubscriber;
-	}
-	
-	action onPull(action<> upstreamPull) {
-		if not isComplete {
-			// Don't need to sync limit this because the sync limitting will be done by the downstream
-			upstreamPull();
-		}
 	}
     
 	action next(any value) {

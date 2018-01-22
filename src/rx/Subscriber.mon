@@ -71,7 +71,7 @@ event Subscriber {
 	}
 	
 	action asIObserver() returns IObserver {
-		return IObserver(self, IObserverId.create(), next, error, complete, new action<>, new action<action<> >, onUnsubscribe, unsubscribe, subscribed, subscribe);
+		return IObserver(self, IObserverId.create(), next, error, complete, onUnsubscribe, unsubscribe, subscribed, subscribe);
 	}
 }
 

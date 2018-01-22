@@ -2,49 +2,14 @@ package com.industry.rx_epl;
 
 using com.apama.exceptions.Exception;
 
-event TakeLastOnPull {
-	IObserver downstreamSubscriber;
-	sequence<any> values;
-	integer i;
-	boolean isFirstPull;
-	
-	static action create(sequence<any> values, IObserver downstreamSubscriber) returns action<action<> > {
-		return TakeLastOnPull(downstreamSubscriber, values, 0, true).onPull;
-	}
-	
-	action onPull(action<> upstreamPull) {
-		// Wait until we get the first pull from downstream to pull from the upstream
-		if isFirstPull {
-			isFirstPull := false;
-			upstreamPull();
-		} else {
-			if i < values.size() {
-				i := i + 1;
-				downstreamSubscriber.next(values[i-1]);
-			} else {
-				downstreamSubscriber.complete();
-			}
-		}
-	}
-}
-
-
 event TakeLastSubscriber {
-	IObserver downstreamSubscriber;
+	IObserver subscriber;
 	integer count;
 	sequence<any> values;
-	boolean isComplete;
-	PullingLoop upstreamPullingLoop;
 	
 	static action create(IObserver downstreamSubscriber, integer count) returns IObserver {
-		TakeLastSubscriber m := TakeLastSubscriber(downstreamSubscriber, count, new sequence<any>, false, new PullingLoop);
-		IObserver upstreamSubscriber := IObserverBuilder.create(downstreamSubscriber.createUpstream()).onNext(m.next).onComplete(m.complete).build();
-		
-		m.upstreamPullingLoop := PullingLoop.create(upstreamSubscriber.pull);
-		
-		downstreamSubscriber.onPull := TakeLastOnPull.create(m.values, downstreamSubscriber);
-		
-		return upstreamSubscriber;
+		TakeLastSubscriber m := TakeLastSubscriber(downstreamSubscriber, count, new sequence<any>);
+		return IObserverBuilder.create(downstreamSubscriber.createUpstream()).onNext(m.next).onComplete(m.complete).build();
 	}
 	
 	action next(any value) {
@@ -52,14 +17,17 @@ event TakeLastSubscriber {
 		if values.size() > count {
 			values.remove(0);
 		}
-		
-		upstreamPullingLoop.pull();
 	}
 	
 	action complete() {
-		isComplete := true;
-		// Trigger the TakeOnPull by pulling the downstream once - It should automatically continue to pull the rest
-		downstreamSubscriber.pull();
+		any value;
+		for value in values {
+			subscriber.next(value);
+			if not subscriber.subscribed() {
+				return;
+			}
+		}
+		subscriber.complete();
 	}
 }
 

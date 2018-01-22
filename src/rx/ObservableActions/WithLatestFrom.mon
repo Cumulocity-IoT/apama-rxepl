@@ -10,10 +10,9 @@ event WithLatestFromSubscriberFactory {
 	
 	dictionary<integer, any> latestValuesById;
 	dictionary<integer, boolean> completeSubscribersById;
-	dictionary<integer, PullingLoop> pullingLoopById;
 	
 	static action create(IObserver subscriber, action<sequence<any> > returns any combiner) returns WithLatestFromSubscriberFactory {
-		return WithLatestFromSubscriberFactory(subscriber, combiner, 0, 0, new dictionary<integer, any>, new dictionary<integer, boolean>, new dictionary<integer, PullingLoop>);
+		return WithLatestFromSubscriberFactory(subscriber, combiner, 0, 0, new dictionary<integer, any>, new dictionary<integer, boolean>);
 	}
 	
 	action createUpstreamSubscriber(boolean causesEmission) returns IObserver {
@@ -24,9 +23,7 @@ event WithLatestFromSubscriberFactory {
 		} else {
 			id := subscriberCount;
 		}
-		IObserver o := IObserverBuilder.create(downstreamSubscriber.createUpstream()).onNext(CombineLatestOnNext.create(id, next)).onComplete(CombineLatestOnComplete.create(id, complete)).build();
-		pullingLoopById.add(id, PullingLoop.create(o.pull));
-		return o;
+		return IObserverBuilder.create(downstreamSubscriber.createUpstream()).onNext(CombineLatestOnNext.create(id, next)).onComplete(CombineLatestOnComplete.create(id, complete)).build();
 	}
 	
 	action next(integer id, any value) {
@@ -40,7 +37,6 @@ event WithLatestFromSubscriberFactory {
 				return;
 			}
 		}
-		pullingLoopById[id].pull();
 	}
 	
 	action complete(integer id) {
@@ -48,18 +44,6 @@ event WithLatestFromSubscriberFactory {
 		if id = emittingId {
 			downstreamSubscriber.complete();
 		}
-	}
-	
-	action pullAll() {
-		integer id;
-		for id in pullingLoopById.keys() {
-			if id = emittingId {
-				continue;
-			}
-			pullingLoopById[id].pull();
-		}
-		// Make sure that the emitting one is the last one to connect
-		pullingLoopById[emittingId].pull();
 	}
 }
 
@@ -94,8 +78,6 @@ event WithLatestFromOnConnection {
 		}
 		// Make sure that the emissionCausingObservable is the last one to connect
 		s := emissionCausingObservable.connectObserver(emittingUpstream);
-		
-		factory.pullAll();
 		
 		return s;
 	}

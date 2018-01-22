@@ -35,17 +35,15 @@ event CombineLatestSubscriberFactory {
 	
 	dictionary<integer, any> latestValuesById;
 	dictionary<integer, boolean> completeSubscribersById;
-	dictionary<integer, PullingLoop> pullingLoopById;
 	
 	static action create(IObserver subscriber, action<sequence<any> > returns any combiner) returns CombineLatestSubscriberFactory {
-		return CombineLatestSubscriberFactory(subscriber, combiner, 0, new dictionary<integer, any>, new dictionary<integer, boolean>, new dictionary<integer, PullingLoop>);
+		return CombineLatestSubscriberFactory(subscriber, combiner, 0, new dictionary<integer, any>, new dictionary<integer, boolean>);
 	}
 	
 	action createUpstreamSubscriber() returns IObserver {
 		integer id := subscriberCount;
 		subscriberCount := subscriberCount + 1;
 		IObserver o := IObserverBuilder.create(downstreamSubscriber.createUpstream()).onNext(CombineLatestOnNext.create(id, next)).onComplete(CombineLatestOnComplete.create(id, complete)).build();
-		pullingLoopById.add(id, PullingLoop.create(o.pull));
 		return o;
 	}
 	
@@ -60,20 +58,12 @@ event CombineLatestSubscriberFactory {
 				return;
 			}
 		}
-		pullingLoopById[id].pull();
 	}
 	
 	action complete(integer id) {
 		completeSubscribersById.add(id, true);
 		if completeSubscribersById.size() = subscriberCount {
 			downstreamSubscriber.complete();
-		}
-	}
-	
-	action pullAll() {
-		PullingLoop p;
-		for p in pullingLoopById.values() {
-			p.pull();
 		}
 	}
 }
@@ -105,8 +95,6 @@ event CombineLatestOnConnection {
 			s := observables[i].connectObserver(upstream);
 			i := i + 1;
 		}
-		
-		factory.pullAll();
 		
 		return s;
 	}

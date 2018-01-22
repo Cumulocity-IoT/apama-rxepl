@@ -6,10 +6,9 @@ event DistinctBySubscriber {
 	IObserver subscriber;
 	action<any> returns any distinctBy;
 	dictionary<any, boolean> valuesSeen;
-	PullingLoop pullingLoop;
 	
 	static action create(IObserver subscriber, action<any> returns any distinctBy) returns IObserver {
-		DistinctBySubscriber m := DistinctBySubscriber(subscriber, distinctBy, new dictionary<any, boolean>, PullingLoop.create(subscriber.pull));
+		DistinctBySubscriber m := DistinctBySubscriber(subscriber, distinctBy, new dictionary<any, boolean>);
 		return IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).build();
 	}
 	
@@ -22,8 +21,6 @@ event DistinctBySubscriber {
 			if not valuesSeen.hasKey(key) {
 				valuesSeen.add(key, true);
 				subscriber.next(value);
-			} else {
-				pullingLoop.pull();
 			}
 		} catch(Exception e) {
 			subscriber.error(e);
