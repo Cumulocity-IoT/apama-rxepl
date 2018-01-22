@@ -11,7 +11,7 @@ event RangeOnConnection {
 	}
 	
 	action iterator() returns any {
-		if current < end {
+		if current <= end {
 			integer value := current;
 			current := current + 1;
 			return value;

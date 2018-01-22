@@ -17,12 +17,13 @@ event FromIteratorOnPull {
 		if isComplete {
 			return;
 		}
-		any value := new any;
 		
+		any value;
 		try {
 			value := iterator();
 		} catch(Exception e) {
 			subscriber.error(e);
+			return;
 		}
 		
 		ifpresent value {

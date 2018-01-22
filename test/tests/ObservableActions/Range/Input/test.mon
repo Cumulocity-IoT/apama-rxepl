@@ -7,7 +7,7 @@ monitor TestObservable {
 	Test test := Test("TestResult");
   
 	action onload() {		
-	    any discard := Observable.range(15,21)
+	    any discard := Observable.range(15,20)
 	      	.subscribe(ExpectValues.create([<any>15,16,17,18,19,20], test.complete, test.fail));
 	}
 }

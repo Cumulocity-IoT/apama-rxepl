@@ -1,0 +1,65 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event TakeUntilSubscriber {
+	IObserver subscriber;
+	action<> untilUnsubscribe;
+	boolean isComplete;
+	
+	static action create(IObserver subscriber, IObservable until) returns IObserver {
+		TakeUntilSubscriber m := TakeUntilSubscriber(subscriber, new action<>, false);
+		subscriber.subscribe();
+		ISubscription untilSubscription := until.take(1).subscribe(Subscriber.create().onComplete(m.untilComplete));
+		m.untilUnsubscribe := untilSubscription.unsubscribe;
+		IObserver upstreamSubscriber := IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).onComplete(m.complete).build();
+		subscriber.onPull := m.onPull;
+		return upstreamSubscriber;
+	}
+	
+	action onPull(action<> upstreamPull) {
+		if not isComplete {
+			// Don't need to sync limit this because the sync limitting will be done by the downstream
+			upstreamPull();
+		}
+	}
+    
+	action next(any value) {
+		subscriber.next(value);
+	}
+	
+	action complete() {
+		isComplete := true;
+		untilUnsubscribe();
+		subscriber.complete();
+	}
+	
+	action untilComplete() {
+		isComplete := true;
+		subscriber.complete();
+	}
+}
+
+event TakeUntilOnConnection {
+	action<IObserver> returns ISubscription parentOnConnection;
+	IObservable until;
+	boolean isComplete;
+	
+	static action create(action<IObserver> returns ISubscription parentOnConnection, IObservable until) returns action<IObserver> returns ISubscription {
+		return TakeUntilOnConnection(parentOnConnection, until, false).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		subscriber.onUnsubscribe(onComplete);
+		IObserver upstreamSubscriber := TakeUntilSubscriber.create(subscriber, until);
+		if isComplete {
+			return Subscription.create(subscriber).asISubscription();
+		} else {
+			return parentOnConnection(upstreamSubscriber);
+		}
+	}
+	
+	action onComplete() {
+		isComplete := true;
+	}
+}
