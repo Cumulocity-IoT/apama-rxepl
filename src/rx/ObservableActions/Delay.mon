@@ -11,7 +11,6 @@ event DelaySubscriber {
 		DelaySubscriber m := DelaySubscriber(subscriber, new IObserver, delay);
 		m.upstreamSubscriber := Subscriber.create().onNext(m.next).onError(subscriber.error).onComplete(m.complete).asIObserver();
 		subscriber.onUnsubscribe(m.upstreamSubscriber.unsubscribe);
-		subscriber.subscribe();
 		return m.upstreamSubscriber;
 	}
 	
@@ -43,6 +42,7 @@ event DelayOnConnection {
 	
 	action onConnection(IObserver subscriber) returns ISubscription {
 		IObserver delaySubscriber := DelaySubscriber.create(subscriber, delay);
-		return parentOnConnection(delaySubscriber);
+		ISubscription s := parentOnConnection(delaySubscriber);
+		return Subscription.create(subscriber).asISubscription();
 	}
 }
