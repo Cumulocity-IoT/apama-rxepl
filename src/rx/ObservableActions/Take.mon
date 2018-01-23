@@ -9,8 +9,7 @@ event TakeSubscriber {
 	
 	static action create(IObserver subscriber, integer count) returns IObserver {
 		TakeSubscriber m := TakeSubscriber(subscriber, count, false);
-		IObserver upstreamSubscriber := IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).build();
-		return upstreamSubscriber;
+		return IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).build();
 	}
     
 	action next(any value) {

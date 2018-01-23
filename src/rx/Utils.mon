@@ -46,19 +46,3 @@ event WrappedInteger {
 		value := value + 1;
 	}
 }
-
-event WrappedBoolean {
-	boolean value;
-	
-	action get() returns boolean {
-		return value;
-	}
-	
-	action setTrue() {
-		value := true;
-	}
-	
-	action setFalse() {
-		value := false;
-	}
-}

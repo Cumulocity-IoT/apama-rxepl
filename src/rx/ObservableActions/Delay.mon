@@ -4,28 +4,32 @@ using com.apama.exceptions.Exception;
 
 event DelaySubscriber {
 	IObserver subscriber;
+	IObserver upstreamSubscriber;
 	float delay;
-	WrappedBoolean isComplete; // Have to use a wrapped boolean as the listener takes a copy of local variables
 	
 	static action create(IObserver subscriber, float delay) returns IObserver {
-		DelaySubscriber m := DelaySubscriber(subscriber, delay, WrappedBoolean(false));
-		IObserver o := IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).onComplete(m.complete).build();
-		return o;
+		DelaySubscriber m := DelaySubscriber(subscriber, new IObserver, delay);
+		m.upstreamSubscriber := Subscriber.create().onNext(m.next).onError(subscriber.error).onComplete(m.complete).asIObserver();
+		subscriber.onUnsubscribe(m.upstreamSubscriber.unsubscribe);
+		subscriber.subscribe();
+		return m.upstreamSubscriber;
 	}
 	
 	action next(any value) {
 		on wait(delay) {
-			if not isComplete.get() {
+			if subscriber.subscribed() {
 				subscriber.next(value);
 			}
 		}
 	}
 	
 	action complete() {
-		isComplete.setTrue();
-		if not isComplete.get() {
-			subscriber.complete();
+		on wait(delay) {
+			if subscriber.subscribed() {
+				subscriber.complete();
+			}
 		}
+		upstreamSubscriber.unsubscribe();
 	}
 }
 

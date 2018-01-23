@@ -1,0 +1,28 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+	boolean hasDelayed := false;
+	
+	action onload() {
+	    any discard := TestObservables.createSync()
+			.take(3)
+			.delay(0.1)
+	      	.subscribe(ExpectValues.create([<any>0.0,1.0,2.0], onTeardown, test.fail));
+	    hasDelayed := true;
+	}
+	
+	action onTeardown() {
+		if hasDelayed {
+			test.complete();
+		} else {
+			test.fail("Did not delay data");
+		}
+	}
+	
+	action multiplyBy10(any value) returns any {
+		return <float> value * 10.0;
+	}
+}

@@ -12,8 +12,7 @@ event TakeUntilSubscriber {
 		subscriber.subscribe();
 		ISubscription untilSubscription := until.take(1).subscribe(Subscriber.create().onComplete(m.untilComplete));
 		m.untilUnsubscribe := untilSubscription.unsubscribe;
-		IObserver upstreamSubscriber := IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).onComplete(m.complete).build();
-		return upstreamSubscriber;
+		return IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).onComplete(m.complete).build();
 	}
     
 	action next(any value) {
