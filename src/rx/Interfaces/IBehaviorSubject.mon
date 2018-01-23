@@ -39,4 +39,5 @@ event IBehaviorSubject {
 	action<integer> returns IObservable publishReplay;
 	action<integer> returns IObservable shareReplay;
 	action<IObservable> returns IObservable takeUntil;
+	action<integer> returns IObservable repeat;
 }

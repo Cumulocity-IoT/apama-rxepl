@@ -88,6 +88,11 @@ event Observable {
 		return o.asIObservable();	
 	}
 	
+	static action repeat(any value, integer count) returns IObservable {
+		Observable j := <Observable> just(value).observable;
+		return j.repeatObservable(count);
+	}
+	
 	action connectObserver(IObserver observer) returns ISubscription {
 		return onConnection(observer);
 	}
@@ -293,12 +298,21 @@ event Observable {
 		return o.asIObservable();
 	}
 	
+	// Called repeat when accessed via the interface
+	action repeatObservable(integer count) returns IObservable {
+		Observable o := _create();
+		
+		o.onConnection := RepeatOnConnection.create(onConnection, count);
+		
+		return o.asIObservable();
+	}
+	
 	static action invalidConnect() returns IDisposable {
 		throw Exception("Can only connect a published Observable", "UnsupportedOperation");
 	}
 		
 	action asIObservable() returns IObservable {
 		return IObservable(self, 
-		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatest, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil);
+		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatest, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable);
 	}
 }
