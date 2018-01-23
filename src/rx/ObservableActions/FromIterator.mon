@@ -20,7 +20,11 @@ event FromIteratorOnConnection {
 		while hasValue {
 			subscriber.next(value);
 			hasValue := false;
-			value := iterator();
+			try {
+				value := iterator();
+			} catch(Exception e) {
+				subscriber.error(e);
+			}
 			ifpresent value {
 				hasValue := true;
 			}

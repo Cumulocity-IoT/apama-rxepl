@@ -2,40 +2,6 @@ package com.industry.rx_epl;
 
 using com.apama.exceptions.Exception;
 
-event CreateObserver {
-	IObserver subscriber;
-	boolean isComplete;
-	
-	static action create(IObserver subscriber) returns IResolver {
-		CreateObserver o := CreateObserver(subscriber, false);
-		subscriber.onUnsubscribe(o.markComplete);
-		return IResolver(o.next, o.error, o.complete, subscriber.onUnsubscribe);
-	}
-	
-	action next(any value) {
-		if not isComplete {
-			subscriber.next(value);
-		}
-	}
-	
-	action error(any value) {
-		if not isComplete {
-			subscriber.error(value);
-		}
-	}
-	
-	action complete() {
-		if not isComplete {
-			isComplete := true;
-			subscriber.complete();
-		}
-	}
-	
-	action markComplete() {
-		isComplete := true;
-	}
-}
-
 event CreateOnConnection {
 	action<IResolver> resolver;
 	static action create(action<IResolver> resolver) returns action<IObserver> returns ISubscription {
@@ -45,7 +11,13 @@ event CreateOnConnection {
 	action onConnection(IObserver subscriber) returns ISubscription {
 		// Must create subscription before calling ay next, error, complete
 		ISubscription subscription := Subscription.create(subscriber).asISubscription();
-		resolver(CreateObserver.create(subscriber));
+		IResolver r := IResolver(subscriber.next, subscriber.error, subscriber.complete, subscriber.onUnsubscribe);
+		subscriber.onUnsubscribe(r.disconnect);
+		try {
+			resolver(r);
+		} catch (Exception e) {
+			subscriber.error(e);
+		}
 		return subscription;
 	}
 }

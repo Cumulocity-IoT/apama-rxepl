@@ -28,6 +28,16 @@ event IObserver {
 	action<> returns boolean subscribed;
 	action<> subscribe;
 	
+	action disconnect() {
+		next := noOpNext;
+		error := noOpError;
+		complete := noOpComplete;
+	}
+	
+	static action noOpNext(any value) {}
+	static action noOpError(any e) {}
+	static action noOpComplete() {}
+	
 	action createUpstream() returns IObserver {
 		IObserver upstream := IObserver(self, IObserverId.create(), next, error, complete, onUnsubscribe, unsubscribe, subscribed, subscribe);
 		return upstream;

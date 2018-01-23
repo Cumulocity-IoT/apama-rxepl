@@ -7,5 +7,11 @@ event IResolver {
 	action<any> error;
 	action<> complete;
 	
+	action disconnect() {
+		next := IObserver.noOpNext;
+		error := IObserver.noOpError;
+		complete := IObserver.noOpComplete;
+	}
+	
 	action<action<> > onUnsubscribe;
 }

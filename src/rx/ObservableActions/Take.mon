@@ -24,7 +24,9 @@ event TakeSubscriber {
 			} else {
 				hasSentLast := true;
 				subscriber.next(value);
-				subscriber.complete();
+				if subscriber.subscribed() {
+					subscriber.complete();
+				}
 			}
 		}
 	}
