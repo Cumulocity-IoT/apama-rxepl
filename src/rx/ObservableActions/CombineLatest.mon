@@ -34,16 +34,19 @@ event CombineLatestSubscriberFactory {
 	integer subscriberCount;
 	
 	dictionary<integer, any> latestValuesById;
+	dictionary<integer, IObserver> upstreamSubscribersById;
 	dictionary<integer, boolean> completeSubscribersById;
 	
 	static action create(IObserver subscriber, action<sequence<any> > returns any combiner) returns CombineLatestSubscriberFactory {
-		return CombineLatestSubscriberFactory(subscriber, combiner, 0, new dictionary<integer, any>, new dictionary<integer, boolean>);
+		return CombineLatestSubscriberFactory(subscriber, combiner, 0, new dictionary<integer, any>, new dictionary<integer, IObserver>, new dictionary<integer, boolean>);
 	}
 	
 	action createUpstreamSubscriber() returns IObserver {
 		integer id := subscriberCount;
 		subscriberCount := subscriberCount + 1;
-		IObserver o := IObserverBuilder.create(downstreamSubscriber.createUpstream()).onNext(CombineLatestOnNext.create(id, next)).onComplete(CombineLatestOnComplete.create(id, complete)).build();
+		IObserver o := Subscriber.create().onNext(CombineLatestOnNext.create(id, next)).onError(downstreamSubscriber.error).onComplete(CombineLatestOnComplete.create(id, complete)).asIObserver();
+		downstreamSubscriber.onUnsubscribe(o.unsubscribe);
+		upstreamSubscribersById.add(id, o);
 		return o;
 	}
 	
@@ -65,6 +68,7 @@ event CombineLatestSubscriberFactory {
 		if completeSubscribersById.size() = subscriberCount {
 			downstreamSubscriber.complete();
 		}
+		upstreamSubscribersById[id].unsubscribe();
 	}
 }
 
@@ -87,12 +91,12 @@ event CombineLatestOnConnection {
 			upstreamSubscribers.append(factory.createUpstreamSubscriber());
 		}
 		
-		ISubscription s := new ISubscription;
+		ISubscription s := Subscription.create(subscriber).asISubscription();
 		
 		integer i := 0;
 		while i < upstreamSubscribers.size() {
 			IObserver upstream := upstreamSubscribers[i];
-			s := observables[i].connectObserver(upstream);
+			ISubscription upstreamSubscription := observables[i].connectObserver(upstream);
 			i := i + 1;
 		}
 		

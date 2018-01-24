@@ -9,10 +9,11 @@ event WithLatestFromSubscriberFactory {
 	integer emittingId;
 	
 	dictionary<integer, any> latestValuesById;
+	dictionary<integer, IObserver> upstreamSubscribersById;
 	dictionary<integer, boolean> completeSubscribersById;
 	
 	static action create(IObserver subscriber, action<sequence<any> > returns any combiner) returns WithLatestFromSubscriberFactory {
-		return WithLatestFromSubscriberFactory(subscriber, combiner, 0, 0, new dictionary<integer, any>, new dictionary<integer, boolean>);
+		return WithLatestFromSubscriberFactory(subscriber, combiner, 0, 0, new dictionary<integer, any>, new dictionary<integer, IObserver>, new dictionary<integer, boolean>);
 	}
 	
 	action createUpstreamSubscriber(boolean causesEmission) returns IObserver {
@@ -23,7 +24,10 @@ event WithLatestFromSubscriberFactory {
 		} else {
 			id := subscriberCount;
 		}
-		return IObserverBuilder.create(downstreamSubscriber.createUpstream()).onNext(CombineLatestOnNext.create(id, next)).onComplete(CombineLatestOnComplete.create(id, complete)).build();
+		IObserver o := Subscriber.create().onNext(CombineLatestOnNext.create(id, next)).onError(downstreamSubscriber.error).onComplete(CombineLatestOnComplete.create(id, complete)).asIObserver();
+		downstreamSubscriber.onUnsubscribe(o.unsubscribe);
+		upstreamSubscribersById.add(id, o);
+		return o;
 	}
 	
 	action next(integer id, any value) {
@@ -44,6 +48,7 @@ event WithLatestFromSubscriberFactory {
 		if id = emittingId {
 			downstreamSubscriber.complete();
 		}
+		upstreamSubscribersById[id].unsubscribe();
 	}
 }
 
@@ -67,17 +72,17 @@ event WithLatestFromOnConnection {
 			upstreamSubscribers.append(factory.createUpstreamSubscriber(false));
 		}
 		IObserver emittingUpstream := factory.createUpstreamSubscriber(true);
-		
-		ISubscription s := new ISubscription;
+
+		ISubscription s := Subscription.create(subscriber).asISubscription();
 		
 		integer i := 0;
 		while i < upstreamSubscribers.size() {
 			IObserver upstream := upstreamSubscribers[i];
-			s := otherObservables[i].connectObserver(upstream);
+			ISubscription upstreamSubscription := otherObservables[i].connectObserver(upstream);
 			i := i + 1;
 		}
 		// Make sure that the emissionCausingObservable is the last one to connect
-		s := emissionCausingObservable.connectObserver(emittingUpstream);
+		ISubscription upstreamSubscription := emissionCausingObservable.connectObserver(emittingUpstream);
 		
 		return s;
 	}
