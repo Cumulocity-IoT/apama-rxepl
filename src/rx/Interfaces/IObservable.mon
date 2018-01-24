@@ -32,4 +32,5 @@ event IObservable {
 	action<integer> returns IObservable repeat;
 	action<action<any> returns any> returns IObservable flatMap;
 	action<sequence<IObservable> > returns IObservable merge;
+	action<sequence<IObservable>, action<sequence<any> > returns any> returns IObservable zip;
 }
