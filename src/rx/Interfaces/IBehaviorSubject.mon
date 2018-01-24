@@ -44,4 +44,5 @@ event IBehaviorSubject {
 	action<sequence<IObservable> > returns IObservable merge;
 	action<sequence<IObservable>, action<sequence<any> > returns any> returns IObservable zip;
 	action<> returns IObservable switchOnNext;
+	action<IObservable> returns IObservable skipUntil;
 }
