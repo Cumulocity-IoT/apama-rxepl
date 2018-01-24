@@ -1,0 +1,12 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	action onload() {
+		any discard := TestObservables.createAsync().elementAt(6)
+			.subscribe(ExpectValues.create([<any>5.0], test.complete, test.fail));
+	}  
+}
