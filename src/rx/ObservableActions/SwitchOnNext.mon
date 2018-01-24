@@ -1,0 +1,23 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event SwitchOnNext {
+	static action flatMapper(any value) returns any {
+		switch(value) {
+			case IObservable: {
+				return value;
+			}
+			case ISubject: {
+				return value;
+			}
+			case IBehaviorSubject: {
+				return value;
+			}
+			default: {
+				// Only flatmap observables, so if it's a value wrap into an array so it doesn't get flatmapped
+				return [value];
+			}
+		}
+	}
+}
