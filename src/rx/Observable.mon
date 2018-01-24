@@ -391,12 +391,20 @@ event Observable {
 		return take(n).skip(n-1);
 	}
 	
+	action reduce(action<any, any> returns any reducer) returns IObservable {
+		return scan(reducer).last();
+	}
+	
+	action reduceWithInitial(action<any, any> returns any reducer, any initialValue) returns IObservable {
+		return scanWithInitial(reducer, initialValue).last();
+	}
+	
 	static action invalidConnect() returns IDisposable {
 		throw Exception("Can only connect a published Observable", "UnsupportedOperation");
 	}
 		
 	action asIObservable() returns IObservable {
 		return IObservable(self, 
-		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt);
+		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial);
 	}
 }
