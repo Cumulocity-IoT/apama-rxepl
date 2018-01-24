@@ -11,8 +11,9 @@ event RepeatReconnectionHandler {
 	static action create(action<IObserver> returns ISubscription parentOnConnection, IObserver downstreamSubscriber, integer count) returns ISubscription {
 		RepeatReconnectionHandler r := RepeatReconnectionHandler(parentOnConnection, downstreamSubscriber, new IObserver, count);
 		downstreamSubscriber.onUnsubscribe(r.unsubscribe);
+		ISubscription downstreamSubscription := Subscription.create(downstreamSubscriber).asISubscription();
 		r.createNewUpstreamSubscriber();
-		return Subscription.create(downstreamSubscriber).asISubscription();
+		return downstreamSubscription;
 	}
 	
 	action createNewUpstreamSubscriber() {

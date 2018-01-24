@@ -42,7 +42,8 @@ event DelayOnConnection {
 	
 	action onConnection(IObserver subscriber) returns ISubscription {
 		IObserver delaySubscriber := DelaySubscriber.create(subscriber, delay);
+		ISubscription downstreamSubscription := Subscription.create(subscriber).asISubscription();
 		ISubscription s := parentOnConnection(delaySubscriber);
-		return Subscription.create(subscriber).asISubscription();
+		return downstreamSubscription;
 	}
 }
