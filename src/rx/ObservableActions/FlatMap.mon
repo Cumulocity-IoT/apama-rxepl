@@ -1,0 +1,69 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event FlatMapSubscriber {
+	IObserver subscriber;
+	action<any> returns any mapper;
+	optional<Subscriber> mappedValueSubscriber;
+	
+	static action create(IObserver subscriber, action<any> returns any mapper) returns IObserver {
+		FlatMapSubscriber m := FlatMapSubscriber(subscriber, mapper, new optional<Subscriber>);
+		subscriber.onUnsubscribe(m.unsubscribeMappedValue);
+		return IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).build();
+	}
+	
+	action next(any value) {
+		unsubscribeMappedValue();
+		any values;
+		try {
+			 values := mapper(value);
+		} catch(Exception e) {
+			subscriber.error(e);
+			return;
+		}
+		switch (values) {
+			case IObservable: {
+				connectToMappedObservable(values);
+			}
+			case ISubject: {
+				connectToMappedObservable(values.asIObservable());
+			}
+			case IBehaviorSubject: {
+				connectToMappedObservable(values.asIObservable());
+			}
+			default: {
+				any value;
+				for value in Utils.anyToSequenceAny(values) {
+					subscriber.next(value);
+				}
+			}
+		}
+	}
+	
+	action connectToMappedObservable(IObservable o) {
+		mappedValueSubscriber := Subscriber.create().onNext(subscriber.next).onError(subscriber.error);
+		ISubscription discard := o.subscribe(mappedValueSubscriber.getOrThrow());
+	}
+	
+	action unsubscribeMappedValue() {
+		ifpresent mappedValueSubscriber {
+			mappedValueSubscriber.unsubscribe();
+		}
+		mappedValueSubscriber := new optional<Subscriber>;
+	}
+}
+
+event FlatMapOnConnection {
+	action<IObserver> returns ISubscription parentOnConnection;
+	action<any> returns any mapper;
+	
+	static action create(action<IObserver> returns ISubscription parentOnConnection, action<any> returns any mapper) returns action<IObserver> returns ISubscription {
+		return FlatMapOnConnection(parentOnConnection, mapper).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		IObserver mapSubscriber := FlatMapSubscriber.create(subscriber, mapper);
+		return parentOnConnection(mapSubscriber);
+	}
+}

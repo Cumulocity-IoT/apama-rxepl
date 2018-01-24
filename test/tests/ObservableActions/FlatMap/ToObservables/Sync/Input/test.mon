@@ -1,0 +1,29 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Observable;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+	integer teardownCount := 0;
+	
+	action onload() {
+	    any discard := TestObservables.createSync().take(3)
+	      	.flatMap(mapToObservable)
+	      	.subscribe(ExpectValues.create([<any>0.0, 0.0, 1.0, 1.0, 2.0, 2.0], onTeardown, test.fail));
+	} 
+	
+	action onTeardown() {
+		teardownCount := teardownCount + 1;
+		if teardownCount = 4 { //One for the main one and one for each mapped observable
+			test.complete();
+		} if teardownCount > 4 {
+			test.fail("Too many teardowns received");
+		}
+	}
+	
+	action mapToObservable(any value) returns any {
+		return Observable.fromValues([value, value]).do(ExpectValues.create([value, value], onTeardown, test.fail));
+	}
+}

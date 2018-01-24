@@ -5,22 +5,19 @@ using utils.ExpectValues;
 monitor TestObservable {
 	Test test := Test("TestResult");
   
-	boolean done := false;
+	integer teardownCount := 0;
 	
 	action onload() {
 	    any discard := TestObservables.createSync().take(4)
-			.do(ExpectValues.createNoTeardown([<any>0.0,1.0,2.0,3.0], hasDone, test.fail))
+			.do(ExpectValues.create([<any>0.0,1.0,2.0,3.0], onTeardown, test.fail))
 	      	.subscribe(ExpectValues.create([<any>0.0,1.0,2.0,3.0], onTeardown, test.fail));
 	}
 	
-	action hasDone() {
-		done := true;
-	}
-	
 	action onTeardown() {
-		if done {
+		teardownCount := teardownCount + 1;
+		if teardownCount = 2 {
 			test.complete();
-		} else {
+		} else if teardownCount > 2 {
 			test.fail("Do action was not called correctly");
 		}
 	}

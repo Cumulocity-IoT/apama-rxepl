@@ -7,6 +7,8 @@ event DoSubscriber {
 	Subscriber doer;
 	static action create(IObserver subscriber, Subscriber doer) returns IObserver {
 		DoSubscriber d := DoSubscriber(subscriber, doer);
+		doer.subscribe();
+		subscriber.onUnsubscribe(doer.unsubscribe);
 		return IObserverBuilder.create(subscriber.createUpstream()).onNext(d.next).onError(d.error).onComplete(d.complete).build();
 	}
 	

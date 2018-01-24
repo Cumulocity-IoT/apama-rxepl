@@ -30,4 +30,5 @@ event IObservable {
 	action<integer> returns IObservable shareReplay;
 	action<IObservable> returns IObservable takeUntil;
 	action<integer> returns IObservable repeat;
+	action<action<any> returns any> returns IObservable flatMap;
 }
