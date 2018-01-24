@@ -12,7 +12,13 @@ event FromIteratorOnConnection {
 		// Must create subscription before calling ay next, error, complete
 		ISubscription subscription := Subscription.create(subscriber).asISubscription();
 		
-		any value := iterator();
+		any value := new any;
+		try {
+			value := iterator();
+		} catch(Exception e) {
+			subscriber.error(e);
+			return subscription;
+		}
 		boolean hasValue := false;
 		ifpresent value {
 			hasValue := true;
@@ -24,6 +30,7 @@ event FromIteratorOnConnection {
 				value := iterator();
 			} catch(Exception e) {
 				subscriber.error(e);
+				return subscription;
 			}
 			ifpresent value {
 				hasValue := true;

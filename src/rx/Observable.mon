@@ -103,6 +103,14 @@ event Observable {
 		return first.combineLatest(others, combiner);
 	}
 	
+	static action start(action<> returns any valueGenerator) returns IObservable {
+		Observable o := _create();
+		
+		o.onConnection := StartOnConnection.create(valueGenerator);
+		
+		return o.asIObservable();
+	}
+	
 	action connectObserver(IObserver observer) returns ISubscription {
 		return onConnection(observer);
 	}

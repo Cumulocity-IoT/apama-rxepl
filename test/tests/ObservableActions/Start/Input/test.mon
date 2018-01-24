@@ -1,0 +1,33 @@
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IObservable;
+
+using utils.Test;
+using utils.ExpectValues;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+	
+	integer i := 0;
+	integer teardownCount := 0;
+  
+	action onload() {		
+	    IObservable o := Observable.start(generator);
+	    any discard := o.subscribe(ExpectValues.create([<any>1], onTeardown, test.fail));
+	    discard := o.subscribe(ExpectValues.create([<any>2], onTeardown, test.fail));
+	    discard := o.subscribe(ExpectValues.create([<any>3], onTeardown, test.fail));
+	}
+	
+	action generator() returns any {
+		i := i + 1;
+		return i;
+	}
+	
+	action onTeardown() {
+		teardownCount := teardownCount + 1;
+		if teardownCount = 3 {
+			test.complete();
+		} else if teardownCount > 3 {
+			test.fail("Unexpected teardown received");
+		}
+	}
+}
