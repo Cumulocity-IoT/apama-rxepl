@@ -50,4 +50,5 @@ event IBehaviorSubject {
 	action<action<any, any> returns any, any> returns IObservable reduceWithInitial;
 	action<> returns DisposableStream toStream;
 	action<IObservable> returns IObservable catchError;
+	action<integer> returns IObservable retry;
 }

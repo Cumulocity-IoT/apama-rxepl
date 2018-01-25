@@ -1,0 +1,29 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Observable;
+
+using com.apama.exceptions.Exception;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	integer j := 0;
+	
+	action onload() {
+		any discard := TestObservables.createSync()
+								.take(3)
+								.map(throwOnThirdAndSixth)
+								.retry(2)
+      							.subscribe(ExpectValues.create([<any>0.0,1.0,0.0,1.0,0.0,1.0,2.0], test.complete, test.fail));
+	}
+	
+	action throwOnThirdAndSixth(any value) returns any {
+		j := j + 1;
+		if j = 3 or j = 6 {
+			throw Exception("Ahhh", "Oh dear");
+		}
+		return value;
+	}
+}

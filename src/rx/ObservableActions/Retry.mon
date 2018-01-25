@@ -1,0 +1,49 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event RetrySubscription {
+	action<IObserver> returns ISubscription parentOnConnection;
+	IObserver subscriber; 
+	integer retryCount;
+	IObserver upstreamSubscriber;
+	
+	static action create(action<IObserver> returns ISubscription parentOnConnection, IObserver subscriber, integer retryCount) returns ISubscription {
+		RetrySubscription r := RetrySubscription(parentOnConnection, subscriber, retryCount, new IObserver);
+		subscriber.onUnsubscribe(r.unsubscribe);
+		subscriber.subscribe();
+		return r.createAndConnectUpstream();
+	}
+	
+	action createAndConnectUpstream() returns ISubscription {
+		upstreamSubscriber := Subscriber.create().onNext(subscriber.next).onError(onError).onComplete(subscriber.complete).asIObserver();
+		return parentOnConnection(upstreamSubscriber);
+	}
+	
+	action onError(any e) {
+		retryCount := retryCount - 1;
+		if retryCount >= 0 {
+			upstreamSubscriber.unsubscribe();
+			ISubscription s := createAndConnectUpstream();
+		} else {
+			subscriber.error(e);
+		}
+	}
+	
+	action unsubscribe() {
+		upstreamSubscriber.unsubscribe();
+	}
+}
+
+event RetryOnConnection {
+	action<IObserver> returns ISubscription parentOnConnection;
+	integer retryCount;
+	
+	static action create(action<IObserver> returns ISubscription parentOnConnection, integer retryCount) returns action<IObserver> returns ISubscription {
+		return RetryOnConnection(parentOnConnection, retryCount).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		return RetrySubscription.create(parentOnConnection, subscriber, retryCount);
+	}
+}
