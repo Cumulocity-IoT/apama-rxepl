@@ -1,0 +1,39 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Observable;
+
+using com.apama.exceptions.Exception;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	integer j := 0;
+	integer teardownCount := 0;
+	
+	action onload() {
+		any discard := TestObservables.createSync()
+								.do(ExpectValues.createNoComplete([<any>0.0,1.0,2.0], onTeardown, test.fail))
+								.map(throwOnThird)
+								.catchError(Observable.just("Caught and handled").do(ExpectValues.create([<any>"Caught and handled"], onTeardown, test.fail)))
+      							.subscribe(ExpectValues.create([<any>0.0,1.0,"Caught and handled"], onTeardown, test.fail));
+	} 
+	
+	action onTeardown() {
+		teardownCount := teardownCount + 1;
+		if teardownCount = 3 {
+			test.complete();
+		} else if teardownCount > 3 {
+			test.fail("Received unexpected teardown");
+		}
+	}
+
+	action throwOnThird(any value) returns any {
+		j := j + 1;
+		if j = 3 {
+			throw Exception("Ahhh", "Oh dear");
+		}
+		return value;
+	}
+}

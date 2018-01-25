@@ -18,7 +18,9 @@ event DoSubscriber {
 		} catch(Exception e) {
 			subscriber.error(e);
 		}
-		subscriber.next(value);
+		if subscriber.subscribed() {
+			subscriber.next(value);
+		}
 	}
 	
 	action error(any e) {
@@ -27,7 +29,9 @@ event DoSubscriber {
 		} catch(Exception e) {
 			subscriber.error(e);
 		}
-		subscriber.error(e);
+		if subscriber.subscribed() {
+			subscriber.error(e);
+		}
 	}
 	
 	action complete() {
@@ -36,7 +40,9 @@ event DoSubscriber {
 		} catch(Exception e) {
 			subscriber.error(e);
 		}
-		subscriber.complete();
+		if subscriber.subscribed() {
+			subscriber.complete();
+		}
 	}
 }
 
