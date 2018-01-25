@@ -41,4 +41,5 @@ event IObservable {
 	action<> returns DisposableStream toStream;
 	action<IObservable> returns IObservable catchError;
 	action<integer> returns IObservable retry;
+	action<context, action<IObservable> > returns IDisposable observeOn;
 }

@@ -3,16 +3,21 @@ package com.industry.rx_epl;
 using com.apama.exceptions.Exception;
 
 event SubscribeSubscriber {
-	action<> completeSubscriber;
-	action<> onComplete;
+	IObserver subscriber;
 	
-	static action create(IObserver subscriber, action<> onComplete) returns IObserver {
-		return IObserverBuilder.create(subscriber.createUpstream()).onComplete(SubscribeSubscriber(subscriber.complete, onComplete).complete).build();
+	static action create(IObserver subscriber) returns IObserver {
+		SubscribeSubscriber s := SubscribeSubscriber(subscriber);
+		return IObserverBuilder.create(subscriber.createUpstream()).onError(s.error).onComplete(s.complete).build();
+	}
+	
+	action error(any e) {
+		subscriber.error(e);
+		subscriber.unsubscribe();
 	}
 	
 	action complete() {
-		completeSubscriber();
-		onComplete();
+		subscriber.complete();
+		subscriber.unsubscribe();
 	}
 }
 
@@ -24,6 +29,6 @@ event SubscribeOnConnection {
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {
-		return parentOnConnection(SubscribeSubscriber.create(subscriber, subscriber.unsubscribe));
+		return parentOnConnection(SubscribeSubscriber.create(subscriber));
 	}
 }
