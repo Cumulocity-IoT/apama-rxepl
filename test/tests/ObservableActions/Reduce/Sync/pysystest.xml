@@ -2,8 +2,8 @@
 <pysystest type="auto" state="runnable">
     
   <description> 
-    <title>Scan Sync</title>    
-    <purpose><![CDATA[Scan Sync]]></purpose>
+    <title>Reduce Sync</title>    
+    <purpose><![CDATA[Reduce Sync]]></purpose>
   </description>
 
   <classification>

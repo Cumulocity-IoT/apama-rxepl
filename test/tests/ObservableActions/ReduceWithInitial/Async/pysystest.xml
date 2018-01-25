@@ -2,8 +2,8 @@
 <pysystest type="auto" state="runnable">
     
   <description> 
-    <title>ScanWithInitial Async</title>    
-    <purpose><![CDATA[ScanWithInitial Async]]></purpose>
+    <title>ReduceWithInitial Async</title>    
+    <purpose><![CDATA[ReduceWithInitial Async]]></purpose>
   </description>
 
   <classification>
