@@ -129,7 +129,15 @@ event Observable {
 		others.remove(0);
 		
 		return first.zip(others, combiner);
-	}	
+	}
+	
+	static action fromStream(stream<any> valueStream) returns IObservable {
+		Observable o := _create();
+		
+		o.onConnection := FromStreamOnConnection.create(valueStream);
+		
+		return o.asIObservable();
+	}
 	
 	action connectObserver(IObserver observer) returns ISubscription {
 		return onConnection(observer);

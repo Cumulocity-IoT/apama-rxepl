@@ -2,6 +2,19 @@ package com.industry.rx_epl;
 
 using com.apama.exceptions.Exception;
 
+event ToStreamOnUnsubscribe {
+	stream<any> valueStream;
+	
+	static action create(stream<any> valueStream) returns action<> {
+		return ToStreamOnUnsubscribe(valueStream).quit;
+	}
+	
+	action quit() {
+		valueStream.quit();
+		log "Stream killed" at DEBUG;
+	}
+}
+
 event ToStreamSubscriber {
 	IObserver subscriber;
 	stream<any> outputStream;
@@ -33,7 +46,7 @@ event ToStream {
 		monitor.subscribe(channelName);
 		stream<any> outputStream := from a in all WrappedAnyFromChannel(channelName = channelName, uniqueId = id) select a.value;
 		IObserver subscriber := ToStreamSubscriber.create(outputStream, channelName, id);
-		subscriber.onUnsubscribe(outputStream.quit);
+		subscriber.onUnsubscribe(ToStreamOnUnsubscribe.create(outputStream));
 		ISubscription s := observable.connectObserver(subscriber);
 		return DisposableStream(outputStream, subscriber.unsubscribe);
 	}

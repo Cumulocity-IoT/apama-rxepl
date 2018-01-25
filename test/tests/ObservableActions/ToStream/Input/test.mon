@@ -1,0 +1,37 @@
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.DisposableStream;
+
+using utils.Test;
+using utils.ExpectValues;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+
+	integer teardownCount := 0;
+	integer receivedValues := 0;
+	
+	
+	action onload() {
+		DisposableStream valueStream := Observable.fromValues([<any>1,2,3,4])
+  			.do(ExpectValues.create([<any>1,2,3,4], countTeardowns, test.fail))
+		    .toStream();
+		
+		from valueStream.getStream() as a {
+			receivedValues := receivedValues + 1;
+			if <integer>a != receivedValues {
+				test.fail("Received unexpected value: " + a.valueToString());
+			} else if <integer>a = 4 {
+				valueStream.dispose();
+				countTeardowns();
+			}
+		}
+	}
+	
+	action countTeardowns() {
+		teardownCount := teardownCount + 1;
+		if teardownCount = 2 {
+			test.complete();
+		}
+	}
+}
