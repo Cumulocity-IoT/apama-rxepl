@@ -1,0 +1,11 @@
+package com.industry.rx_epl;
+
+event DisposableStream {
+	stream<any> _stream;
+	action<> dispose;
+	
+	action getStream() returns stream<any> {
+		return _stream;
+	}
+	
+}

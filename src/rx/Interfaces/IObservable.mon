@@ -38,4 +38,5 @@ event IObservable {
 	action<integer> returns IObservable elementAt;
 	action<action<any, any> returns any> returns IObservable reduce;
 	action<action<any, any> returns any, any> returns IObservable reduceWithInitial;
+	action<> returns DisposableStream toStream;
 }

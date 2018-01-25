@@ -6,7 +6,7 @@ event WrappedAny {
 	any value;
 }
 
-event WrappedValueFromChannel {
+event WrappedAnyFromChannel {
 	string channelName;
 	integer uniqueId;
 	any value;
@@ -43,7 +43,7 @@ event FromChannelOnConnection {
 	action onConnection(IObserver subscriber) returns ISubscription {
 		// Needs a uniqueId so that fromChannel can be called multiple times from the same context
 		integer uniqueId := integer.getUnique();
-		listener fromChannelListener := on all WrappedValueFromChannel(channelName = channelName, uniqueId = uniqueId) as wrappedValue {
+		listener fromChannelListener := on all WrappedAnyFromChannel(channelName = channelName, uniqueId = uniqueId) as wrappedValue {
 			subscriber.next(wrappedValue.value);
 		}
 		
@@ -62,10 +62,10 @@ event FromChannelOnConnection {
 		on all any() as anyValue and not KillValueWrapper() {
 			switch(anyValue) {
 				case WrappedAny : {
-					send WrappedValueFromChannel(channelName, uniqueId, anyValue.value) to parentContext;
+					send WrappedAnyFromChannel(channelName, uniqueId, anyValue.value) to parentContext;
 				}
 				default : {
-					send  WrappedValueFromChannel(channelName, uniqueId, anyValue) to parentContext;
+					send  WrappedAnyFromChannel(channelName, uniqueId, anyValue) to parentContext;
 				}
 			}
 		}

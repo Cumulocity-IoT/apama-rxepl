@@ -1,0 +1,21 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event FromStreamOnConnection {
+	stream<any> valueStream;
+	boolean quitStreamOnUnsubscribe;
+	
+	static action create(stream<any> valueStream, boolean quitStreamOnUnsubscribe) returns action<IObserver> returns ISubscription {
+		return FromStreamOnConnection(valueStream, quitStreamOnUnsubscribe).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		listener streamListener := from valueStream as value {
+			subscriber.next(value);
+		}
+		subscriber.onUnsubscribe(streamListener.quit);
+		
+		return Subscription.create(subscriber).asISubscription();
+	}
+}
