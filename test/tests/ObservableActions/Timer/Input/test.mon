@@ -1,0 +1,26 @@
+using com.industry.rx_epl.Observable;
+
+using utils.Test;
+using utils.ExpectValues;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	boolean didWait := false;
+	
+	action onload() {
+		on wait(0.2) {
+			didWait := true;
+		}
+	    any discard := Observable.timer("HelloWorld", 0.2)
+	      	.subscribe(ExpectValues.create([<any>"HelloWorld"], done, test.fail));
+	}
+	
+	action done() {
+		if didWait {
+			test.complete();
+		} else {
+			test.fail("Received value too early");
+		}
+	}
+}

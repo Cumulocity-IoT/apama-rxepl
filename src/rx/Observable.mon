@@ -139,6 +139,10 @@ event Observable {
 		return o.asIObservable();
 	}
 	
+	static action timer(any value, float delay) returns IObservable {
+		return just(value).delay(delay);
+	}
+	
 	action connectObserver(IObserver observer) returns ISubscription {
 		return onConnection(observer);
 	}
