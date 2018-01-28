@@ -1,0 +1,48 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event ReceiveFromOnUnsubscribe {
+	listener nextListener;
+	listener errorListener;
+	listener completeListener;
+	
+	static action create(listener nextListener, listener errorListener, listener completeListener) returns action<> {
+		return ReceiveFromOnUnsubscribe(nextListener, errorListener, completeListener).unsubscribe;
+	}
+	
+	action unsubscribe() {
+		nextListener.quit();
+		errorListener.quit();
+		completeListener.quit();		
+	}
+}
+
+event ReceiveFromOnConnection {	
+	string id;
+	
+	static action createContext(string id, context upstreamContext) returns action<IObserver> returns ISubscription {
+		ReceiveFromOnConnection r := ReceiveFromOnConnection(id);
+		send Connect(r.id) to upstreamContext;
+		return CreateOnConnection(r.downstreamResolver).onConnection;
+	}
+		
+	static action createChannel(string channelName) returns action<IObserver> returns ISubscription {
+		monitor.subscribe(channelName);
+		ReceiveFromOnConnection r := ReceiveFromOnConnection(channelName);
+		return CreateOnConnection(r.downstreamResolver).onConnection;
+	}
+	
+	action downstreamResolver(IResolver resolver) {
+		listener nextListener := on all Next(id = id) as n and not Dispose(id = id) {
+			resolver.next(n.value);
+		}
+		listener errorListener := on all Error(id = id) as e and not Dispose(id = id) {
+			resolver.error(e.error);
+		}
+		listener completeListener := on all Complete(id = id) as c and not Dispose(id = id) {
+			resolver.complete();
+		}
+		resolver.onUnsubscribe(ReceiveFromOnUnsubscribe.create(nextListener, errorListener, completeListener));
+	}
+}

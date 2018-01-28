@@ -15,6 +15,11 @@ event Observable {
 		o.connect := invalidConnect;
 		return o;
 	}
+	static action _createAsIObservable() returns IObservable {
+		Observable o := new Observable;
+		o.connect := invalidConnect;
+		return o.asIObservable();
+	}
 	
 	static action _createConnectable(IDisposable connection, action<> returns IDisposable connect) returns Observable {
 		Observable o := new Observable;
@@ -141,6 +146,22 @@ event Observable {
 	
 	static action timer(any value, float delay) returns IObservable {
 		return just(value).delay(delay);
+	}
+	
+	static action receiveFromChannel(string channelName) returns IObservable {
+		Observable o := _create();
+		
+		o.onConnection := ReceiveFromOnConnection.createChannel(channelName);
+		
+		return o.asIObservable();
+	}
+
+	static action receiveFromContext(string id, context upstreamContext) returns IObservable {
+		Observable o := _create();
+		
+		o.onConnection := ReceiveFromOnConnection.createContext(id, upstreamContext);
+		
+		return o.asIObservable();
 	}
 	
 	action connectObserver(IObserver observer) returns ISubscription {
@@ -436,18 +457,49 @@ event Observable {
 	}
 	
 	/**
-	 * Note: Dispose should be called on the the IDisposable once the downstreams have finished, otherwise 2 listeners will not be torn down.
+	 * Note: Unsubscribe should be called on the the ISubscription once the downstreams have finished.
 	 */
-	action observeOn(context observingContext, action<IObservable> observableConstructor) returns IDisposable {
-		return ObserveOnHandler.createAndStart(create, self.asIObservable(), observingContext, observableConstructor);
+	action observeOn(context observingContext, action<IObservable> observableConstructor) returns ISubscription {
+		return ObserveOnHandler.createAndStart(publishToContext, receiveFromContext, observingContext, observableConstructor);
+	}
+	
+	action groupBy(action<any> returns any groupBy) returns IObservable {
+		Observable o := _create();
+		
+		o.onConnection := GroupByOnConnection.create(_createAsIObservable, getSetOnConnection, onConnection, groupBy);
+		
+		return o.asIObservable();		
+	}
+
+	action publishToContext(string id, context context) returns ISubscription {
+		return onConnection(PublishToHandler.createContext(id, context));
+	}
+	
+	action publishToChannel(string channelName) returns ISubscription {
+		return onConnection(PublishToHandler.createChannel(channelName));
+	}
+
+	/**
+	 * Note: Unsubscribe should be called on the the ISubscription once the downstreams have finished.
+	 */
+	action observeOnNewContext(action<IObservable> observableConstructor) returns ISubscription {
+		return ObserveOnHandler.createAndStart(publishToContext, receiveFromContext, context("ObserveOnNewContext" + integer.getUnique().toString(), false), observableConstructor);
 	}
 	
 	static action invalidConnect() returns IDisposable {
 		throw Exception("Can only connect a published Observable", "UnsupportedOperation");
 	}
+	
+	action setOnConnection(action<IObserver> returns ISubscription onConnection) {
+		self.onConnection := onConnection;
+	}
+	
+	static action getSetOnConnection(IObservable o) returns action<action<IObserver> returns ISubscription> {
+		return (<Observable>o.observable).setOnConnection;
+	}
 		
 	action asIObservable() returns IObservable {
 		return IObservable(self, 
-		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial, toStream, catchError, retry, observeOn);
+		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial, toStream, catchError, retry, observeOn, groupBy, publishToContext, publishToChannel, observeOnNewContext);
 	}
 }

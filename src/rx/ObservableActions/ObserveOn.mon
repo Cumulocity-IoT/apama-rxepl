@@ -2,163 +2,27 @@ package com.industry.rx_epl;
 
 using com.apama.exceptions.Exception;
 
-event Connect {
-	integer id;
-	integer connectionId;
-}
-
-event Next {
-	integer connectionId;
-	any value;
-}
-
-event Error {
-	integer connectionId;
-	any error;
-}
-
-event Complete {
-	integer connectionId;
-}
-
-event Unsubscribe {
-	integer id;
-	integer connectionId;
-}
-
-event Dispose {
-	integer id;
-}
-
-event ObserveOnUnsubscribe {
-	context upstreamContext;
-	integer upstreamId;
-	integer connectionId;
-
-	listener nextListener;
-	listener errorListener;
-	listener completeListener;
-	
-	static action create(context upstreamContext, integer upstreamId, integer connectionId, listener nextListener, listener errorListener, listener completeListener) returns action<> {
-		return ObserveOnUnsubscribe(upstreamContext, upstreamId, connectionId, nextListener, errorListener, completeListener).unsubscribe;
-	}
-	
-	action unsubscribe() {
-		nextListener.quit();
-		errorListener.quit();
-		completeListener.quit();
-		send Unsubscribe(upstreamId, connectionId) to upstreamContext;
-		log "ObserveOn downstream listeners killed" at DEBUG;
-	}
-}
-
-event ObserveOnContext {
-	action<action<IResolver> > returns IObservable createObservable;
-	
-	integer upstreamId;
-	context upstreamContext;
-	context downstreamContext;
-	action<IObservable> doOnOtherContext;
-	
-	static action create(action<action<IResolver> > returns IObservable createObservable, context downstreamContext, action<IObservable> doOnOtherContext) returns ObserveOnContext {
-		ObserveOnContext c := ObserveOnContext(createObservable, integer.getUnique(), context.current(), downstreamContext, doOnOtherContext);
-		c.spawnToDownstream();
-		return c;
-	}
-	
-	action spawnToDownstream() {
-		spawn spawningWrapper() to downstreamContext;
-	}
-	
-	action spawningWrapper() {
-		try {
-			log "Starting observeOn for context: " + context.current().getName() at DEBUG;
-			doOnOtherContext(createObservable(downstreamResolver));
-		} catch(Exception e) { // If something in the spawn throws an exception then notify the parent observable that all of the children have unsubscribed 
-			send Dispose(upstreamId) to upstreamContext;
-			throw e;
-		}
-	}
-	
-	action downstreamResolver(IResolver resolver) {
-		integer connectionId := integer.getUnique();
-		listener nextListener := on all Next(connectionId = connectionId) as n {
-			resolver.next(n.value);
-		}
-		listener errorListener := on all Error(connectionId = connectionId) as e {
-			resolver.error(e.error);
-		}
-		listener completeListener := on all Complete(connectionId = connectionId) as c {
-			resolver.complete();
-		}
-		resolver.onUnsubscribe(ObserveOnUnsubscribe.create(upstreamContext, upstreamId, connectionId, nextListener, errorListener, completeListener));
-		
-		send Connect(upstreamId, connectionId) to upstreamContext;
-	}
-}
-
-event ObserveOnSubscriber {
-	context downstreamContext;
-	integer connectionId;
-	IObserver subscriber;
-	
-	static action create(context downstreamContext, integer connectionId) returns IObserver {
-		ObserveOnSubscriber s := ObserveOnSubscriber(downstreamContext, connectionId, new IObserver);
-		s.subscriber := Subscriber.create().onNext(s.next).onError(s.error).onComplete(s.complete).asIObserver();
-		return s.subscriber;
-	}
-
-	action next(any value) {
-		send Next(connectionId, value) to downstreamContext;
-	}
-	action error(any e) {
-		send Error(connectionId, e) to downstreamContext;
-		subscriber.unsubscribe();
-	}
-	action complete() {
-		send Complete(connectionId) to downstreamContext;
-		subscriber.unsubscribe();
-	}
-}
 
 event ObserveOnHandler {
-	listener connectionListener;
-	listener unsubscribeListener;
+	string id;
+	context upstreamContext;
+	context downstreamContext;
+	action<string, context> returns IObservable receiveFrom;
+	action<IObservable> observableConstructor;
 	
-	static action createAndStart(action<action<IResolver> > returns IObservable createObservable, IObservable observable, context downstreamContext, action<IObservable> observableConstructor) returns IDisposable {
-		return ObserveOnHandler(new listener, new listener).start(createObservable, observable, downstreamContext, observableConstructor);
+	static action createAndStart(action<string, context> returns ISubscription publishTo, action<string, context> returns IObservable receiveFrom, context downstreamContext, action<IObservable> observableConstructor) returns ISubscription {
+		ObserveOnHandler o := ObserveOnHandler(integer.getUnique().toString(), context.current(), downstreamContext, receiveFrom, observableConstructor);
+		
+		o.spawnToContext();
+		
+		return publishTo(o.id, downstreamContext);
 	}
 	
-	action start(action<action<IResolver> > returns IObservable createObservable, IObservable observable, context downstreamContext, action<IObservable> observableConstructor) returns IDisposable {
-		ObserveOnContext c := ObserveOnContext.create(createObservable, downstreamContext, observableConstructor);
-		
-		dictionary<integer, IObserver> subscribersByConnectionId := new dictionary<integer, IObserver>;
-		
-		connectionListener := on all Connect(id = c.upstreamId) as connect {
-			IObserver o := ObserveOnSubscriber.create(c.downstreamContext, connect.connectionId);
-			subscribersByConnectionId.add(connect.connectionId, o);
-			ISubscription s := observable.connectObserver(o);
-		}
-		
-		unsubscribeListener := on all Unsubscribe(id = c.upstreamId) as unsubscribe {
-			if subscribersByConnectionId.hasKey(unsubscribe.connectionId) {
-				subscribersByConnectionId[unsubscribe.connectionId].unsubscribe();
-				subscribersByConnectionId.remove(unsubscribe.connectionId);
-			} else {
-				log "Unexpected unsubscribe received" at ERROR;
-			}
-		}
-		
-		on Dispose(id = c.upstreamId) {
-			dispose();
-		}
-		
-		return IDisposable(dispose);
+	action spawnToContext() {
+		spawn runOnOtherContext() to downstreamContext;
 	}
 	
-	action dispose() {
-		connectionListener.quit();
-		unsubscribeListener.quit();
-		log "ObserveOn upstream listeners killed" at DEBUG;
+	action runOnOtherContext() {
+		observableConstructor(receiveFrom(id, upstreamContext));
 	}
 }

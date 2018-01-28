@@ -2,85 +2,9 @@ package com.industry.rx_epl;
 
 using com.apama.exceptions.Exception;
 
-event SubjectOnDisconnection {
-	dictionary<integer, IObserver> subscribers;
-	integer subscriberId;
-	
-	static action create(dictionary<integer, IObserver> subscribers, integer subscriberId) returns action<> {
-		return SubjectOnDisconnection(subscribers, subscriberId).onDisconnect;
-	}
-	
-	action onDisconnect() {
-		subscribers.remove(subscriberId);
-	}
-}
-
-event SubjectHandler {
-	dictionary<integer, IObserver> subscribers;
-	boolean isComplete;
-	
-	static action create() returns SubjectHandler {
-		return SubjectHandler(new dictionary<integer, IObserver>, false);
-	}
-	
-	action onConnection(IObserver subscriber) returns ISubscription {
-		if not isComplete {
-			subscribers.add(subscriber.getId(), subscriber);
-			subscriber.onUnsubscribe(SubjectOnDisconnection.create(subscribers, subscriber.getId()));
-		} else {
-			subscriber.complete();
-		}
-		return Subscription.create(subscriber).asISubscription();
-	}
-	
-	action next(any value) {
-		IObserver s;
-		for s in subscribers.values() {
-			s.next(value);
-		}
-	}
-	
-	action error(any e) {
-		IObserver s;
-		for s in subscribers.values(){
-			s.error(e);
-		}		
-	}
-	
-	action complete() {
-		IObserver s;
-		for s in subscribers.values() {
-			s.complete();
-			s.disconnect();
-		}
-		isComplete := true;
-		subscribers.clear();
-	}
-}
-
-event Subject {	
-	Observable observable;
-	
-	action<any> next;
-	action<any> error;
-	action<> complete;
-	
+event Subject {		
 	static action create() returns ISubject {
-		SubjectHandler h := SubjectHandler.create();
-		// Can't pull from a subject so the observable is hot
-		Subject s := Subject(Observable._create(), h.next, h.error, h.complete);
-		s.observable.onConnection := h.onConnection;
-		return s.asISubject();
-	}
-
-	action asISubject() returns ISubject {
-		return ISubject(self, 
-		                next, error, complete, asIObservable,
-		                observable.connectObserver, observable.subscribe, observable.map, observable.publish, observable.connect, observable.refCount, observable.share, observable.take, observable.takeLast, observable.first, observable.last, observable.skip, observable.skipLast, observable.filter, observable.scan, observable.scanWithInitial, observable.distinct, observable.distinctBy, observable.combineLatestFromInstance, observable.withLatestFrom, observable.delay, observable.async, observable.do, observable.publishReplay, observable.shareReplay, observable.takeUntil, observable.repeatObservable, observable.flatMap, observable.mergeFromInstance, observable.zipFromInstance, observable.switchOnNext, observable.skipUntil, observable.elementAt, observable.reduce, observable.reduceWithInitial, observable.toStream, observable.catchError, observable.retry, observable.observeOn);
-	}
-	
-	action asIObservable() returns IObservable {
-		return IObservable(self, 
-		                   observable.connectObserver, observable.subscribe, observable.map, observable.publish, observable.connect, observable.refCount, observable.share, observable.take, observable.takeLast, observable.first, observable.last, observable.skip, observable.skipLast, observable.filter, observable.scan, observable.scanWithInitial, observable.distinct, observable.distinctBy, observable.combineLatestFromInstance, observable.withLatestFrom, observable.delay, observable.async, observable.do, observable.publishReplay, observable.shareReplay, observable.takeUntil, observable.repeatObservable, observable.flatMap, observable.mergeFromInstance, observable.zipFromInstance, observable.switchOnNext, observable.skipUntil, observable.elementAt, observable.reduce, observable.reduceWithInitial, observable.toStream, observable.catchError, observable.retry, observable.observeOn);
+		Observable o := Observable._create();
+		return BaseSubject.create(o.asIObservable(), o.setOnConnection);
 	}
 }

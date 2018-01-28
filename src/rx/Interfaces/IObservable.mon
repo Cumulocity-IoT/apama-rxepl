@@ -41,5 +41,9 @@ event IObservable {
 	action<> returns DisposableStream toStream;
 	action<IObservable> returns IObservable catchError;
 	action<integer> returns IObservable retry;
-	action<context, action<IObservable> > returns IDisposable observeOn;
+	action<context, action<IObservable> > returns ISubscription observeOn;
+	action<action<any> returns any> returns IObservable groupBy;
+	action<string, context> returns ISubscription publishToContext;
+	action<string> returns ISubscription publishToChannel;
+	action<action<IObservable> > returns ISubscription observeOnNewContext;
 }

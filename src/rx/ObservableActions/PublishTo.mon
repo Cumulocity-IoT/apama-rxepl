@@ -1,0 +1,152 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event Connect {
+	string id;
+}
+
+event Next {
+	string id;
+	any value;
+}
+
+event Error {
+	string id;
+	any error;
+}
+
+event Complete {
+	string id;
+}
+
+event Dispose {
+	string id;
+}
+
+event PublishToContextSubscriber {
+	context downstreamContext;
+	string id;
+	IObserver subscriber;
+	action<> returns boolean connected;
+	
+	static action create(context downstreamContext, string id, action<> returns boolean connected) returns IObserver {
+		PublishToContextSubscriber s := PublishToContextSubscriber(downstreamContext, id, new IObserver, connected);
+		s.subscriber := Subscriber.create().onNext(s.next).onError(s.error).onComplete(s.complete).asIObserver();
+		return s.subscriber;
+	}
+
+	action next(any value) {
+		if connected() {
+			send Next(id, value) to downstreamContext;
+		} else {
+			on Connect(id = id) and not Dispose(id = id) {
+				send Next(id, value) to downstreamContext;
+			}
+		}
+	}
+	action error(any e) {
+		if connected() {
+			send Error(id, e) to downstreamContext;
+		} else {
+			on Connect(id = id) and not Dispose(id = id) {
+				send Error(id, e) to downstreamContext;
+			}
+		}
+		subscriber.unsubscribe();
+	}
+	action complete() {
+		if connected() {
+			send Complete(id) to downstreamContext;
+		} else {
+			on Connect(id = id) and not Dispose(id = id) {
+				send Complete(id) to downstreamContext;
+			}
+		}
+		subscriber.unsubscribe();
+	}
+}
+
+event PublishToChannelSubscriber {
+	string channelName;
+	IObserver subscriber;
+	action<> returns boolean connected;
+	
+	static action create(string channelName, action<> returns boolean connected) returns IObserver {
+		PublishToChannelSubscriber s := PublishToChannelSubscriber(channelName, new IObserver, connected);
+		s.subscriber := Subscriber.create().onNext(s.next).onError(s.error).onComplete(s.complete).asIObserver();
+		return s.subscriber;
+	}
+
+	action next(any value) {
+		if connected() {
+			send Next(channelName, value) to channelName;
+		} else {
+			on Connect(id = channelName) and not Dispose(id = channelName) {
+				send Next(channelName, value) to channelName;
+			}
+		}
+	}
+	action error(any e) {
+		if connected() {
+			send Error(channelName, e) to channelName;
+		} else {
+			on Connect(id = channelName) and not Dispose(id = channelName) {
+				send Error(channelName, e) to channelName;
+			}
+		}
+		subscriber.unsubscribe();
+	}
+	action complete() {
+		if connected() {
+			send Complete(channelName) to channelName;
+		} else {
+			on Connect(id = channelName) and not Dispose(id = channelName) {
+				send Complete(channelName) to channelName;
+			}
+		}
+		subscriber.unsubscribe();
+	}
+}
+
+event PublishToHandler {
+	string id;
+	boolean isConnected;
+	any contextOrChannel;
+	
+	static action createChannel(string channelName) returns IObserver {
+		PublishToHandler p := PublishToHandler(channelName, false, channelName);
+		IObserver subscriber := PublishToChannelSubscriber.create(channelName, p.connected);
+		on Connect(id = p.id) and not Dispose(id = p.id) {
+			p.isConnected := true;
+		}
+		subscriber.onUnsubscribe(p.dispose);
+		return subscriber;	
+	}
+	
+	static action createContext(string id, context downstreamContext) returns IObserver {
+		PublishToHandler p := PublishToHandler(id, false, downstreamContext);
+		IObserver subscriber := PublishToContextSubscriber.create(downstreamContext, id, p.connected);
+		on Connect(id = id) and not Dispose(id = id) {
+			p.isConnected := true;
+		}
+		subscriber.onUnsubscribe(p.dispose);
+		return subscriber;	
+	}
+	
+	action connected() returns boolean {
+		return isConnected;
+	}
+	
+	action dispose() {
+		route Dispose(id);
+		switch (contextOrChannel) {
+			case context: {
+				send Dispose(id) to contextOrChannel;
+			}
+			case string: {
+				send Dispose(id) to contextOrChannel;
+			}
+		}
+	}
+}
