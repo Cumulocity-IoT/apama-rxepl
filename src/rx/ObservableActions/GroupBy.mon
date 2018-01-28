@@ -11,7 +11,7 @@ event GroupBySubscriber {
 	
 	static action create(action<> returns IObservable createObservable, action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection, IObserver subscriber, action<any> returns any groupBy) returns IObserver {
 		GroupBySubscriber m := GroupBySubscriber(createObservable, getSetOnConnection, subscriber, groupBy, new dictionary<any, ISubject>);
-		return IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).build();
+		return IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).onComplete(m.complete).build();
 	}
 	
 	action next(any value) {
