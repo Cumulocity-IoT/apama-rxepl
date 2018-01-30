@@ -18,12 +18,45 @@ event ReceiveFromOnUnsubscribe {
 	}
 }
 
+event ReceiveFromConnect {
+	IDisposable connection;
+	string idOrChannel;
+	context upstreamContext;
+	
+	static action createChannel(IDisposable connection, string channelName) returns action<> returns IDisposable {
+		return ReceiveFromConnect(connection, channelName, new context).connectChannel;
+	}
+
+	static action createContext(IDisposable connection, string id, context upstreamContext) returns action<> returns IDisposable {
+		return ReceiveFromConnect(connection, id, upstreamContext).connectContext;
+	}
+	
+	action connectChannel() returns IDisposable {
+		send Connect(idOrChannel) to idOrChannel;
+		connection.onDispose := onDisposeChannel;
+		return connection;
+	}
+	
+	action connectContext() returns IDisposable {
+		send Connect(idOrChannel) to upstreamContext;
+		connection.onDispose := onDisposeContext;
+		return connection;
+	}
+	
+	action onDisposeChannel() {
+		send Dispose(idOrChannel) to idOrChannel;
+	}
+	
+	action onDisposeContext() {
+		send Dispose(idOrChannel) to upstreamContext;
+	}
+}
+
 event ReceiveFromOnConnection {	
 	string id;
 	
 	static action createContext(string id, context upstreamContext) returns action<IObserver> returns ISubscription {
 		ReceiveFromOnConnection r := ReceiveFromOnConnection(id);
-		send Connect(r.id) to upstreamContext;
 		return CreateOnConnection(r.downstreamResolver).onConnection;
 	}
 		

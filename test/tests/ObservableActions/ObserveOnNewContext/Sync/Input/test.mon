@@ -1,0 +1,41 @@
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+
+using utils.Test;
+using utils.TestObservables;
+using utils.ExpectValues;
+
+event TornDown {}
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+
+	integer teardownCount := 0;
+	
+	action onload() {
+		ISubscription subscription := TestObservables.createSync().take(3)
+  			.observeOnNewContext(onDiffContext);
+
+		subscription.onUnsubscribe(countTeardowns);
+		
+		on TornDown() {
+			countTeardowns();
+		}
+	}
+	
+	action onDiffContext(IObservable o) {
+		ISubscription downstreamSubscription := o.subscribe(ExpectValues.create([<any>0.0,1.0,2.0], sendTornDown, test.fail));
+	}
+	
+	action sendTornDown() {
+		send TornDown() to "";
+	}
+	
+	action countTeardowns() {
+		teardownCount := teardownCount + 1;
+		if teardownCount = 2 {
+			test.complete();
+		}
+	}
+}

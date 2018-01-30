@@ -147,17 +147,25 @@ event Observable {
 	static action timer(any value, float delay) returns IObservable {
 		return just(value).delay(delay);
 	}
-	
+
+	/**
+	 * Must call .connect() to start receiving values
+	 */
 	static action receiveFromChannel(string channelName) returns IObservable {
-		Observable o := _create();
+		IDisposable connection := new IDisposable;
+		Observable o := _createConnectable(connection, ReceiveFromConnect.createChannel(connection, channelName));
 		
 		o.onConnection := ReceiveFromOnConnection.createChannel(channelName);
 		
 		return o.asIObservable();
 	}
 
+	/**
+	 * Must call .connect() to start receiving values
+	 */
 	static action receiveFromContext(string id, context upstreamContext) returns IObservable {
-		Observable o := _create();
+		IDisposable connection := new IDisposable;
+		Observable o := _createConnectable(connection, ReceiveFromConnect.createContext(connection, id, upstreamContext));
 		
 		o.onConnection := ReceiveFromOnConnection.createContext(id, upstreamContext);
 		
@@ -472,11 +480,11 @@ event Observable {
 	}
 
 	action publishToContext(string id, context context) returns ISubscription {
-		return onConnection(PublishToHandler.createContext(id, context));
+		return PublishToHandler.createContext(onConnection, id, context);
 	}
 	
 	action publishToChannel(string channelName) returns ISubscription {
-		return onConnection(PublishToHandler.createChannel(channelName));
+		return PublishToHandler.createChannel(onConnection, channelName);
 	}
 
 	/**
@@ -484,6 +492,22 @@ event Observable {
 	 */
 	action observeOnNewContext(action<IObservable> observableConstructor) returns ISubscription {
 		return ObserveOnHandler.createAndStart(publishToContext, receiveFromContext, context("ObserveOnNewContext" + integer.getUnique().toString(), false), observableConstructor);
+	}
+	
+	action every(action<any> returns boolean predicate) returns IObservable {
+		Observable o := _create();
+		
+		o.onConnection := EveryOnConnection.create(onConnection, predicate);
+		
+		return o.asIObservable();	
+	}
+	
+	action contains(action<any> returns boolean predicate) returns IObservable {
+		Observable o := _create();
+		
+		o.onConnection := ContainsOnConnection.create(onConnection, predicate);
+		
+		return o.asIObservable();	
 	}
 	
 	static action invalidConnect() returns IDisposable {
@@ -500,6 +524,6 @@ event Observable {
 		
 	action asIObservable() returns IObservable {
 		return IObservable(self, 
-		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial, toStream, catchError, retry, observeOn, groupBy, publishToContext, publishToChannel, observeOnNewContext);
+		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial, toStream, catchError, retry, observeOn, groupBy, publishToContext, publishToChannel, observeOnNewContext, every, contains);
 	}
 }

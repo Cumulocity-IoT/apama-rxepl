@@ -1,0 +1,32 @@
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+
+using utils.Test;
+using utils.TestObservables;
+using utils.ExpectValues;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+
+	integer teardownCount := 0;
+	
+	
+	action onload() {
+		ISubscription subscription := TestObservables.createAsync().take(3)
+  			.publishToChannel("TestChannel");
+
+		subscription.onUnsubscribe(countTeardowns);
+		
+		ISubscription downstreamSubscription := Observable.receiveFromChannel("TestChannel")
+  			.refCount()
+  			.subscribe(ExpectValues.create([<any>0.0,1.0,2.0], countTeardowns, test.fail));
+	}
+	
+	action countTeardowns() {
+		teardownCount := teardownCount + 1;
+		if teardownCount = 2 {
+			test.complete();
+		}
+	}
+}

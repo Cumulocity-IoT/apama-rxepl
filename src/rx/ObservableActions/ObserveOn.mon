@@ -23,6 +23,6 @@ event ObserveOnHandler {
 	}
 	
 	action runOnOtherContext() {
-		observableConstructor(receiveFrom(id, upstreamContext));
+		observableConstructor(receiveFrom(id, upstreamContext).refCount());
 	}
 }

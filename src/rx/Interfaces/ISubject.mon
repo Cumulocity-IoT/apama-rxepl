@@ -52,4 +52,6 @@ event ISubject {
 	action<string, context> returns ISubscription publishToContext;
 	action<string> returns ISubscription publishToChannel;
 	action<action<IObservable> > returns ISubscription observeOnNewContext;
+	action<action<any> returns boolean> returns IObservable every;
+	action<action<any> returns boolean> returns IObservable contains;
 }

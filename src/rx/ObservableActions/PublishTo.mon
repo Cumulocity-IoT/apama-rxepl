@@ -28,41 +28,22 @@ event PublishToContextSubscriber {
 	context downstreamContext;
 	string id;
 	IObserver subscriber;
-	action<> returns boolean connected;
 	
-	static action create(context downstreamContext, string id, action<> returns boolean connected) returns IObserver {
-		PublishToContextSubscriber s := PublishToContextSubscriber(downstreamContext, id, new IObserver, connected);
+	static action create(context downstreamContext, string id) returns IObserver {
+		PublishToContextSubscriber s := PublishToContextSubscriber(downstreamContext, id, new IObserver);
 		s.subscriber := Subscriber.create().onNext(s.next).onError(s.error).onComplete(s.complete).asIObserver();
 		return s.subscriber;
 	}
 
 	action next(any value) {
-		if connected() {
-			send Next(id, value) to downstreamContext;
-		} else {
-			on Connect(id = id) and not Dispose(id = id) {
-				send Next(id, value) to downstreamContext;
-			}
-		}
+		send Next(id, value) to downstreamContext;
 	}
 	action error(any e) {
-		if connected() {
-			send Error(id, e) to downstreamContext;
-		} else {
-			on Connect(id = id) and not Dispose(id = id) {
-				send Error(id, e) to downstreamContext;
-			}
-		}
+		send Error(id, e) to downstreamContext;
 		subscriber.unsubscribe();
 	}
 	action complete() {
-		if connected() {
-			send Complete(id) to downstreamContext;
-		} else {
-			on Connect(id = id) and not Dispose(id = id) {
-				send Complete(id) to downstreamContext;
-			}
-		}
+		send Complete(id) to downstreamContext;
 		subscriber.unsubscribe();
 	}
 }
@@ -70,68 +51,54 @@ event PublishToContextSubscriber {
 event PublishToChannelSubscriber {
 	string channelName;
 	IObserver subscriber;
-	action<> returns boolean connected;
 	
-	static action create(string channelName, action<> returns boolean connected) returns IObserver {
-		PublishToChannelSubscriber s := PublishToChannelSubscriber(channelName, new IObserver, connected);
+	static action create(string channelName) returns IObserver {
+		PublishToChannelSubscriber s := PublishToChannelSubscriber(channelName, new IObserver);
 		s.subscriber := Subscriber.create().onNext(s.next).onError(s.error).onComplete(s.complete).asIObserver();
 		return s.subscriber;
 	}
 
 	action next(any value) {
-		if connected() {
-			send Next(channelName, value) to channelName;
-		} else {
-			on Connect(id = channelName) and not Dispose(id = channelName) {
-				send Next(channelName, value) to channelName;
-			}
-		}
+		send Next(channelName, value) to channelName;
 	}
 	action error(any e) {
-		if connected() {
-			send Error(channelName, e) to channelName;
-		} else {
-			on Connect(id = channelName) and not Dispose(id = channelName) {
-				send Error(channelName, e) to channelName;
-			}
-		}
+		send Error(channelName, e) to channelName;
 		subscriber.unsubscribe();
 	}
 	action complete() {
-		if connected() {
-			send Complete(channelName) to channelName;
-		} else {
-			on Connect(id = channelName) and not Dispose(id = channelName) {
-				send Complete(channelName) to channelName;
-			}
-		}
+		send Complete(channelName) to channelName;
 		subscriber.unsubscribe();
 	}
 }
 
 event PublishToHandler {
+	action<IObserver> returns ISubscription parentOnConnect;
 	string id;
 	boolean isConnected;
 	any contextOrChannel;
 	
-	static action createChannel(string channelName) returns IObserver {
-		PublishToHandler p := PublishToHandler(channelName, false, channelName);
-		IObserver subscriber := PublishToChannelSubscriber.create(channelName, p.connected);
-		on Connect(id = p.id) and not Dispose(id = p.id) {
-			p.isConnected := true;
-		}
-		subscriber.onUnsubscribe(p.dispose);
-		return subscriber;	
+	static action createChannel(action<IObserver> returns ISubscription parentOnConnect, string channelName) returns ISubscription {
+		PublishToHandler p := PublishToHandler(parentOnConnect, channelName, false, channelName);
+		monitor.subscribe(channelName);
+		return p._create(PublishToChannelSubscriber.create(channelName));
 	}
 	
-	static action createContext(string id, context downstreamContext) returns IObserver {
-		PublishToHandler p := PublishToHandler(id, false, downstreamContext);
-		IObserver subscriber := PublishToContextSubscriber.create(downstreamContext, id, p.connected);
+	static action createContext(action<IObserver> returns ISubscription parentOnConnect, string id, context downstreamContext) returns ISubscription {
+		PublishToHandler p := PublishToHandler(parentOnConnect, id, false, downstreamContext);
+		return p._create(PublishToContextSubscriber.create(downstreamContext, id));	
+	}
+	
+	action _create(IObserver subscriber) returns ISubscription {
 		on Connect(id = id) and not Dispose(id = id) {
-			p.isConnected := true;
+			isConnected := true;
+			ISubscription s := parentOnConnect(subscriber);
 		}
-		subscriber.onUnsubscribe(p.dispose);
-		return subscriber;	
+		on Dispose(id = id) {
+			log "Tearing down PublishTo" at DEBUG;
+			subscriber.unsubscribe();
+		}
+		subscriber.onUnsubscribe(dispose);
+		return Subscription.create(subscriber).asISubscription();
 	}
 	
 	action connected() returns boolean {
@@ -139,7 +106,17 @@ event PublishToHandler {
 	}
 	
 	action dispose() {
-		route Dispose(id);
+		if connected() {
+			sendDispose();
+		} else {
+			on Connect(id = id) {
+				sendDispose();
+			}
+		}
+	}
+	
+	action sendDispose() {
+		send Dispose(id) to context.current();
 		switch (contextOrChannel) {
 			case context: {
 				send Dispose(id) to contextOrChannel;
