@@ -1,0 +1,33 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+	
+	integer teardownCount := 0;
+  
+	action onload() {
+	    any discard := TestObservables.createAsync()
+			.take(5)
+			.do(ExpectValues.create([<any>0.0,1.0,2.0,3.0,4.0], countTeardowns, test.fail))
+			.every(isLT5)
+      		.subscribe(ExpectValues.create([<any>true], countTeardowns, test.fail));
+	    
+	    discard := TestObservables.createAsync()
+			.do(ExpectValues.createNoComplete([<any>0.0,1.0,2.0,3.0,4.0,5.0], countTeardowns, test.fail))
+      		.every(isLT5)
+      		.subscribe(ExpectValues.create([<any>false], countTeardowns, test.fail));
+	} 
+	
+	action isLT5(any value) returns boolean {
+		return (<float> value) < 5.0;
+	}
+	
+	action countTeardowns() {
+		teardownCount := teardownCount + 1;
+		if teardownCount = 4 {
+			test.complete();
+		}
+	}
+}

@@ -1,0 +1,33 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+	
+	integer teardownCount := 0;
+  
+	action onload() {
+	    any discard := TestObservables.createSync()
+			.do(ExpectValues.createNoComplete([<any>0.0,1.0,2.0,3.0], countTeardowns, test.fail))
+			.contains(is3)
+	      	.subscribe(ExpectValues.create([<any>true], countTeardowns, test.fail));
+
+	    discard := TestObservables.createSync()
+	      	.take(2)
+			.do(ExpectValues.create([<any>0.0,1.0], countTeardowns, test.fail))
+			.contains(is3)
+	      	.subscribe(ExpectValues.create([<any>false], countTeardowns, test.fail));
+	} 
+	
+	action is3(any value) returns boolean {
+		return (<float> value) = 3.0;
+	}
+	
+	action countTeardowns() {
+		teardownCount := teardownCount + 1;
+		if teardownCount = 4 {
+			test.complete();
+		}
+	}
+}
