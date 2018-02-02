@@ -1,0 +1,6 @@
+package com.industry.rx_epl;
+
+event TimestampedValue {
+	float timestamp;
+	any value;
+}

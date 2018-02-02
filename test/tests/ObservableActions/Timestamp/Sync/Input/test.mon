@@ -1,0 +1,16 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.TimestampedValue;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	action onload() {		
+	    any discard := TestObservables.createSync()
+			.take(2)
+			.timestamp()
+	      	.subscribe(ExpectValues.create([<any>TimestampedValue(currentTime, 0.0), TimestampedValue(currentTime, 1.0)], test.complete, test.fail));
+	}
+}
