@@ -2,8 +2,8 @@
 <pysystest type="auto" state="runnable">
     
   <description> 
-    <title>CombineLatest Async</title>    
-    <purpose><![CDATA[CombineLatest Async]]></purpose>
+    <title>Zip Async</title>    
+    <purpose><![CDATA[Zip Async]]></purpose>
   </description>
 
   <classification>
