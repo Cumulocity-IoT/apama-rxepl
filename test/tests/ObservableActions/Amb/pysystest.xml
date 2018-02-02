@@ -2,8 +2,8 @@
 <pysystest type="auto" state="runnable">
     
   <description> 
-    <title>SequenceEqual Async</title>    
-    <purpose><![CDATA[SequenceEqual Async]]></purpose>
+    <title>Amb Async</title>    
+    <purpose><![CDATA[Amb Async]]></purpose>
   </description>
 
   <classification>

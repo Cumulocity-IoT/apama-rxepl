@@ -2,8 +2,8 @@
 <pysystest type="auto" state="runnable">
     
   <description> 
-    <title>Concat Sync</title>    
-    <purpose><![CDATA[Concat Sync]]></purpose>
+    <title>ConcatString Sync</title>    
+    <purpose><![CDATA[ConcatString Sync]]></purpose>
   </description>
 
   <classification>
