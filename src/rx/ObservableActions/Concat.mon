@@ -1,0 +1,46 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event ConcatSubscriber {
+	IObserver downstreamSubscriber;
+	sequence<IObservable> observables;
+	optional<IObserver> upstreamSubscriber;
+	
+	static action create(IObserver downstreamSubscriber, sequence<IObservable> observables) returns ISubscription {
+		sequence<IObservable> observablesCopy := new sequence<IObservable>;
+		observablesCopy.appendSequence(observables);
+		ConcatSubscriber m := ConcatSubscriber(downstreamSubscriber, observablesCopy, new optional<IObserver>);
+		ISubscription s := Subscription.create(downstreamSubscriber).asISubscription();
+		m.nextObservable();
+		return s;
+	}
+	
+	action nextObservable() {
+		if observables.size() > 0 {
+			IObservable o := observables[0];
+			observables.remove(0);
+			ifpresent upstreamSubscriber {
+				upstreamSubscriber.unsubscribe();
+			}
+			upstreamSubscriber := Subscriber.create().onNext(downstreamSubscriber.next).onError(downstreamSubscriber.error).onComplete(nextObservable).asIObserver();
+			downstreamSubscriber.onUnsubscribe(upstreamSubscriber.getOrThrow().unsubscribe);
+			downstreamSubscriber.onUnsubscribe(observables.clear);
+			ISubscription s := o.connectObserver(upstreamSubscriber.getOrThrow());
+		} else {
+			downstreamSubscriber.complete();
+		}
+	}
+}
+
+event ConcatOnConnection {
+	sequence<IObservable> observables;
+	
+	static action create(sequence<IObservable> observables) returns action<IObserver> returns ISubscription {
+		return ConcatOnConnection(observables).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		return ConcatSubscriber.create(subscriber, observables);
+	}
+}

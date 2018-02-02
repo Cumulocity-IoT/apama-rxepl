@@ -1,0 +1,42 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event SkipWhileSubscriber {
+	IObserver subscriber;
+	action<any> returns boolean predicate;
+	boolean whileDone;
+	
+	static action create(IObserver subscriber, action<any> returns boolean predicate) returns IObserver {
+		SkipWhileSubscriber s := SkipWhileSubscriber(subscriber, predicate, false);
+		return IObserverBuilder.create(subscriber.createUpstream()).onNext(s.next).build();
+	}
+	
+	action next(any value) {
+		if whileDone {
+			subscriber.next(value);
+		} else {
+			try {
+				if not predicate(value) { 
+					whileDone := true;
+					subscriber.next(value);
+				}
+			} catch(Exception e) {
+				subscriber.error(e);
+			}
+		}
+	}
+}
+
+event SkipWhileOnConnection {
+	action<IObserver> returns ISubscription parentOnConnection;
+	action<any> returns boolean predicate;
+	
+	static action create(action<IObserver> returns ISubscription parentOnConnection, action<any> returns boolean predicate) returns action<IObserver> returns ISubscription {
+		return SkipWhileOnConnection(parentOnConnection, predicate).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		return parentOnConnection(SkipWhileSubscriber.create(subscriber, predicate));
+	}
+}

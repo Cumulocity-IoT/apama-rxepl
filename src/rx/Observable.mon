@@ -172,6 +172,16 @@ event Observable {
 		return o.asIObservable();
 	}
 	
+	static action concat(sequence<IObservable> observables) returns IObservable {
+		IObservable first := observables[0];
+		
+		sequence<IObservable> others := (new sequence<IObservable>);
+		others.appendSequence(observables);
+		others.remove(0);
+		
+		return first.concat(others);
+	}
+	
 	action connectObserver(IObserver observer) returns ISubscription {
 		return onConnection(observer);
 	}
@@ -501,11 +511,38 @@ event Observable {
 		
 		return o.asIObservable();	
 	}
-	
+
 	action contains(action<any> returns boolean predicate) returns IObservable {
 		Observable o := _create();
 		
 		o.onConnection := ContainsOnConnection.create(onConnection, predicate);
+		
+		return o.asIObservable();	
+	}
+	
+	action takeWhile(action<any> returns boolean predicate) returns IObservable {
+		Observable o := _create();
+		
+		o.onConnection := TakeWhileOnConnection.create(onConnection, predicate);
+		
+		return o.asIObservable();	
+	}
+
+	action skipWhile(action<any> returns boolean predicate) returns IObservable {
+		Observable o := _create();
+		
+		o.onConnection := SkipWhileOnConnection.create(onConnection, predicate);
+		
+		return o.asIObservable();	
+	}
+	
+	action concatFromInstance(sequence<IObservable> otherObservables) returns IObservable {
+		Observable o := _create();
+		
+		sequence<IObservable> observables := [self.asIObservable()];
+		observables.appendSequence(otherObservables);
+		
+		o.onConnection := ConcatOnConnection.create(observables);
 		
 		return o.asIObservable();	
 	}
@@ -524,6 +561,6 @@ event Observable {
 		
 	action asIObservable() returns IObservable {
 		return IObservable(self, 
-		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial, toStream, catchError, retry, observeOn, groupBy, publishToContext, publishToChannel, observeOnNewContext, every, contains);
+		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial, toStream, catchError, retry, observeOn, groupBy, publishToContext, publishToChannel, observeOnNewContext, every, contains, takeWhile, skipWhile, concatFromInstance);
 	}
 }

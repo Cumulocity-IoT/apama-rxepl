@@ -48,4 +48,7 @@ event IObservable {
 	action<action<IObservable> > returns ISubscription observeOnNewContext;
 	action<action<any> returns boolean> returns IObservable every;
 	action<action<any> returns boolean> returns IObservable contains;
+	action<action<any> returns boolean> returns IObservable takeWhile;
+	action<action<any> returns boolean> returns IObservable skipWhile;
+	action<sequence<IObservable> > returns IObservable concat;
 }
