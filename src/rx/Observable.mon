@@ -644,6 +644,22 @@ event Observable {
 	}
 	
 	/**
+	 * Takes any numeric type (integer, float, decimal)
+	 * The result is always a float
+	 */
+	action average() returns IObservable {
+		return reduceWithInitial(Average.reduceToAverage, new Average).map(Average.calculateAverage);
+	}
+	
+	/**
+	 * Takes any numeric type (integer, float, decimal)
+	 * The result is always a decimal
+	 */
+	action averageDecimal() returns IObservable {
+		return reduceWithInitial(AverageDecimal.reduceToAverage, new AverageDecimal).map(AverageDecimal.calculateAverage);
+	}
+	
+	/**
 	 * Will use .toString() for any non-string types
 	 */
 	action concatString() returns IObservable {
@@ -664,6 +680,6 @@ event Observable {
 		
 	action asIObservable() returns IObservable {
 		return IObservable(self, 
-		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial, toStream, catchError, retry, observeOn, groupBy, publishToContext, publishToChannel, observeOnNewContext, every, contains, takeWhile, skipWhile, concatFromInstance, startWith, defaultIfEmpty, ignoreElements, count, sum, sumInteger, sumFloat, sumDecimal, concatString, max, maxInteger, maxFloat, maxDecimal, min, minInteger, minFloat, minDecimal);
+		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial, toStream, catchError, retry, observeOn, groupBy, publishToContext, publishToChannel, observeOnNewContext, every, contains, takeWhile, skipWhile, concatFromInstance, startWith, defaultIfEmpty, ignoreElements, count, sum, sumInteger, sumFloat, sumDecimal, concatString, max, maxInteger, maxFloat, maxDecimal, min, minInteger, minFloat, minDecimal, average, averageDecimal);
 	}
 }

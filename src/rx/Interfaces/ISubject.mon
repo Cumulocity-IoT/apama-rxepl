@@ -74,4 +74,6 @@ event ISubject {
 	action<> returns IObservable minInteger;
 	action<> returns IObservable minFloat;
 	action<> returns IObservable minDecimal;
+	action<> returns IObservable average;
+	action<> returns IObservable averageDecimal;
 }

@@ -33,6 +33,40 @@ event Utils {
 	}
 
 	static action noOp() {}
+	
+	static action numberToFloat(any number) returns float {
+		switch(number) {
+			case integer: {
+				return number.toFloat();
+			}
+			case float: {
+				return number;
+			}
+			case decimal: {
+				return number.toFloat();
+			}
+			default: {
+				throw Exception(number.valueToString() + " is not a number", "CastError");
+			}
+		}
+	}	
+	
+	static action numberToDecimal(any number) returns decimal {
+		switch(number) {
+			case integer: {
+				return number.toDecimal();
+			}
+			case float: {
+				return number.toDecimal();
+			}
+			case decimal: {
+				return number;
+			}
+			default: {
+				throw Exception(number.valueToString() + " is not a number", "CastError");
+			}
+		}
+	}
 }
 
 event WrappedInteger {

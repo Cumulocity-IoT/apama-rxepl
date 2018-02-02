@@ -10,20 +10,7 @@ event Aggregations {
 	// Always returns a float
 	static action sum(any currentSum, any value) returns any {
 		float sum := <float> currentSum;
-		switch(value) {
-			case integer: {
-				return sum + value.toFloat();
-			}
-			case float: {
-				return sum + value;
-			}
-			case decimal: {
-				return sum + value.toFloat();
-			}
-			default: {
-				throw Exception("Casting error: " + value.valueToString() + " is not a number", "CastError");
-			}
-		}
+		return sum + Utils.numberToFloat(value);
 	}
 
 	static action sumInteger(any currentSum, any value) returns any {
@@ -56,22 +43,7 @@ event Aggregations {
 	// Always returns a float
 	static action max(any currentMax, any value) returns any {
 		float max := <float> currentMax;
-		float floatValue;
-		switch(value) {
-			case integer: {
-				floatValue := value.toFloat();
-			}
-			case float: {
-				floatValue := value;
-			}
-			case decimal: {
-				floatValue := value.toFloat();
-			}
-			default: {
-				throw Exception("Casting error: " + value.valueToString() + " is not a number", "CastError");
-			}
-		}
-		return float.max(max, floatValue);
+		return float.max(max, Utils.numberToFloat(value));
 	}
 
 	static action maxInteger(any currentMax, any value) returns any {
@@ -89,22 +61,7 @@ event Aggregations {
 	// Always returns a float
 	static action min(any currentMin, any value) returns any {
 		float min := <float> currentMin;
-		float floatValue;
-		switch(value) {
-			case integer: {
-				floatValue := value.toFloat();
-			}
-			case float: {
-				floatValue := value;
-			}
-			case decimal: {
-				floatValue := value.toFloat();
-			}
-			default: {
-				throw Exception("Casting error: " + value.valueToString() + " is not a number", "CastError");
-			}
-		}
-		return float.min(min, floatValue);
+		return float.min(min, Utils.numberToFloat(value));
 	}
 
 	static action minInteger(any currentMin, any value) returns any {
