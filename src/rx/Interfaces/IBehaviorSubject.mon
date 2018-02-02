@@ -87,4 +87,5 @@ event IBehaviorSubject {
 	action<float> returns IObservable timeout;
 	action<> returns any getSync;
 	action<any> returns any getSyncOr;
+	action<> returns IObservable timeInterval;
 }

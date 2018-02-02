@@ -1,0 +1,16 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.TimeInterval;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	action onload() {
+	    any discard := Observable.fromValues([<any>0,1])
+			.timeInterval()
+	    	.subscribe(ExpectValues.create([<any>TimeInterval(0.0, 0), TimeInterval(0.0, 1)], test.complete, test.fail));
+	}
+}
