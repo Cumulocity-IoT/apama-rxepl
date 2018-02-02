@@ -85,4 +85,6 @@ event IBehaviorSubject {
 	action<> returns IObservable timestamp;
 	action<> returns IObservable updateTimestamp;
 	action<float> returns IObservable timeout;
+	action<> returns any getSync;
+	action<any> returns any getSyncOr;
 }

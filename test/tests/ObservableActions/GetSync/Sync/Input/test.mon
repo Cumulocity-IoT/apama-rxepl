@@ -1,0 +1,18 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	action onload() {
+	    any value := TestObservables.createSync()
+			.elementAt(4)
+			.getSync();
+	    if value = <any> 3.0 {
+	    	test.complete();
+	    } else {
+	    	test.fail("Unexpected value");
+	    }
+	}  
+}
