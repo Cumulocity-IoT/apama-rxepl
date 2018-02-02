@@ -1,0 +1,44 @@
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Observable;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+
+	integer teardownCount := 0;
+	
+	action onload() {
+		// Both Sync
+		any discard := Observable.fromValues([<any>0,1,2,3])
+			.amb([Observable.fromValues([<any>4,5,6,7])])
+			.subscribe(ExpectValues.create([<any>0,1,2,3], onTeardown, test.fail));
+	
+		// One Async, One Sync
+		discard := Observable.interval(0.1).take(4)
+			.amb([Observable.fromValues([<any>4,5,6,7])])
+			.subscribe(ExpectValues.create([<any>4,5,6,7], onTeardown, test.fail));
+		
+		// Both Async
+		discard := Observable.fromValues([<any>4,5,6,7]).async()
+			.amb([Observable.interval(0.15).take(4)])
+			.subscribe(ExpectValues.create([<any>4,5,6,7], onTeardown, test.fail));
+
+		// Vs Empty
+		discard := Observable.interval(0.15).take(4)
+			.amb([Observable.empty()])
+			.subscribe(ExpectValues.create(new sequence<any>, onTeardown, test.fail));
+		
+		// Empty vs empty
+		discard := Observable.empty()
+			.amb([Observable.empty()])
+			.subscribe(ExpectValues.create(new sequence<any>, onTeardown, test.fail));
+	} 
+	
+	action onTeardown() {
+		teardownCount := teardownCount + 1;
+		if teardownCount = 5 {
+			test.complete();
+		}
+	}
+}

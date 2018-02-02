@@ -204,6 +204,16 @@ event Observable {
 		return first.sequenceEqual(others);
 	}
 	
+	static action amb(sequence<IObservable> observables) returns IObservable {
+		IObservable first := observables[0];
+		
+		sequence<IObservable> others := (new sequence<IObservable>);
+		others.appendSequence(observables);
+		others.remove(0);
+		
+		return first.amb(others);
+	}
+	
 	action connectObserver(IObserver observer) returns ISubscription {
 		return onConnection(observer);
 	}
@@ -687,6 +697,17 @@ event Observable {
 		return o.asIObservable();	
 	}
 	
+	action ambFromInstance(sequence<IObservable> otherObservables) returns IObservable {
+		Observable o := _create();
+		
+		sequence<IObservable> observables := [self.asIObservable()];
+		observables.appendSequence(otherObservables);
+		
+		o.onConnection := AmbOnConnection.create(observables);
+		
+		return o.asIObservable();	
+	}
+	
 	static action invalidConnect() returns IDisposable {
 		throw Exception("Can only connect a published Observable", "UnsupportedOperation");
 	}
@@ -701,6 +722,6 @@ event Observable {
 		
 	action asIObservable() returns IObservable {
 		return IObservable(self, 
-		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial, toStream, catchError, retry, observeOn, groupBy, publishToContext, publishToChannel, observeOnNewContext, every, contains, takeWhile, skipWhile, concatFromInstance, startWith, defaultIfEmpty, ignoreElements, count, sum, sumInteger, sumFloat, sumDecimal, concatString, max, maxInteger, maxFloat, maxDecimal, min, minInteger, minFloat, minDecimal, average, averageDecimal, sequenceEqualFromInstance);
+		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial, toStream, catchError, retry, observeOn, groupBy, publishToContext, publishToChannel, observeOnNewContext, every, contains, takeWhile, skipWhile, concatFromInstance, startWith, defaultIfEmpty, ignoreElements, count, sum, sumInteger, sumFloat, sumDecimal, concatString, max, maxInteger, maxFloat, maxDecimal, min, minInteger, minFloat, minDecimal, average, averageDecimal, sequenceEqualFromInstance, ambFromInstance);
 	}
 }
