@@ -181,6 +181,18 @@ event Observable {
 		
 		return first.concat(others);
 	}
+
+	static action empty() returns IObservable {
+		return create(EmptyNeverError.emptyGenerator);
+	}
+	
+	static action never() returns IObservable {
+		return create(EmptyNeverError.neverGenerator);
+	}
+	
+	static action error() returns IObservable {
+		return create(EmptyNeverError.errorGenerator);
+	}
 	
 	action connectObserver(IObserver observer) returns ISubscription {
 		return onConnection(observer);

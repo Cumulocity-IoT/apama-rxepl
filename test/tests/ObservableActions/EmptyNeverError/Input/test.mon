@@ -1,0 +1,36 @@
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IResolver;
+
+using utils.Test;
+using utils.ExpectValues;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+	
+	integer teardownCount := 0;
+  
+	action onload() {		
+	    any discard := Observable.empty().defaultIfEmpty("yay")
+      		.subscribe(ExpectValues.create([<any>"yay"], countTeardowns, test.fail));
+	    
+	    discard := Observable.never()
+      		.subscribe(ExpectValues.create(new sequence<any>, doNotComplete, test.fail));
+	    on wait(0.5) {
+	    	countTeardowns();
+	    }
+	    
+	    discard := Observable.error().catchError(Observable.just("yay"))
+     		.subscribe(ExpectValues.create([<any>"yay"], countTeardowns, test.fail));
+	}
+	
+	action doNotComplete() {
+		test.fail("Should not have completed");
+	}
+	
+	action countTeardowns() {
+		teardownCount := teardownCount + 1;
+		if teardownCount = 3 {
+			test.complete();
+		}
+	}
+}
