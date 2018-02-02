@@ -579,6 +579,77 @@ event Observable {
 		return o.asIObservable();	
 	}
 	
+	action count() returns IObservable {
+		return reduceWithInitial(Aggregations.count, 0);
+	}
+	
+	/**
+	 * Takes any numeric type (integer, float, decimal)
+	 * The result is always a float
+	 */
+	action sum() returns IObservable {
+		return reduceWithInitial(Aggregations.sum, 0.0);
+	}
+	
+	action sumInteger() returns IObservable {
+		return reduceWithInitial(Aggregations.sumInteger, 0);
+	}
+	
+	action sumFloat() returns IObservable {
+		return reduceWithInitial(Aggregations.sumFloat, 0.0);
+	}
+	
+	action sumDecimal() returns IObservable {
+		return reduceWithInitial(Aggregations.sumDecimal, 0.0d);
+	}
+	
+	/**
+	 * Takes any numeric type (integer, float, decimal)
+	 * The result is always a float
+	 */
+	action max() returns IObservable {
+		return reduceWithInitial(Aggregations.max, -float.INFINITY);
+	}
+	
+	action maxInteger() returns IObservable {
+		return reduceWithInitial(Aggregations.maxInteger, integer.MIN);
+	}
+	
+	action maxFloat() returns IObservable {
+		return reduceWithInitial(Aggregations.maxFloat, -float.INFINITY);
+	}
+	
+	action maxDecimal() returns IObservable {
+		return reduceWithInitial(Aggregations.maxDecimal, -decimal.INFINITY);
+	}
+	
+	/**
+	 * Takes any numeric type (integer, float, decimal)
+	 * The result is always a float
+	 */
+	action min() returns IObservable {
+		return reduceWithInitial(Aggregations.min, float.INFINITY);
+	}
+	
+	action minInteger() returns IObservable {
+		return reduceWithInitial(Aggregations.minInteger, integer.MAX);
+	}
+	
+	action minFloat() returns IObservable {
+		return reduceWithInitial(Aggregations.minFloat, float.INFINITY);
+	}
+	
+	action minDecimal() returns IObservable {
+		return reduceWithInitial(Aggregations.minDecimal, decimal.INFINITY);
+	}
+	
+	/**
+	 * Will use .toString() for any non-string types
+	 */
+	action concatString() returns IObservable {
+		return reduceWithInitial(Aggregations.concatString, "");
+	}
+	
 	static action invalidConnect() returns IDisposable {
 		throw Exception("Can only connect a published Observable", "UnsupportedOperation");
 	}
@@ -593,6 +664,6 @@ event Observable {
 		
 	action asIObservable() returns IObservable {
 		return IObservable(self, 
-		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial, toStream, catchError, retry, observeOn, groupBy, publishToContext, publishToChannel, observeOnNewContext, every, contains, takeWhile, skipWhile, concatFromInstance, startWith, defaultIfEmpty, ignoreElements);
+		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial, toStream, catchError, retry, observeOn, groupBy, publishToContext, publishToChannel, observeOnNewContext, every, contains, takeWhile, skipWhile, concatFromInstance, startWith, defaultIfEmpty, ignoreElements, count, sum, sumInteger, sumFloat, sumDecimal, concatString, max, maxInteger, maxFloat, maxDecimal, min, minInteger, minFloat, minDecimal);
 	}
 }

@@ -1,0 +1,40 @@
+using com.industry.rx_epl.Observable;
+
+using utils.Test;
+using utils.TestObservables;
+using utils.ExpectValues;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	integer teardownCount := 0;
+	
+	action onload() {
+		any discard := Observable.fromValues([<any>1,0.1,2.5d]).async()
+			.min()
+      		.subscribe(ExpectValues.create([<any>0.1], onTeardown, test.fail));
+		
+		discard := Observable.fromValues([<any>1,-1,2]).async()
+      		.minInteger()
+      		.subscribe(ExpectValues.create([<any>(-1)], onTeardown, test.fail));
+
+		discard := Observable.fromValues([<any>1.0,0.1,2.0]).async()
+      		.minFloat()
+      		.subscribe(ExpectValues.create([<any>0.1], onTeardown, test.fail));
+		
+		discard := Observable.fromValues([<any>1.0d,0.1d,2.0d]).async()
+      		.minDecimal()
+      		.subscribe(ExpectValues.create([<any>0.1d], onTeardown, test.fail));
+		
+		discard := Observable.empty().async()
+      		.minDecimal()
+      		.subscribe(ExpectValues.create(new sequence<any>, onTeardown, test.fail));
+	}
+	
+	action onTeardown() {
+		teardownCount := teardownCount + 1;
+		if teardownCount = 5 {
+			test.complete();
+		}
+	}
+}

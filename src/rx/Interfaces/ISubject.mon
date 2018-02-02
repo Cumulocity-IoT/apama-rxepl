@@ -60,4 +60,18 @@ event ISubject {
 	action<sequence<any> > returns IObservable startWith;
 	action<any> returns IObservable defaultIfEmpty;
 	action<> returns IObservable ignoreElements;
+	action<> returns IObservable count;
+	action<> returns IObservable sum;
+	action<> returns IObservable sumInteger;
+	action<> returns IObservable sumFloat;
+	action<> returns IObservable sumDecimal;
+	action<> returns IObservable concatString;
+	action<> returns IObservable max;
+	action<> returns IObservable maxInteger;
+	action<> returns IObservable maxFloat;
+	action<> returns IObservable maxDecimal;
+	action<> returns IObservable min;
+	action<> returns IObservable minInteger;
+	action<> returns IObservable minFloat;
+	action<> returns IObservable minDecimal;
 }

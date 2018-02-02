@@ -1,0 +1,19 @@
+using com.industry.rx_epl.Observable;
+
+using utils.Test;
+using utils.TestObservables;
+using utils.ExpectValues;
+
+event AnEvent {}
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	integer teardownCount := 0;
+	
+	action onload() {
+		any discard := Observable.fromValues([<any>"Hello"," ","World ", 1,2.0,3.0,AnEvent()]).async()
+			.concatString()
+  		.subscribe(ExpectValues.create([<any>"Hello World 123AnEvent()"], test.complete, test.fail));
+	}
+}

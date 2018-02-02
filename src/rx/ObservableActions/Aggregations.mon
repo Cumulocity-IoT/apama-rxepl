@@ -1,0 +1,121 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event Aggregations {
+	static action count(any currentCount, any value) returns any {
+		return (<integer>currentCount) + 1;
+	}
+
+	// Always returns a float
+	static action sum(any currentSum, any value) returns any {
+		float sum := <float> currentSum;
+		switch(value) {
+			case integer: {
+				return sum + value.toFloat();
+			}
+			case float: {
+				return sum + value;
+			}
+			case decimal: {
+				return sum + value.toFloat();
+			}
+			default: {
+				throw Exception("Casting error: " + value.valueToString() + " is not a number", "CastError");
+			}
+		}
+	}
+
+	static action sumInteger(any currentSum, any value) returns any {
+		integer sum := <integer> currentSum;
+		return sum + <integer> value;
+	}
+
+	static action sumFloat(any currentSum, any value) returns any {
+		float sum := <float> currentSum;
+		return sum + <float> value;
+	}
+
+	static action sumDecimal(any currentSum, any value) returns any {
+		decimal sum := <decimal> currentSum;
+		return sum + <decimal> value;
+	}
+	
+	static action concatString(any currentStr, any value) returns any {
+		string concat := <string> currentStr;
+		switch(value) {
+			case string: {
+				return concat + value;
+			}
+			default: {
+				return concat + value.valueToString();
+			}
+		}
+	}
+	
+	// Always returns a float
+	static action max(any currentMax, any value) returns any {
+		float max := <float> currentMax;
+		float floatValue;
+		switch(value) {
+			case integer: {
+				floatValue := value.toFloat();
+			}
+			case float: {
+				floatValue := value;
+			}
+			case decimal: {
+				floatValue := value.toFloat();
+			}
+			default: {
+				throw Exception("Casting error: " + value.valueToString() + " is not a number", "CastError");
+			}
+		}
+		return float.max(max, floatValue);
+	}
+
+	static action maxInteger(any currentMax, any value) returns any {
+		return integer.max(<integer> currentMax, <integer> value);
+	}
+
+	static action maxFloat(any currentMax, any value) returns any {
+		return float.max(<float> currentMax, <float> value);
+	}
+
+	static action maxDecimal(any currentMax, any value) returns any {
+		return decimal.max(<decimal> currentMax, <decimal> value);
+	}
+	
+	// Always returns a float
+	static action min(any currentMin, any value) returns any {
+		float min := <float> currentMin;
+		float floatValue;
+		switch(value) {
+			case integer: {
+				floatValue := value.toFloat();
+			}
+			case float: {
+				floatValue := value;
+			}
+			case decimal: {
+				floatValue := value.toFloat();
+			}
+			default: {
+				throw Exception("Casting error: " + value.valueToString() + " is not a number", "CastError");
+			}
+		}
+		return float.min(min, floatValue);
+	}
+
+	static action minInteger(any currentMin, any value) returns any {
+		return integer.min(<integer> currentMin, <integer> value);
+	}
+
+	static action minFloat(any currentMin, any value) returns any {
+		return float.min(<float> currentMin, <float> value);
+	}
+
+	static action minDecimal(any currentMin, any value) returns any {
+		return decimal.min(<decimal> currentMin, <decimal> value);
+	}
+}
