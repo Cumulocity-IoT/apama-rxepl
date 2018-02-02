@@ -80,4 +80,5 @@ event ISubject {
 	action<sequence<IObservable> > returns IObservable amb;
 	action<> returns IObservable timestamp;
 	action<> returns IObservable updateTimestamp;
+	action<float> returns IObservable timeout;
 }
