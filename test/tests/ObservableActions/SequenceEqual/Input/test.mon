@@ -1,0 +1,54 @@
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Observable;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+
+	integer teardownCount := 0;
+	
+	action onload() {
+		// Both Sync
+		any discard := Observable.fromValues([<any>0,1,2,3])
+			.sequenceEqual([Observable.fromValues([<any>0,1,2,3])])
+			.subscribe(ExpectValues.create([<any>true], onTeardown, test.fail));
+	
+		// One Async, One Sync
+		discard := Observable.interval(0.1).take(4)
+			.sequenceEqual([Observable.fromValues([<any>0,1,2,3])])
+			.subscribe(ExpectValues.create([<any>true], onTeardown, test.fail));
+		
+		// Both Async
+		discard := Observable.interval(0.1).take(4)
+			.sequenceEqual([Observable.interval(0.15).take(4)])
+			.subscribe(ExpectValues.create([<any>true], onTeardown, test.fail));
+
+		// Different Async
+		discard := Observable.interval(0.1).take(5)
+			.sequenceEqual([Observable.interval(0.1).take(4)])
+			.subscribe(ExpectValues.create([<any>false], onTeardown, test.fail));
+		
+		// Different sync
+		discard := Observable.fromValues([<any>0,1,3,3])
+			.sequenceEqual([Observable.fromValues([<any>0,1,2,3])])
+			.subscribe(ExpectValues.create([<any>false], onTeardown, test.fail));
+
+		// Different with never
+		discard := Observable.fromValues([<any>0,1,3,3])
+			.sequenceEqual([Observable.fromValues([<any>0,1,2,3]), Observable.never()])
+			.subscribe(ExpectValues.create([<any>false], onTeardown, test.fail));
+		
+		// Empty
+		discard := Observable.empty()
+			.sequenceEqual([Observable.empty()])
+			.subscribe(ExpectValues.create([<any>true], onTeardown, test.fail));
+	} 
+	
+	action onTeardown() {
+		teardownCount := teardownCount + 1;
+		if teardownCount = 7 {
+			test.complete();
+		}
+	}
+}

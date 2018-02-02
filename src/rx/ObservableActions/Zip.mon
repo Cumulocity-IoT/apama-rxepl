@@ -69,10 +69,9 @@ event ZipSubscriberFactory {
 event ZipOnConnection {
 	sequence<IObservable> observables;
 	action<sequence<any> > returns any combiner;
-	boolean receivedValue;
 	
 	static action create(sequence<IObservable> observables, action<sequence<any> > returns any combiner) returns action<IObserver> returns ISubscription {
-		return ZipOnConnection(observables, combiner, true).onConnection;
+		return ZipOnConnection(observables, combiner).onConnection;
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {
