@@ -53,4 +53,5 @@ event IObservable {
 	action<sequence<IObservable> > returns IObservable concat;
 	action<sequence<any> > returns IObservable startWith;
 	action<any> returns IObservable defaultIfEmpty;
+	action<> returns IObservable ignoreElements;
 }

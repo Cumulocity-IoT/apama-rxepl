@@ -1,0 +1,35 @@
+using com.industry.rx_epl.Observable;
+
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	integer teardownCount := 0;
+	boolean canComplete := false;
+	
+	action onload() {
+		on wait(0.29999) {
+			canComplete := true;
+		}
+		
+		any discard := Observable.interval(0.1)
+			.take(3)
+			.do(ExpectValues.create([<any>0,1,2], countTeardowns, test.fail))
+			.ignoreElements()
+			.subscribe(ExpectValues.create(new sequence<any>, countTeardowns, test.fail));
+	}
+	
+	action countTeardowns() {
+		if not canComplete {
+			test.fail("Completed too early");
+		}
+		
+		teardownCount := teardownCount + 1;
+		if teardownCount = 2 {
+			test.complete();
+		}
+	}
+}

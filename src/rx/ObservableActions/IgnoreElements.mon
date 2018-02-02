@@ -1,0 +1,15 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event IgnoreElementsOnConnection {
+	action<IObserver> returns ISubscription parentOnConnection;
+	
+	static action create(action<IObserver> returns ISubscription parentOnConnection) returns action<IObserver> returns ISubscription {
+		return IgnoreElementsOnConnection(parentOnConnection).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		return parentOnConnection(IObserverBuilder.create(subscriber.createUpstream()).onNext(IObserver.noOpNext).build());
+	}
+}
