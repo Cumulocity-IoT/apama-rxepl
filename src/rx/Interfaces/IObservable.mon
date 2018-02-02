@@ -52,4 +52,5 @@ event IObservable {
 	action<action<any> returns boolean> returns IObservable skipWhile;
 	action<sequence<IObservable> > returns IObservable concat;
 	action<sequence<any> > returns IObservable startWith;
+	action<any> returns IObservable defaultIfEmpty;
 }
