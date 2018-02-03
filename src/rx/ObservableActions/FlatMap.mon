@@ -29,9 +29,6 @@ event FlatMapSubscriber {
 			case ISubject: {
 				connectToMappedObservable(values.asIObservable());
 			}
-			case IBehaviorSubject: {
-				connectToMappedObservable(values.asIObservable());
-			}
 			default: {
 				any value;
 				for value in Utils.anyToSequenceAny(values) {

@@ -11,9 +11,6 @@ event SwitchOnNext {
 			case ISubject: {
 				return value;
 			}
-			case IBehaviorSubject: {
-				return value;
-			}
 			default: {
 				// Only flatmap observables, so if it's a value wrap into an array so it doesn't get flatmapped
 				return [value];

@@ -2,13 +2,13 @@ package com.industry.rx_epl;
 
 using com.apama.exceptions.Exception;
 
-event DistinctBySubscriber {
+event DistinctByUntilChangedSubscriber {
 	IObserver subscriber;
 	action<any> returns any distinctBy;
-	dictionary<any, boolean> valuesSeen;
-	
+	any previousValue;
+
 	static action create(IObserver subscriber, action<any> returns any distinctBy) returns IObserver {
-		DistinctBySubscriber m := DistinctBySubscriber(subscriber, distinctBy, new dictionary<any, boolean>);
+		DistinctByUntilChangedSubscriber m := DistinctByUntilChangedSubscriber(subscriber, distinctBy, new any);
 		return IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).build();
 	}
 	
@@ -18,9 +18,9 @@ event DistinctBySubscriber {
 			ifpresent distinctBy {
 				key := distinctBy(value);
 			}
-			if not valuesSeen.hasKey(key) {
-				valuesSeen.add(key, true);
+			if previousValue != key {
 				subscriber.next(value);
+				previousValue := key;
 			}
 		} catch(Exception e) {
 			subscriber.error(e);
@@ -28,16 +28,16 @@ event DistinctBySubscriber {
 	}
 }
 
-event DistinctByOnConnection {
+event DistinctByUntilChangedOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	action<any> returns any mapper;
 	
 	static action create(action<IObserver> returns ISubscription parentOnConnection, action<any> returns any distinctBy) returns action<IObserver> returns ISubscription {
-		return DistinctByOnConnection(parentOnConnection, distinctBy).onConnection;
+		return DistinctByUntilChangedOnConnection(parentOnConnection, distinctBy).onConnection;
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {
-		IObserver mapSubscriber := DistinctBySubscriber.create(subscriber, mapper);
+		IObserver mapSubscriber := DistinctByUntilChangedSubscriber.create(subscriber, mapper);
 		return parentOnConnection(mapSubscriber);
 	}
 }
