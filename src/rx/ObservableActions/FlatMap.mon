@@ -3,51 +3,70 @@ package com.industry.rx_epl;
 using com.apama.exceptions.Exception;
 
 event FlatMapSubscriber {
-	IObserver subscriber;
+	IObserver downstreamSubscriber;
+	IObserver upstreamSubscriber;
 	action<any> returns any mapper;
-	optional<Subscriber> mappedValueSubscriber;
+	dictionary<integer, Subscriber> mappedValueSubscribersById;
 	
 	static action create(IObserver subscriber, action<any> returns any mapper) returns IObserver {
-		FlatMapSubscriber m := FlatMapSubscriber(subscriber, mapper, new optional<Subscriber>);
-		subscriber.onUnsubscribe(m.unsubscribeMappedValue);
-		return IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).build();
+		FlatMapSubscriber m := FlatMapSubscriber(subscriber, new IObserver, mapper, new dictionary<integer, Subscriber>);
+		m.upstreamSubscriber := Subscriber.create().onNext(m.next).onError(subscriber.error).onComplete(m.mainComplete).asIObserver();
+		subscriber.subscribe();
+		subscriber.onUnsubscribe(m.unsubscribe);
+		return m.upstreamSubscriber;
 	}
 	
 	action next(any value) {
-		unsubscribeMappedValue();
-		any values;
 		try {
-			 values := mapper(value);
-		} catch(Exception e) {
-			subscriber.error(e);
-			return;
-		}
-		switch (values) {
-			case IObservable: {
-				connectToMappedObservable(values);
-			}
-			case ISubject: {
-				connectToMappedObservable(values.asIObservable());
-			}
-			default: {
-				any value;
-				for value in Utils.anyToSequenceAny(values) {
-					subscriber.next(value);
+			switch (mapper(value) as values) {
+				case IObservable: {
+					connectToMappedObservable(values);
+				}
+				case ISubject: {
+					connectToMappedObservable(values.asIObservable());
+				}
+				default: {
+					any value;
+					for value in Utils.anyToSequenceAny(values) {
+						downstreamSubscriber.next(value);
+						if not downstreamSubscriber.subscribed() {
+							break;
+						}
+					}
 				}
 			}
+		} catch(Exception e) {
+			downstreamSubscriber.error(e);
+		}
+	}
+	
+	action mappedValueComplete(integer id) {
+		mappedValueSubscribersById[id].unsubscribe();
+		mappedValueSubscribersById.remove(id);
+		if not upstreamSubscriber.subscribed() and mappedValueSubscribersById.size() = 0 {
+			downstreamSubscriber.complete();
+		}
+	}
+	
+	action mainComplete() {
+		upstreamSubscriber.unsubscribe();
+		if mappedValueSubscribersById.size() = 0 {
+			downstreamSubscriber.complete();
+		}
+	}
+	
+	action unsubscribe() {
+		Subscriber s;
+		for s in mappedValueSubscribersById.values() {
+			s.unsubscribe();
 		}
 	}
 	
 	action connectToMappedObservable(IObservable o) {
-		mappedValueSubscriber := Subscriber.create().onNext(subscriber.next).onError(subscriber.error);
-		ISubscription discard := o.subscribe(mappedValueSubscriber.getOrThrow());
-	}
-	
-	action unsubscribeMappedValue() {
-		ifpresent mappedValueSubscriber {
-			mappedValueSubscriber.unsubscribe();
-		}
-		mappedValueSubscriber := new optional<Subscriber>;
+		integer id := mappedValueSubscribersById.size();
+		Subscriber mappedValueSubscriber := Subscriber.create().onNext(downstreamSubscriber.next).onError(downstreamSubscriber.error).onComplete(CombineLatestOnComplete.create(id, mappedValueComplete));
+		mappedValueSubscribersById.add(id, mappedValueSubscriber);
+		ISubscription discard := o.subscribe(mappedValueSubscriber);
 	}
 }
 

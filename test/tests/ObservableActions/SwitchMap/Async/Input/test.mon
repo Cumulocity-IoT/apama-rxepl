@@ -1,0 +1,21 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IObservable;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+	
+	action onload() {		
+	    any discard := Observable.interval(0.1)
+			.take(3)
+	      	.switchMap(toDelayedValue)
+	      	.subscribe(ExpectValues.create([<any>0,1,0,1,0,1,2], test.complete, test.fail));
+	}
+	
+	action toDelayedValue(any value) returns IObservable {
+		return Observable.interval(0.049).take(3);
+	}
+}

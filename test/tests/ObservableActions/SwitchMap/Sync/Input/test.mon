@@ -1,0 +1,20 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IObservable;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+	
+	action onload() {		
+	    any discard := Observable.fromValues([<any>0,1,2])
+	      	.switchMap(toObs)
+	      	.subscribe(ExpectValues.create([<any>0,0,1,1,2,2], test.complete, test.fail));
+	}
+	
+	action toObs(any value) returns IObservable {
+		return Observable.fromValues([value,value]);
+	}
+}

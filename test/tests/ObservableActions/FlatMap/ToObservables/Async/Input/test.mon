@@ -24,6 +24,6 @@ monitor TestObservable {
 	}
 	
 	action mapToObservable(any value) returns any {
-		return Observable.fromValues([value, value]).do(ExpectValues.create([value, value], onTeardown, test.fail));
+		return Observable.fromValues([value, value]).async().do(ExpectValues.create([value, value], onTeardown, test.fail));
 	}
 }

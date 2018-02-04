@@ -16,9 +16,9 @@ monitor TestObservable {
 		IObservable o := Observable.interval(0.1).take(2);
 		
 	    any discard := s
-			.take(4)
+          .take(4)
 	      	.switchOnNext()
-	      	.subscribe(ExpectValues.create([<any>0,1,0,1,0,1], test.complete, test.fail));
+	      	.subscribe(ExpectValues.create([<any>0,1,0,1,0,1,0,1], test.complete, test.fail));
 	
 	    on all wait(0.21) and not wait(1.0) {
 	    	s.next(o);

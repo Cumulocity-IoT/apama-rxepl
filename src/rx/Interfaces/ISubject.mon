@@ -86,4 +86,6 @@ event ISubject {
 	action<> returns IObservable timeInterval;
 	action<> returns IObservable distinctUntilChanged;
 	action<action<any> returns any> returns IObservable distinctByUntilChanged;
+	action<action<any> returns IObservable> returns IObservable switchMap;
+	action<float> returns IObservable debounce;
 }

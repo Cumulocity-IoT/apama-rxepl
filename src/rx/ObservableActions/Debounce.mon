@@ -1,0 +1,16 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event DebounceHandler {
+	float duration;
+	action<any> returns IObservable just;
+	
+	static action create(float duration, action<any> returns IObservable just) returns action<any> returns IObservable {
+		return DebounceHandler(duration, just).switchToDelayed;
+	}
+	
+	action switchToDelayed(any value) returns IObservable {
+		return just(value).delay(duration);
+	}
+}

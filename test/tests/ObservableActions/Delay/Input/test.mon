@@ -21,8 +21,4 @@ monitor TestObservable {
 			test.fail("Did not delay data");
 		}
 	}
-	
-	action multiplyBy10(any value) returns any {
-		return <float> value * 10.0;
-	}
 }

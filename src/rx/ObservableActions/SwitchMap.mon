@@ -1,0 +1,67 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event SwitchMapSubscriber {
+	IObserver downstreamSubscriber;
+	IObserver upstreamSubscriber;
+	action<any> returns IObservable mapper;
+	optional<Subscriber> mappedValueSubscriber;
+	
+	static action create(IObserver subscriber, action<any> returns IObservable mapper) returns IObserver {
+		SwitchMapSubscriber m := SwitchMapSubscriber(subscriber, new IObserver, mapper, new optional<Subscriber>);
+		subscriber.onUnsubscribe(m.unsubscribeMappedValue);
+		m.upstreamSubscriber := Subscriber.create().onNext(m.next).onError(subscriber.error).onComplete(m.completeMain).asIObserver();
+		subscriber.subscribe();
+		return m.upstreamSubscriber;
+	}
+	
+	action next(any value) {
+		try {
+			connectToMappedObservable(mapper(value));
+		} catch(Exception e) {
+			downstreamSubscriber.error(e);
+		}
+	}
+	
+	action completeMain() {
+		if mappedValueSubscriber.empty() or not mappedValueSubscriber.getOrThrow().subscribed() {
+			downstreamSubscriber.complete();
+		}
+		upstreamSubscriber.unsubscribe();
+	}
+	
+	action completeSwitched() {
+		if not upstreamSubscriber.subscribed() {
+			downstreamSubscriber.complete();
+		}
+		unsubscribeMappedValue();
+	}
+	
+	action connectToMappedObservable(IObservable o) {
+		unsubscribeMappedValue();
+		mappedValueSubscriber := Subscriber.create().onNext(downstreamSubscriber.next).onError(downstreamSubscriber.error).onComplete(completeSwitched);
+		ISubscription discard := o.subscribe(mappedValueSubscriber.getOrThrow());
+	}
+	
+	action unsubscribeMappedValue() {
+		ifpresent mappedValueSubscriber {
+			mappedValueSubscriber.unsubscribe();
+		}
+		mappedValueSubscriber := new optional<Subscriber>;
+	}
+}
+
+event SwitchMapOnConnection {
+	action<IObserver> returns ISubscription parentOnConnection;
+	action<any> returns IObservable mapper;
+	
+	static action create(action<IObserver> returns ISubscription parentOnConnection, action<any> returns IObservable mapper) returns action<IObserver> returns ISubscription {
+		return SwitchMapOnConnection(parentOnConnection, mapper).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		IObserver mapSubscriber := SwitchMapSubscriber.create(subscriber, mapper);
+		return parentOnConnection(mapSubscriber);
+	}
+}
