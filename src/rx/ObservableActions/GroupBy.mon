@@ -11,6 +11,7 @@ event GroupBySubscriber {
 	
 	static action create(action<> returns IObservable createObservable, action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection, IObserver subscriber, action<any> returns any groupBy) returns IObserver {
 		GroupBySubscriber m := GroupBySubscriber(createObservable, getSetOnConnection, subscriber, groupBy, new dictionary<any, ISubject>);
+		subscriber.onUnsubscribe(m.unsubscribe);
 		return IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).onComplete(m.complete).build();
 	}
 	
@@ -32,11 +33,14 @@ event GroupBySubscriber {
 		}
 	}
 	
-	action complete() {
+	action unsubscribe() {
 		ISubject subject;
 		for subject in subjectByGroup.values() {
 			subject.complete();
-		}
+		}		
+	}
+	
+	action complete() {
 		subscriber.complete();
 	}
 }
@@ -52,7 +56,6 @@ event GroupByOnConnection {
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {
-		IObserver groupBySubscriber := GroupBySubscriber.create(createObservable, getSetOnConnection, subscriber, groupBy);
-		return parentOnConnection(groupBySubscriber);
+		return parentOnConnection(GroupBySubscriber.create(createObservable, getSetOnConnection, subscriber, groupBy));
 	}
 }

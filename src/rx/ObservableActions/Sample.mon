@@ -1,0 +1,9 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event Sample {
+	static action switchMapSample(any obs) returns IObservable {
+		return (<IObservable>obs).last();
+	}
+}

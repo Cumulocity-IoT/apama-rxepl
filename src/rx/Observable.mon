@@ -768,6 +768,34 @@ event Observable {
 		return switchMap(DebounceHandler.create(duration, just));
 	}
 	
+	action timeWindow(float windowDuration) returns IObservable {
+		Observable o := _create();
+
+		o.onConnection := TimeWindowOnConnection.create(_createAsIObservable, getSetOnConnection, onConnection, windowDuration);
+		
+		return o.asIObservable();	
+	}
+	
+	action throttleFirst(float throttleDuration) returns IObservable {
+		Observable o := _create();
+
+		o.onConnection := ThrottleOnConnection.create(onConnection, throttleDuration, true);
+		
+		return o.asIObservable();	
+	}
+	
+	action throttleLast(float throttleDuration) returns IObservable {
+		Observable o := _create();
+
+		o.onConnection := ThrottleOnConnection.create(onConnection, throttleDuration, false);
+		
+		return o.asIObservable();	
+	}
+	
+	action sample(float samplePeriod) returns IObservable {
+		return timeWindow(samplePeriod).switchMap(Sample.switchMapSample);
+	}
+	
 	static action invalidConnect() returns IDisposable {
 		throw Exception("Can only connect a published Observable", "UnsupportedOperation");
 	}
@@ -782,6 +810,6 @@ event Observable {
 		
 	action asIObservable() returns IObservable {
 		return IObservable(self, 
-		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial, toStream, catchError, retry, observeOn, groupBy, publishToContext, publishToChannel, observeOnNewContext, every, contains, takeWhile, skipWhile, concatFromInstance, startWith, defaultIfEmpty, ignoreElements, count, sum, sumInteger, sumFloat, sumDecimal, concatString, max, maxInteger, maxFloat, maxDecimal, min, minInteger, minFloat, minDecimal, average, averageDecimal, sequenceEqualFromInstance, ambFromInstance, timestamp, updateTimestamp, timeout, getSync, getSyncOr, timeInterval, distinctUntilChanged, distinctByUntilChanged, switchMap, debounce);
+		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial, toStream, catchError, retry, observeOn, groupBy, publishToContext, publishToChannel, observeOnNewContext, every, contains, takeWhile, skipWhile, concatFromInstance, startWith, defaultIfEmpty, ignoreElements, count, sum, sumInteger, sumFloat, sumDecimal, concatString, max, maxInteger, maxFloat, maxDecimal, min, minInteger, minFloat, minDecimal, average, averageDecimal, sequenceEqualFromInstance, ambFromInstance, timestamp, updateTimestamp, timeout, getSync, getSyncOr, timeInterval, distinctUntilChanged, distinctByUntilChanged, switchMap, debounce, timeWindow, throttleFirst, throttleLast, sample);
 	}
 }

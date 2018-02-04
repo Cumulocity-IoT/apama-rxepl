@@ -82,4 +82,8 @@ event IObservable {
 	action<action<any> returns any> returns IObservable distinctByUntilChanged;
 	action<action<any> returns IObservable> returns IObservable switchMap;
 	action<float> returns IObservable debounce;
+	action<float> returns IObservable timeWindow;
+	action<float> returns IObservable throttleFirst;
+	action<float> returns IObservable throttleLast;
+	action<float> returns IObservable sample;
 }

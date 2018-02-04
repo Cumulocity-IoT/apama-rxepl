@@ -1,0 +1,58 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event TimeWindowSubscriber {
+	action<> returns IObservable createObservable;
+	action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection;
+	IObserver subscriber;
+	ISubject currentSubject;
+	listener windowCreationListener;
+	float windowDuration;
+	
+	static action create(action<> returns IObservable createObservable, action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection, IObserver subscriber, float windowDuration) returns IObserver {
+		TimeWindowSubscriber m := TimeWindowSubscriber(createObservable, getSetOnConnection, subscriber, new ISubject, new listener, windowDuration);
+		subscriber.onUnsubscribe(m.unsubscribe);
+		m.startTimeWindowCreationListener();
+		return IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).build();
+	}
+	
+	action next(any value) {
+		currentSubject.next(value);
+	}
+	
+	action createNextSubject() {
+		IObservable o := createObservable();
+		currentSubject := BaseSubject.create(o, getSetOnConnection(o));
+		subscriber.next(currentSubject.asIObservable());
+	}
+	
+	action unsubscribe() {
+		log "TimeWindow listener killed" at DEBUG;
+		windowCreationListener.quit();
+		currentSubject.complete();
+	}
+	
+	action startTimeWindowCreationListener() {
+		createNextSubject();
+		windowCreationListener := on all wait(windowDuration) {
+			currentSubject.complete();
+			createNextSubject();
+		}
+	}
+}
+
+event TimeWindowOnConnection {
+	action<> returns IObservable createObservable;
+	action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection;
+	action<IObserver> returns ISubscription parentOnConnection;
+	float windowDuration;
+	
+	static action create(action<> returns IObservable createObservable, action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection, action<IObserver> returns ISubscription parentOnConnection, float windowDuration) returns action<IObserver> returns ISubscription {
+		return TimeWindowOnConnection(createObservable, getSetOnConnection, parentOnConnection, windowDuration).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		return parentOnConnection(TimeWindowSubscriber.create(createObservable, getSetOnConnection, subscriber, windowDuration));
+	}
+}

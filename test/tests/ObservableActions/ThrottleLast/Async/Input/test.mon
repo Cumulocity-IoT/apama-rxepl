@@ -1,0 +1,32 @@
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Subject;
+using com.industry.rx_epl.ISubject;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.Subscriber;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	action onload() {
+		ISubject s := Subject.create();
+		
+		any discard := s.throttleLast(0.125)
+							.subscribe(ExpectValues.create([<any>0,2,3], test.complete, test.fail));
+
+		on wait(0.125) {
+			s.next(0);
+		}
+		on wait(0.25) {
+			s.next(1);
+		}
+		on wait(0.3) {
+			s.next(2);
+		}
+		on wait(0.375) {
+			s.next(3);
+			s.complete();
+		}
+	}
+}
