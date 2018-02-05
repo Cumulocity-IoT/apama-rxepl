@@ -1,0 +1,24 @@
+using com.industry.rx_epl.Observable;
+
+using utils.Test;
+using utils.TestObservables;
+using utils.ExpectValues;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	integer teardownCount := 0;
+	
+	action onload() {
+		any discard := Observable.fromValues([<any>0,1,2,3])
+			.buffer(Observable.fromValues([<any>0,1]).do(ExpectValues.createNoComplete([<any>0], onTeardown, test.fail)))
+      		.subscribe(ExpectValues.create([<any>[<any>0,1,2,3]], onTeardown, test.fail));
+	}
+	
+	action onTeardown() {
+		teardownCount := teardownCount + 1;
+		if teardownCount = 2 {
+			test.complete();
+		}
+	}
+}

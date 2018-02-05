@@ -86,4 +86,8 @@ event IObservable {
 	action<float> returns IObservable throttleFirst;
 	action<float> returns IObservable throttleLast;
 	action<float> returns IObservable sample;
+	action<IObservable> returns IObservable buffer;
+	action<float> returns IObservable bufferTime;
+	action<integer> returns IObservable bufferCount;
+	action<float, integer> returns IObservable bufferTimeOrCount;
 }

@@ -1,0 +1,75 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event BufferSubscriberFactory {
+	IObserver subscriber;
+	IObserver upstream;
+	IObservable triggeringSource;
+	IObserver trigger;
+	sequence<any> buffer;
+	float lastEmitTimestamp;
+	boolean isSourceComplete;
+	
+	static action create(IObserver subscriber, IObservable observable) returns BufferSubscriberFactory {
+		return BufferSubscriberFactory(subscriber, new IObserver, observable, new IObserver, new sequence<any>, -float.INFINITY, false);
+	}
+	
+	action next(any value) {
+		buffer.append(value);
+	}
+	
+	action complete() {
+		isSourceComplete := true;
+		upstream.unsubscribe();
+	}
+	
+	action emitBuffer() {
+		lastEmitTimestamp := currentTime;
+		subscriber.next(buffer);
+		buffer := new sequence<any>;
+	}
+	
+	action triggerNext(any value) {
+		if isSourceComplete {
+			triggerComplete();
+		} else {
+			emitBuffer();
+		}
+	}
+	
+	action triggerComplete() {
+		// Don't emit empty bucket if we already emitted at this timestamp
+		if lastEmitTimestamp != currentTime or buffer.size() > 0 {
+			emitBuffer();
+		}
+		subscriber.complete();
+	}
+	
+	action connectTrigger() {
+		trigger := IObserverBuilder.create(subscriber.createUpstream()).onNext(triggerNext).onComplete(triggerComplete).build();
+		ISubscription s := triggeringSource.connectObserver(trigger);
+	}
+	
+	action getUpstream() returns IObserver {
+		upstream := Subscriber.create().onNext(next).onError(subscriber.error).onComplete(complete).asIObserver();
+		subscriber.onUnsubscribe(upstream.unsubscribe);
+		return upstream;
+	}
+}
+
+event BufferOnConnection {
+	action<IObserver> returns ISubscription parentOnConnection;
+	IObservable observable;
+	
+	static action create(action<IObserver> returns ISubscription parentOnConnection, IObservable observable) returns action<IObserver> returns ISubscription {
+		return BufferOnConnection(parentOnConnection, observable).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		BufferSubscriberFactory factory := BufferSubscriberFactory.create(subscriber, observable);
+		ISubscription s := parentOnConnection(factory.getUpstream());
+		factory.connectTrigger();
+		return s;
+	}
+}
