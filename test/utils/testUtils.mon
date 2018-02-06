@@ -67,11 +67,19 @@ event ExpectValues {
     log "Next Called: " + value.toString();
     if expectedValues.size() = 0 {
         fail("Unexpected value received: " + value.toString());
-    } else if value != expectedValues[0] {
+    } else if not equalOrStringEqual(value, expectedValues[0]) {
     	fail("Value: " + value.toString() + " did not match expected: " + expectedValues[0].toString());
     } else {
     	expectedValues.remove(0);
     }
+  }
+  
+  static action equalOrStringEqual(any value1, any value2) returns boolean {
+	  try {
+		  return value1 = value2;
+	  } catch(com.apama.exceptions.Exception e) {
+		  return value1.toString() = value2.toString();
+	  }
   }
   
   action error(any e) {

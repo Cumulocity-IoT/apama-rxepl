@@ -2,6 +2,18 @@ package com.industry.rx_epl;
 
 using com.apama.exceptions.Exception;
 
+event CombineLatestCombinerMapper {
+	action<sequence<any> > returns any combiner;
+	
+	static action create(action<sequence<any> > returns any combiner) returns action<any> returns any {
+		return CombineLatestCombinerMapper(combiner).mapper;
+	}
+	
+	action mapper(any value) returns any {
+		return combiner(<sequence<any> > value);
+	}
+}
+
 event CombineLatestOnNext {
 	integer id;
 	action<integer, any> onNext;
@@ -30,15 +42,14 @@ event CombineLatestOnComplete {
 
 event CombineLatestSubscriberFactory {
 	IObserver downstreamSubscriber;
-	action<sequence<any> > returns any combiner;
 	integer subscriberCount;
 	
 	dictionary<integer, any> latestValuesById;
 	dictionary<integer, IObserver> upstreamSubscribersById;
 	dictionary<integer, boolean> completeSubscribersById;
 	
-	static action create(IObserver subscriber, action<sequence<any> > returns any combiner) returns CombineLatestSubscriberFactory {
-		return CombineLatestSubscriberFactory(subscriber, combiner, 0, new dictionary<integer, any>, new dictionary<integer, IObserver>, new dictionary<integer, boolean>);
+	static action create(IObserver subscriber) returns CombineLatestSubscriberFactory {
+		return CombineLatestSubscriberFactory(subscriber, 0, new dictionary<integer, any>, new dictionary<integer, IObserver>, new dictionary<integer, boolean>);
 	}
 	
 	action createUpstreamSubscriber() returns IObserver {
@@ -54,12 +65,7 @@ event CombineLatestSubscriberFactory {
 		latestValuesById.add(id, value);
 		if latestValuesById.size() = subscriberCount {
 			// These are automatically sorted in ascending order of keys
-			try {
-				downstreamSubscriber.next(combiner(latestValuesById.values()));
-			} catch(Exception e) {
-				downstreamSubscriber.error(e);
-				return;
-			}
+			downstreamSubscriber.next(latestValuesById.values());
 		}
 	}
 	
@@ -74,15 +80,13 @@ event CombineLatestSubscriberFactory {
 
 event CombineLatestOnConnection {
 	sequence<IObservable> observables;
-	action<sequence<any> > returns any combiner;
-	boolean receivedValue;
 	
-	static action create(sequence<IObservable> observables, action<sequence<any> > returns any combiner) returns action<IObserver> returns ISubscription {
-		return CombineLatestOnConnection(observables, combiner, true).onConnection;
+	static action create(sequence<IObservable> observables) returns action<IObserver> returns ISubscription {
+		return CombineLatestOnConnection(observables).onConnection;
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {
-		CombineLatestSubscriberFactory factory := CombineLatestSubscriberFactory.create(subscriber, combiner);
+		CombineLatestSubscriberFactory factory := CombineLatestSubscriberFactory.create(subscriber);
 		
 		sequence<IObserver> upstreamSubscribers := new sequence<IObserver>;
 		

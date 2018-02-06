@@ -1,0 +1,17 @@
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.WrappedAny;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	action onload() {
+		IObservable o := Observable.interval(0.01).take(4);
+		
+	    any discard := o.withLatestFromToSequence([o])
+	      	.subscribe(ExpectValues.create([<any>[<any>0,0], [<any>1,1], [<any>2,2], [<any>3,3]], test.complete, test.fail));
+	}
+}

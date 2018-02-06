@@ -90,4 +90,7 @@ event IObservable {
 	action<float> returns IObservable bufferTime;
 	action<integer> returns IObservable bufferCount;
 	action<float, integer> returns IObservable bufferTimeOrCount;
+	action<sequence<IObservable> > returns IObservable combineLatestToSequence;
+	action<sequence<IObservable> > returns IObservable withLatestFromToSequence;
+	action<sequence<IObservable> > returns IObservable zipToSequence;
 }

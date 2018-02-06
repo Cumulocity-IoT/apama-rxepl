@@ -4,15 +4,14 @@ using com.apama.exceptions.Exception;
 
 event ZipSubscriberFactory {
 	IObserver downstreamSubscriber;
-	action<sequence<any> > returns any combiner;
 	integer subscriberCount;
 	
 	dictionary<integer, sequence<any> > valuesById;
 	dictionary<integer, IObserver> upstreamSubscribersById;
 	dictionary<integer, boolean> completeSubscribersById;
 	
-	static action create(IObserver subscriber, action<sequence<any> > returns any combiner) returns ZipSubscriberFactory {
-		return ZipSubscriberFactory(subscriber, combiner, 0, new dictionary<integer, sequence<any> >, new dictionary<integer, IObserver>, new dictionary<integer, boolean>);
+	static action create(IObserver subscriber) returns ZipSubscriberFactory {
+		return ZipSubscriberFactory(subscriber, 0, new dictionary<integer, sequence<any> >, new dictionary<integer, IObserver>, new dictionary<integer, boolean>);
 	}
 	
 	action createUpstreamSubscriber() returns IObserver {
@@ -44,14 +43,9 @@ event ZipSubscriberFactory {
 					}
 				}
 			}			
-			try {
-				downstreamSubscriber.next(combiner(nextValues));
-				if downstreamSubscriber.subscribed() and sendComplete {
-					downstreamSubscriber.complete();
-				}
-			} catch(Exception e) {
-				downstreamSubscriber.error(e);
-				return;
+			downstreamSubscriber.next(nextValues);
+			if downstreamSubscriber.subscribed() and sendComplete {
+				downstreamSubscriber.complete();
 			}
 		}
 	}
@@ -68,14 +62,13 @@ event ZipSubscriberFactory {
 
 event ZipOnConnection {
 	sequence<IObservable> observables;
-	action<sequence<any> > returns any combiner;
 	
-	static action create(sequence<IObservable> observables, action<sequence<any> > returns any combiner) returns action<IObserver> returns ISubscription {
-		return ZipOnConnection(observables, combiner).onConnection;
+	static action create(sequence<IObservable> observables) returns action<IObserver> returns ISubscription {
+		return ZipOnConnection(observables).onConnection;
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {
-		ZipSubscriberFactory factory := ZipSubscriberFactory.create(subscriber, combiner);
+		ZipSubscriberFactory factory := ZipSubscriberFactory.create(subscriber);
 		
 		sequence<IObserver> upstreamSubscribers := new sequence<IObserver>;
 		
