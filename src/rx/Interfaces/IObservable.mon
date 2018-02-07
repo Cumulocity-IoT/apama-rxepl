@@ -82,10 +82,10 @@ event IObservable {
 	action<action<any> returns any> returns IObservable distinctByUntilChanged;
 	action<action<any> returns IObservable> returns IObservable switchMap;
 	action<float> returns IObservable debounce;
-	action<float> returns IObservable timeWindow;
+	action<float> returns IObservable windowTime;
 	action<float> returns IObservable throttleFirst;
 	action<float> returns IObservable throttleLast;
-	action<float> returns IObservable sample;
+	action<float> returns IObservable sampleTime;
 	action<IObservable> returns IObservable buffer;
 	action<float> returns IObservable bufferTime;
 	action<integer> returns IObservable bufferCount;
@@ -93,4 +93,11 @@ event IObservable {
 	action<sequence<IObservable> > returns IObservable combineLatestToSequence;
 	action<sequence<IObservable> > returns IObservable withLatestFromToSequence;
 	action<sequence<IObservable> > returns IObservable zipToSequence;
+	action<IObservable> returns IObservable groupByWindow;
+	action<integer> returns IObservable windowCount;
+	action<float, integer> returns IObservable windowTimeOrCount;
+	action<IObservable> returns IObservable sample;
+	action<integer> returns IObservable sampleCount;
+	action<float, integer> returns IObservable sampleTimeOrCount;
+	
 }

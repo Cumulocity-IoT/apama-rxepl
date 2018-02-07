@@ -1,0 +1,55 @@
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.Subject;
+using com.industry.rx_epl.ISubject;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.Subscriber;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	action onload() {
+		ISubject s := Subject.create();
+		
+		any discard := s.groupByWindow(Observable.interval(0.2))
+							.subscribe(Subscriber.create().onNext(subscribeToEachWindow).onComplete(onTeardown));
+
+		on wait(0.1) {
+			s.next(0);
+		}
+		on wait(0.1999) {
+			s.next(0);
+		}
+		on wait(0.2) {
+			s.next(1);
+		}
+		on wait(0.3999) {
+			s.next(1);
+			s.complete();
+		}
+	} 
+	
+	integer teardownCount;
+	action onTeardown() {
+		teardownCount := teardownCount + 1;
+		if teardownCount = 3 {
+			test.complete();
+		} else if teardownCount > 3 {
+			test.fail("Received unexpected teardown");
+		}
+	}
+	
+	integer i := 0;
+	action subscribeToEachWindow(any value) {
+		if i = 0 {
+			any subscription := (<IObservable> value).subscribe(ExpectValues.create([<any>0,0], onTeardown, test.fail));
+		} else if i = 1 {
+			any subscription := (<IObservable> value).subscribe(ExpectValues.create([<any>1,1], onTeardown, test.fail));
+		} else {
+			test.fail("Unexpected group received");
+		}
+		i := i + 1;
+	}
+}

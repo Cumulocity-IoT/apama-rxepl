@@ -770,10 +770,10 @@ event Observable {
 		return switchMap(DebounceHandler.create(duration, just));
 	}
 	
-	action timeWindow(float windowDuration) returns IObservable {
+	action groupByWindow(IObservable trigger) returns IObservable {
 		Observable o := _create();
-
-		o.onConnection := TimeWindowOnConnection.create(_createAsIObservable, getSetOnConnection, onConnection, windowDuration);
+		
+		o.onConnection := WindowOnConnection.create(_createAsIObservable, getSetOnConnection, onConnection, trigger);
 		
 		return o.asIObservable();	
 	}
@@ -794,8 +794,8 @@ event Observable {
 		return o.asIObservable();	
 	}
 	
-	action sample(float samplePeriod) returns IObservable {
-		return timeWindow(samplePeriod).switchMap(Sample.switchMapSample);
+	action sample(IObservable trigger) returns IObservable {
+		return groupByWindow(trigger).switchMap(Sample.switchMapSample);
 	}
 	
 	action buffer(IObservable trigger) returns IObservable {
@@ -856,6 +856,39 @@ event Observable {
 		return o.asIObservable();
 	}
 	
+	action windowTime(float time) returns IObservable {
+		return groupByWindow(interval(time));
+	}
+	
+	action windowCount(integer count) returns IObservable {
+		Observable o := _create();
+		
+		o.onConnection := WindowCountOnConnection.create(_createAsIObservable, getSetOnConnection, onConnection, count);
+		
+		return o.asIObservable();	
+
+	}
+	
+	action windowTimeOrCount(float time, integer count) returns IObservable {
+		Observable o := _create();
+		
+		o.onConnection := WindowTimeOrCountOnConnection.create(_createAsIObservable, getSetOnConnection, onConnection, time, count);
+		
+		return o.asIObservable();	
+	}
+	
+	action sampleTime(float time) returns IObservable {
+		return windowTime(time).switchMap(Sample.switchMapSample);
+	}
+	
+	action sampleCount(integer count) returns IObservable {
+		return windowCount(count).switchMap(Sample.switchMapSample);
+	}
+	
+	action sampleTimeOrCount(float time, integer count) returns IObservable {
+		return windowTimeOrCount(time, count).switchMap(Sample.switchMapSample);
+	}
+	
 	static action invalidConnect() returns IDisposable {
 		throw Exception("Can only connect a published Observable", "UnsupportedOperation");
 	}
@@ -870,6 +903,6 @@ event Observable {
 		
 	action asIObservable() returns IObservable {
 		return IObservable(self, 
-		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial, toStream, catchError, retry, observeOn, groupBy, publishToContext, publishToChannel, observeOnNewContext, every, contains, takeWhile, skipWhile, concatFromInstance, startWith, defaultIfEmpty, ignoreElements, count, sum, sumInteger, sumFloat, sumDecimal, concatString, max, maxInteger, maxFloat, maxDecimal, min, minInteger, minFloat, minDecimal, average, averageDecimal, sequenceEqualFromInstance, ambFromInstance, timestamp, updateTimestamp, timeout, getSync, getSyncOr, timeInterval, distinctUntilChanged, distinctByUntilChanged, switchMap, debounce, timeWindow, throttleFirst, throttleLast, sample, buffer, bufferTime, bufferCount, bufferTimeOrCount, combineLatestToSequenceFromInstance, withLatestFromToSequence, zipToSequenceFromInstance);
+		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial, toStream, catchError, retry, observeOn, groupBy, publishToContext, publishToChannel, observeOnNewContext, every, contains, takeWhile, skipWhile, concatFromInstance, startWith, defaultIfEmpty, ignoreElements, count, sum, sumInteger, sumFloat, sumDecimal, concatString, max, maxInteger, maxFloat, maxDecimal, min, minInteger, minFloat, minDecimal, average, averageDecimal, sequenceEqualFromInstance, ambFromInstance, timestamp, updateTimestamp, timeout, getSync, getSyncOr, timeInterval, distinctUntilChanged, distinctByUntilChanged, switchMap, debounce, windowTime, throttleFirst, throttleLast, sampleTime, buffer, bufferTime, bufferCount, bufferTimeOrCount, combineLatestToSequenceFromInstance, withLatestFromToSequence, zipToSequenceFromInstance, groupByWindow, windowCount, windowTimeOrCount, sample, sampleCount, sampleTimeOrCount);
 	}
 }

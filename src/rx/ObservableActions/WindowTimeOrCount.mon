@@ -1,0 +1,75 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event WindowTimeOrCountSubscriber {
+	action<> returns IObservable createObservable;
+	action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection;
+	IObserver subscriber;
+	IObserver upstream;
+	integer count;
+	integer currentCount;
+	float duration;
+	optional<ISubject> currentSubject;
+	listener timeListener;
+	
+	static action create(action<> returns IObservable createObservable, action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection, IObserver subscriber, float duration, integer count) returns IObserver {
+		WindowTimeOrCountSubscriber w := WindowTimeOrCountSubscriber(createObservable, getSetOnConnection, subscriber, new IObserver, count, 0, duration, new optional<ISubject>, new listener);
+		subscriber.onUnsubscribe(w.unsubscribe);
+		w.createNextSubject();
+		return IObserverBuilder.create(subscriber.createUpstream()).onNext(w.next).onComplete(w.complete).build();
+	}
+	
+	action next(any value) {
+		currentCount := currentCount + 1;
+		currentSubject.getOrThrow().next(value);
+		if currentCount = count {
+			createNextSubject();
+		}
+	}
+	
+	action complete() {
+		currentSubject.getOrThrow().complete();
+		subscriber.complete();
+	}
+	
+	action unsubscribe() {
+		timeListener.quit();
+	}
+	
+	action createNextSubject() {
+		currentCount := 0;
+		ifpresent currentSubject {
+			currentSubject.complete();
+		}
+		IObservable o := createObservable();
+		currentSubject := BaseSubject.create(o, getSetOnConnection(o));
+		subscriber.next(currentSubject.getOrThrow().asIObservable());
+		createNewTimeListener();
+	}
+	
+	action createNewTimeListener() {
+		ifpresent timeListener {
+			timeListener.quit();
+		}
+		timeListener := on wait(duration) {
+			createNextSubject();
+		}
+	}
+}
+
+event WindowTimeOrCountOnConnection {
+	action<> returns IObservable createObservable;
+	action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection;
+	action<IObserver> returns ISubscription parentOnConnection;
+	float duration;
+	integer count;
+	
+	static action create(action<> returns IObservable createObservable, action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection, action<IObserver> returns ISubscription parentOnConnection, float duration, integer count) returns action<IObserver> returns ISubscription {
+		return WindowTimeOrCountOnConnection(createObservable, getSetOnConnection, parentOnConnection, duration, count).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		return parentOnConnection(WindowTimeOrCountSubscriber.create(createObservable, getSetOnConnection, subscriber, duration, count));
+	}
+}
