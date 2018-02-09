@@ -1,0 +1,26 @@
+package com.industry.rx_epl.operators;
+
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.ISubscription;
+
+using com.industry.rx_epl.operators.internals.SwitchMapOnConnection;
+using com.industry.rx_epl.operators.internals.SwitchOnNextMapper;
+
+event SwitchMap {
+	action<any> returns IObservable mapper;
+	
+	static action create(action<any> returns IObservable mapper) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return SwitchMap(mapper).pipeModifier;
+	}
+
+	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
+		return SwitchMapOnConnection.create(onConnection, mapper);
+	}
+}
+
+event SwitchOnNext {
+	static action create() returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return SwitchMap.create(SwitchOnNextMapper.switchMapper);
+	}
+}

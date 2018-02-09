@@ -1,0 +1,52 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+
+event TakeSubscriber {
+	IObserver subscriber;
+	integer count;
+	boolean hasSentLast;
+	
+	static action create(IObserver subscriber, integer count) returns IObserver {
+		TakeSubscriber m := TakeSubscriber(subscriber, count, false);
+		return IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).build();
+	}
+    
+	action next(any value) {
+		count := count - 1;
+		if count > 0 {
+			subscriber.next(value);
+		} else {
+			if hasSentLast {
+				// This shouldn't happen - but a bad generator might cause it to
+				log "Operator 'Take' received unexpected extra value, observable should have unsubscribed" at ERROR;
+			} else {
+				hasSentLast := true;
+				subscriber.next(value);
+				if subscriber.subscribed() {
+					subscriber.complete();
+				}
+			}
+		}
+	}
+}
+
+event TakeOnConnection {
+	action<IObserver> returns ISubscription parentOnConnection;
+	integer count;
+	
+	static action create(action<IObserver> returns ISubscription parentOnConnection, integer count) returns action<IObserver> returns ISubscription {
+		return TakeOnConnection(parentOnConnection, count).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		return parentOnConnection(TakeSubscriber.create(subscriber, count));
+	}
+}

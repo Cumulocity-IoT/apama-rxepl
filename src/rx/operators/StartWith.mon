@@ -1,0 +1,19 @@
+package com.industry.rx_epl.operators;
+
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.ISubscription;
+
+using com.industry.rx_epl.operators.internals.StartWithOnConnection;
+
+event StartWith {
+	sequence<any> values;
+	
+	static action create(sequence<any> values) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return StartWith(values).pipeModifier;
+	}
+	
+	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
+		return StartWithOnConnection.create(onConnection, values);
+	}
+}

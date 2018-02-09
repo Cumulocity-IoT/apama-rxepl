@@ -1,0 +1,105 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IDisposable;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+
+event PublishReplayRecordingSubscriber {
+	sequence<any> replayValues;
+	integer maxCount;
+	IObserver subscriber;
+	boolean isComplete;
+	
+	static action create(sequence<any> replayValues, integer maxCount) returns IObserver {
+		PublishReplayRecordingSubscriber p := PublishReplayRecordingSubscriber(replayValues, maxCount, new IObserver, false);
+		IObserver o := Subscriber.create().onNext(p.next).onComplete(p.complete).asIObserver();
+		p.subscriber := o;
+		return o;
+	}
+	
+	action next(any value) {
+		if isComplete {
+			return;
+		}
+		replayValues.append(value);
+		if replayValues.size() > maxCount {
+			replayValues.remove(0);
+		}
+	}
+	
+	action complete() {
+		isComplete := true;
+		subscriber.unsubscribe();
+	}
+}
+
+event PublishReplaySubscriberOnDisconnection {
+	IDisposable upstreamConnection;
+	IObserver publishReplaySubscriber;
+	
+	static action create(IDisposable upstreamConnection, IDisposable downstreamConnection, IObserver publishReplaySubscriber) returns IDisposable {
+		PublishReplaySubscriberOnDisconnection p := PublishReplaySubscriberOnDisconnection(upstreamConnection, publishReplaySubscriber);
+		downstreamConnection.onDispose := p.onDisconnect;
+		return downstreamConnection;
+	}
+	
+	action onDisconnect() {
+		publishReplaySubscriber.unsubscribe();
+		upstreamConnection.dispose();
+	}
+}
+
+event PublishReplayHandler {
+	IDisposable upstreamConnection;
+	IDisposable downstreamConnection;
+	action<> returns IDisposable upstreamConnect;
+	action<IObserver> returns ISubscription parentOnConnection;
+	sequence<any> replayValues;
+	optional<IObserver> recordingSubscriber;
+	integer maxReplayCount;
+	
+	static action create(IDisposable upstreamConnection, IDisposable downstreamConnection, 
+	                     action<> returns IDisposable upstreamConnect, action<IObserver> returns ISubscription parentOnConnection, 
+	                     integer maxReplayCount) returns PublishReplayHandler {
+		return PublishReplayHandler(upstreamConnection, downstreamConnection, upstreamConnect, parentOnConnection, new sequence<any>, new optional<IObserver>, maxReplayCount);
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		ifpresent recordingSubscriber {
+			subscriber.subscribe();
+			any value;
+			for value in replayValues {
+				subscriber.next(value);
+				// If the subscriber unsubscribes then don't bother subscribing to the upstream
+				if not subscriber.subscribed() {
+					return Subscription.create(subscriber).asISubscription();
+				}
+			}
+		}
+		return parentOnConnection(subscriber);
+	}
+	
+	action downstreamConnect() returns IDisposable {
+		if recordingSubscriber.empty() {
+			recordingSubscriber := PublishReplayRecordingSubscriber.create(replayValues, maxReplayCount);
+			recordingSubscriber.getOrThrow().onUnsubscribe(onDisconnect);
+			ISubscription discard := parentOnConnection(recordingSubscriber.getOrThrow());
+			upstreamConnection := upstreamConnect();
+			return PublishReplaySubscriberOnDisconnection.create(upstreamConnection, downstreamConnection, recordingSubscriber.getOrThrow());
+		} else {
+			log "Observable is already connected" at ERROR;
+			return downstreamConnection;
+		}
+	}
+	
+	action onDisconnect() {
+		recordingSubscriber.getOrThrow().unsubscribe();
+		recordingSubscriber := new optional<IObserver>;
+		replayValues.clear();
+	}
+}

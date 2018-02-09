@@ -1,0 +1,16 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+
+event SampleMapper {
+	static action switchMapSample(any obs) returns IObservable {
+		return (<IObservable>obs).last();
+	}
+}

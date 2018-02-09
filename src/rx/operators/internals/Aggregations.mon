@@ -1,0 +1,77 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.utils.Utils;
+
+event Aggregations {
+	static action count(any currentCount, any value) returns any {
+		return (<integer>currentCount) + 1;
+	}
+
+	// Always returns a float
+	static action sum(any currentSum, any value) returns any {
+		return Utils.numberToFloat(currentSum) + Utils.numberToFloat(value);
+	}
+
+	static action sumInteger(any currentSum, any value) returns any {
+		integer sum := <integer> currentSum;
+		return sum + <integer> value;
+	}
+
+	static action sumFloat(any currentSum, any value) returns any {
+		float sum := <float> currentSum;
+		return sum + <float> value;
+	}
+
+	static action sumDecimal(any currentSum, any value) returns any {
+		decimal sum := <decimal> currentSum;
+		return sum + <decimal> value;
+	}
+	
+	static action concatString(any currentStr, any value) returns any {
+		string concat := <string> currentStr;
+		switch(value) {
+			case string: {
+				return concat + value;
+			}
+			default: {
+				return concat + value.valueToString();
+			}
+		}
+	}
+	
+	// Always returns a float
+	static action max(any currentMax, any value) returns any {
+		return float.max(Utils.numberToFloat(currentMax), Utils.numberToFloat(value));
+	}
+
+	static action maxInteger(any currentMax, any value) returns any {
+		return integer.max(<integer> currentMax, <integer> value);
+	}
+
+	static action maxFloat(any currentMax, any value) returns any {
+		return float.max(<float> currentMax, <float> value);
+	}
+
+	static action maxDecimal(any currentMax, any value) returns any {
+		return decimal.max(<decimal> currentMax, <decimal> value);
+	}
+	
+	// Always returns a float
+	static action min(any currentMin, any value) returns any {
+		return float.min(Utils.numberToFloat(currentMin), Utils.numberToFloat(value));
+	}
+
+	static action minInteger(any currentMin, any value) returns any {
+		return integer.min(<integer> currentMin, <integer> value);
+	}
+
+	static action minFloat(any currentMin, any value) returns any {
+		return float.min(<float> currentMin, <float> value);
+	}
+
+	static action minDecimal(any currentMin, any value) returns any {
+		return decimal.min(<decimal> currentMin, <decimal> value);
+	}
+}

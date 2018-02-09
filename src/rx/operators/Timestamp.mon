@@ -1,0 +1,19 @@
+package com.industry.rx_epl.operators;
+
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.ISubscription;
+
+using com.industry.rx_epl.operators.internals.TimestampMapper;
+
+event Timestamp {	
+	static action create() returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Map.create(TimestampMapper.add);
+	}
+}
+
+event UpdateTimestamp {	
+	static action create() returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Map.create(TimestampMapper.update);
+	}
+}

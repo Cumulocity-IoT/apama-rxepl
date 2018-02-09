@@ -1,0 +1,31 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+
+event TakeUntilOnConnection {
+	action<IObserver> returns ISubscription parentOnConnection;
+	IObservable until;
+	
+	static action create(action<IObserver> returns ISubscription parentOnConnection, IObservable until) returns action<IObserver> returns ISubscription {
+		return TakeUntilOnConnection(parentOnConnection, until).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		ISubscription subscription := Subscription.create(subscriber).asISubscription();
+		Subscriber untilSubscriber := Subscriber.create().onComplete(subscriber.complete);
+		subscriber.onUnsubscribe(untilSubscriber.unsubscribe);
+		ISubscription untilSubscription := until.take(1).subscribe(untilSubscriber);
+		if untilSubscription.subscribed() {
+			return parentOnConnection(IObserverBuilder.create(subscriber.createUpstream()).build());
+		} else {
+			return subscription;
+		}
+	}
+}

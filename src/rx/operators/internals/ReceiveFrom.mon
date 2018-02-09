@@ -1,0 +1,90 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+using com.industry.rx_epl.IDisposable;
+using com.industry.rx_epl.IResolver;
+
+event ReceiveFromOnUnsubscribe {
+	listener nextListener;
+	listener errorListener;
+	listener completeListener;
+	
+	static action create(listener nextListener, listener errorListener, listener completeListener) returns action<> {
+		return ReceiveFromOnUnsubscribe(nextListener, errorListener, completeListener).unsubscribe;
+	}
+	
+	action unsubscribe() {
+		nextListener.quit();
+		errorListener.quit();
+		completeListener.quit();		
+	}
+}
+
+event ReceiveFromConnect {
+	IDisposable connection;
+	string idOrChannel;
+	context upstreamContext;
+	
+	static action createChannel(IDisposable connection, string channelName) returns action<> returns IDisposable {
+		return ReceiveFromConnect(connection, channelName, new context).connectChannel;
+	}
+
+	static action createContext(IDisposable connection, string id, context upstreamContext) returns action<> returns IDisposable {
+		return ReceiveFromConnect(connection, id, upstreamContext).connectContext;
+	}
+	
+	action connectChannel() returns IDisposable {
+		send Connect(idOrChannel) to idOrChannel;
+		connection.onDispose := onDisposeChannel;
+		return connection;
+	}
+	
+	action connectContext() returns IDisposable {
+		send Connect(idOrChannel) to upstreamContext;
+		connection.onDispose := onDisposeContext;
+		return connection;
+	}
+	
+	action onDisposeChannel() {
+		send Dispose(idOrChannel) to idOrChannel;
+	}
+	
+	action onDisposeContext() {
+		send Dispose(idOrChannel) to upstreamContext;
+	}
+}
+
+event ReceiveFromOnConnection {	
+	string id;
+	
+	static action createContext(string id, context upstreamContext) returns action<IObserver> returns ISubscription {
+		ReceiveFromOnConnection r := ReceiveFromOnConnection(id);
+		return CreateOnConnection(r.downstreamResolver).onConnection;
+	}
+		
+	static action createChannel(string channelName) returns action<IObserver> returns ISubscription {
+		monitor.subscribe(channelName);
+		ReceiveFromOnConnection r := ReceiveFromOnConnection(channelName);
+		return CreateOnConnection(r.downstreamResolver).onConnection;
+	}
+	
+	action downstreamResolver(IResolver resolver) {
+		listener nextListener := on all Next(id = id) as n and not Dispose(id = id) {
+			resolver.next(n.value);
+		}
+		listener errorListener := on all Error(id = id) as e and not Dispose(id = id) {
+			resolver.error(e.error);
+		}
+		listener completeListener := on all Complete(id = id) as c and not Dispose(id = id) {
+			resolver.complete();
+		}
+		resolver.onUnsubscribe(ReceiveFromOnUnsubscribe.create(nextListener, errorListener, completeListener));
+	}
+}

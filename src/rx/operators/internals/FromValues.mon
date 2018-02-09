@@ -1,0 +1,33 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+using com.industry.rx_epl.utils.Utils;
+
+event FromOnConnection {
+	any values;
+	
+	static action create(any values) returns action<IObserver> returns ISubscription {
+		return FromOnConnection(values).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		// Must create subscription before calling ay next, error, complete
+		ISubscription subscription := Subscription.create(subscriber).asISubscription();
+		any value;
+		for value in Utils.anyToSequenceAny(values) {
+			subscriber.next(value);
+			if not subscriber.subscribed() {
+				return subscription;
+			}
+		}
+		subscriber.complete();
+		return subscription;
+	}
+}

@@ -1,0 +1,44 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+using com.industry.rx_epl.utils.Utils;
+using com.industry.rx_epl.utils.WrappedInteger;
+
+event IntervalOnDisconnection {
+	listener onWaitListener;
+	
+	static action create(listener onWaitListener) returns action<> {
+		return IntervalOnDisconnection(onWaitListener).onDisconnection;
+	}
+	
+	action onDisconnection() {
+		onWaitListener.quit();
+		log "Interval wait listener killed" at DEBUG;
+	}
+}
+
+event IntervalOnConnection {
+	float timePeriod;
+	static action create(float timePeriod) returns action<IObserver> returns ISubscription {
+		return IntervalOnConnection(timePeriod).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		// Need to use a wrapped integer because listeners make a shallow copy of scope
+		WrappedInteger currentValue := WrappedInteger(0);
+		listener onWaitListener := on all wait(timePeriod) {
+			subscriber.next(currentValue.get());
+			currentValue.increment();
+		}
+		subscriber.onUnsubscribe(IntervalOnDisconnection.create(onWaitListener));
+		// Must create subscription before calling ay next, error, complete
+		return Subscription.create(subscriber).asISubscription();
+	}
+}

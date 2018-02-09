@@ -1,0 +1,25 @@
+package com.industry.rx_epl.operators;
+
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.ISubscription;
+
+using com.industry.rx_epl.operators.internals.WithLatestFromOnConnection;
+using com.industry.rx_epl.operators.internals.CombineLatestCombinerMapper;
+
+event WithLatestFromToSequence {	
+	sequence<IObservable> otherObservables;
+	static action create(sequence<IObservable> otherObservables) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return WithLatestFromToSequence(otherObservables).pipeModifier;
+	}
+
+	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
+		return WithLatestFromOnConnection.create(onConnection, otherObservables);
+	}
+}
+
+event WithLatestFrom {
+	static action create(sequence<IObservable> otherObservables, action<sequence<any> > returns any combiner) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Pipe.create([WithLatestFromToSequence.create(otherObservables), Map.create(CombineLatestCombinerMapper.create(combiner))]);
+	}
+}

@@ -99,5 +99,7 @@ event IObservable {
 	action<IObservable> returns IObservable sample;
 	action<integer> returns IObservable sampleCount;
 	action<float, integer> returns IObservable sampleTimeOrCount;
-	
+	action<integer, integer> returns IObservable bufferCountSkip;
+	action<sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> > returns IObservable pipe;
+	action<string> returns IObservable pluck;
 }

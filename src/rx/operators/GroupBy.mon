@@ -1,0 +1,19 @@
+package com.industry.rx_epl.operators;
+
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.ISubscription;
+
+using com.industry.rx_epl.operators.internals.PipeGroupByOnConnection;
+
+event GroupBy {
+	action<any> returns any by;
+	
+	static action create(action<any> returns any by) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return GroupBy(by).pipeModifier;
+	}
+
+	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
+		return PipeGroupByOnConnection.create(onConnection, by);
+	}
+}

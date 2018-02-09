@@ -1,0 +1,41 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+
+event MapSubscriber {
+	IObserver subscriber;
+	action<any> returns any mapper;
+	static action create(IObserver subscriber, action<any> returns any mapper) returns IObserver {
+		MapSubscriber m := MapSubscriber(subscriber, mapper);
+		return IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).build();
+	}
+	
+	action next(any value) {
+		try {
+			subscriber.next(mapper(value));
+		} catch(Exception e) {
+			subscriber.error(e);
+		}
+	}
+}
+
+event MapOnConnection {
+	action<IObserver> returns ISubscription parentOnConnection;
+	action<any> returns any mapper;
+	
+	static action create(action<IObserver> returns ISubscription parentOnConnection, action<any> returns any mapper) returns action<IObserver> returns ISubscription {
+		return MapOnConnection(parentOnConnection, mapper).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		IObserver mapSubscriber := MapSubscriber.create(subscriber, mapper);
+		return parentOnConnection(mapSubscriber);
+	}
+}

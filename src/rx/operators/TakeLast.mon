@@ -1,0 +1,18 @@
+package com.industry.rx_epl.operators;
+
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.ISubscription;
+
+using com.industry.rx_epl.operators.internals.TakeLastOnConnection;
+
+event TakeLast {	
+	integer count;
+	static action create(integer count) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return TakeLast(count).pipeModifier;
+	}
+
+	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
+		return TakeLastOnConnection.create(onConnection, count);
+	}
+}

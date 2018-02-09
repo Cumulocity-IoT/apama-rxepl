@@ -1,0 +1,29 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+
+event RangeOnConnection {
+	integer current;
+	integer end;
+	
+	static action create(integer start, integer end) returns action<IObserver> returns ISubscription {
+		return FromIteratorOnConnection(RangeOnConnection(start, end).iterator).onConnection;
+	}
+	
+	action iterator() returns any {
+		if current <= end {
+			integer value := current;
+			current := current + 1;
+			return value;
+		} else {
+			return new any;
+		}
+	}
+}

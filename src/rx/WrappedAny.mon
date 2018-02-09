@@ -1,0 +1,5 @@
+package com.industry.rx_epl;
+
+event WrappedAny {
+	any value;
+}

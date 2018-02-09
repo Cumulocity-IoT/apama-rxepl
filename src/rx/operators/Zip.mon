@@ -1,0 +1,25 @@
+package com.industry.rx_epl.operators;
+
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.ISubscription;
+
+using com.industry.rx_epl.operators.internals.ZipOnConnection;
+using com.industry.rx_epl.operators.internals.CombineLatestCombinerMapper;
+
+event ZipToSequence {	
+	sequence<IObservable> otherObservables;
+	static action create(sequence<IObservable> otherObservables) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return ZipToSequence(otherObservables).pipeModifier;
+	}
+
+	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
+		return ZipOnConnection.create(onConnection, otherObservables);
+	}
+}
+
+event Zip {
+	static action create(sequence<IObservable> otherObservables, action<sequence<any> > returns any combiner) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Pipe.create([ZipToSequence.create(otherObservables), Map.create(CombineLatestCombinerMapper.create(combiner))]);
+	}
+}

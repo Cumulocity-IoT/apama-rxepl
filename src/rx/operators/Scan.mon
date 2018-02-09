@@ -1,0 +1,32 @@
+package com.industry.rx_epl.operators;
+
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.ISubscription;
+
+using com.industry.rx_epl.operators.internals.ScanOnConnection;
+
+event Scan {
+	action<any, any> returns any scanner;
+	
+	static action create(action<any, any> returns any scanner) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Scan(scanner).pipeModifier;
+	}
+
+	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
+		return ScanOnConnection.create(onConnection, scanner, new any, false);
+	}
+}
+
+event ScanWithInitial {
+	action<any, any> returns any scanner;
+	any initial;
+	
+	static action create(action<any, any> returns any scanner, any initial) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return ScanWithInitial(scanner, initial).pipeModifier;
+	}
+
+	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
+		return ScanOnConnection.create(onConnection, scanner, initial, true);
+	}
+}

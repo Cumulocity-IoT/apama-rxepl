@@ -1,0 +1,123 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+using com.industry.rx_epl.utils.Utils;
+
+event CombineLatestCombinerMapper {
+	action<sequence<any> > returns any combiner;
+	
+	static action create(action<sequence<any> > returns any combiner) returns action<any> returns any {
+		return CombineLatestCombinerMapper(combiner).mapper;
+	}
+	
+	action mapper(any value) returns any {
+		return combiner(<sequence<any> > value);
+	}
+}
+
+event CombineLatestOnNext {
+	integer id;
+	action<integer, any> onNext;
+	
+	static action create(integer id, action<integer, any> onNext) returns action<any> {
+		return CombineLatestOnNext(id, onNext).next;
+	}
+	
+	action next(any value) {
+		onNext(id, value);
+	}
+}
+
+event CombineLatestOnComplete {
+	integer id;
+	action<integer> onComplete;
+	
+	static action create(integer id, action<integer> onComplete) returns action<> {
+		return CombineLatestOnComplete(id, onComplete).complete;
+	}
+	
+	action complete() {
+		onComplete(id);
+	}
+}
+
+event CombineLatestSubscriberFactory {
+	IObserver downstreamSubscriber;
+	integer subscriberCount;
+	
+	dictionary<integer, any> latestValuesById;
+	dictionary<integer, IObserver> upstreamSubscribersById;
+	dictionary<integer, boolean> completeSubscribersById;
+	
+	static action create(IObserver subscriber) returns CombineLatestSubscriberFactory {
+		return CombineLatestSubscriberFactory(subscriber, 0, new dictionary<integer, any>, new dictionary<integer, IObserver>, new dictionary<integer, boolean>);
+	}
+	
+	action createUpstreamSubscriber() returns IObserver {
+		integer id := subscriberCount;
+		subscriberCount := subscriberCount + 1;
+		IObserver o := Subscriber.create().onNext(CombineLatestOnNext.create(id, next)).onError(downstreamSubscriber.error).onComplete(CombineLatestOnComplete.create(id, complete)).asIObserver();
+		downstreamSubscriber.onUnsubscribe(o.unsubscribe);
+		upstreamSubscribersById.add(id, o);
+		return o;
+	}
+	
+	action next(integer id, any value) {
+		latestValuesById.add(id, value);
+		if latestValuesById.size() = subscriberCount {
+			// These are automatically sorted in ascending order of keys
+			downstreamSubscriber.next(latestValuesById.values());
+		}
+	}
+	
+	action complete(integer id) {
+		completeSubscribersById.add(id, true);
+		if completeSubscribersById.size() = subscriberCount {
+			downstreamSubscriber.complete();
+		}
+		upstreamSubscribersById[id].unsubscribe();
+	}
+}
+
+event CombineLatestOnConnection {
+	action<IObserver> returns ISubscription parentOnConnection;
+	sequence<IObservable> observables;
+	
+	static action create(action<IObserver> returns ISubscription parentOnConnection,  sequence<IObservable> observables) returns action<IObserver> returns ISubscription {
+		return CombineLatestOnConnection(parentOnConnection, observables).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		CombineLatestSubscriberFactory factory := CombineLatestSubscriberFactory.create(subscriber);
+		
+		IObserver mainUpstreamObserver := factory.createUpstreamSubscriber();
+		sequence<IObserver> upstreamSubscribers := new sequence<IObserver>;
+		
+		IObservable observable;
+		for observable in observables {
+			upstreamSubscribers.append(factory.createUpstreamSubscriber());
+		}
+		
+		ISubscription s := Subscription.create(subscriber).asISubscription();
+		
+		// Connect the main observable
+		ISubscription firstConnection := parentOnConnection(mainUpstreamObserver);
+		
+		// Connect the others
+		integer i := 0;
+		while i < upstreamSubscribers.size() {
+			IObserver upstream := upstreamSubscribers[i];
+			ISubscription upstreamSubscription := observables[i].connectObserver(upstream);
+			i := i + 1;
+		}
+		
+		return s;
+	}
+}

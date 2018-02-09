@@ -1,0 +1,62 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+using com.industry.rx_epl.utils.Utils;
+
+event BufferCountSubscriber {
+	IObserver subscriber;
+	sequence<any> buffer;
+	integer count;
+	integer skip;
+	
+	static action create(IObserver subscriber, integer count, integer skip) returns IObserver {
+		if skip <= 0 {
+			throw Exception("skip must be > 0", "IllegalArgumentException");
+		}
+		BufferCountSubscriber b := BufferCountSubscriber(subscriber, new sequence<any>, count, skip);
+		return IObserverBuilder.create(subscriber.createUpstream()).onNext(b.next).onComplete(b.complete).build();
+	}
+	
+	action next(any value) {
+		buffer.append(value);
+		if buffer.size() = count {
+			sequence<any> newBuffer := new sequence<any>;
+			newBuffer.appendSequence(buffer);
+			subscriber.next(buffer);
+			integer skipCount := skip;
+			while skipCount > 0 {
+				newBuffer.remove(0);
+				skipCount := skipCount - 1;
+			}
+			buffer := newBuffer;
+		}
+	}
+	
+	action complete() {
+		if buffer.size() > 0 {
+			subscriber.next(buffer);
+		}
+		subscriber.complete();
+	}
+}
+
+event BufferCountOnConnection {
+	action<IObserver> returns ISubscription parentOnConnection;
+	integer count;
+	integer skip;
+	
+	static action create(action<IObserver> returns ISubscription parentOnConnection, integer count, integer skip) returns action<IObserver> returns ISubscription {
+		return BufferCountOnConnection(parentOnConnection, count, skip).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		return parentOnConnection(BufferCountSubscriber.create(subscriber, count, skip));
+	}
+}

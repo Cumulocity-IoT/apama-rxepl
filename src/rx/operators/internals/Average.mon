@@ -1,0 +1,44 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+using com.industry.rx_epl.utils.Utils;
+
+event AverageCalc {
+	float sum;
+	float count;
+	
+	static action reduceToAverage(any acc, any value) returns any {
+		AverageCalc currentAverage := (<AverageCalc> acc).clone();	
+		currentAverage.sum := currentAverage.sum + Utils.numberToFloat(value);
+		currentAverage.count := currentAverage.count + 1.0;
+		return currentAverage;
+	}
+	
+	static action calculateAverage(any avgAsAny) returns any {
+		AverageCalc avg := <AverageCalc> avgAsAny;
+		return avg.sum / avg.count;
+	}
+}
+
+event AverageDecimalCalc {
+	decimal sum;
+	decimal count;
+	
+	static action reduceToAverage(any acc, any value) returns any {
+		AverageDecimalCalc currentAverage := (<AverageDecimalCalc> acc).clone();	
+		currentAverage.sum := currentAverage.sum + Utils.numberToDecimal(value);
+		currentAverage.count := currentAverage.count + 1.0d;
+		return currentAverage;
+	}
+	
+	static action calculateAverage(any avgAsAny) returns any {
+		AverageDecimalCalc avg := <AverageDecimalCalc> avgAsAny;
+		return avg.sum / avg.count;
+	}
+}

@@ -1,0 +1,104 @@
+package com.industry.rx_epl.operators;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.ISubscription;
+
+using com.industry.rx_epl.operators.internals.Aggregations;
+using com.industry.rx_epl.operators.internals.AverageCalc;
+using com.industry.rx_epl.operators.internals.AverageDecimalCalc;
+
+event Count {
+	static action create() returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return ReduceWithInitial.create(Aggregations.count, 0);
+	}
+}
+
+event Sum {
+	static action create() returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return ReduceWithInitial.create(Aggregations.sum, 0.0);
+	}
+}
+
+event SumInteger {
+	static action create() returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return ReduceWithInitial.create(Aggregations.sumInteger, 0);
+	}
+}
+
+event SumFloat {
+	static action create() returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return ReduceWithInitial.create(Aggregations.sumFloat, 0.0);
+	}
+}
+
+event SumDecimal {
+	static action create() returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return ReduceWithInitial.create(Aggregations.sumDecimal, 0.0d);
+	}
+}
+
+event ConcatString {
+	static action create() returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Reduce.create(Aggregations.concatString);
+	}
+}
+
+event Max {
+	static action create() returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Reduce.create(Aggregations.max);
+	}
+}
+
+event MaxInteger {
+	static action create() returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Reduce.create(Aggregations.maxInteger);
+	}
+}
+
+event MaxFloat {
+	static action create() returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Reduce.create(Aggregations.maxFloat);
+	}
+}
+
+event MaxDecimal {
+	static action create() returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Reduce.create(Aggregations.maxDecimal);
+	}
+}
+
+event Min {
+	static action create() returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Reduce.create(Aggregations.min);
+	}
+}
+
+event MinInteger {
+	static action create() returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Reduce.create(Aggregations.minInteger);
+	}
+}
+
+event MinFloat {
+	static action create() returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Reduce.create(Aggregations.minFloat);
+	}
+}
+
+event MinDecimal {
+	static action create() returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Reduce.create(Aggregations.minDecimal);
+	}
+}
+
+event Average {
+	static action create() returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Pipe.create([ReduceWithInitial.create(AverageCalc.reduceToAverage, new AverageCalc), Map.create(AverageCalc.calculateAverage)]);
+	}
+}
+
+event AverageDecimal {
+	static action create() returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Pipe.create([ReduceWithInitial.create(AverageDecimalCalc.reduceToAverage, new AverageDecimalCalc), Map.create(AverageDecimalCalc.calculateAverage)]);
+	}
+}

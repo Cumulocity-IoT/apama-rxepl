@@ -1,0 +1,19 @@
+package com.industry.rx_epl.operators;
+
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.ISubscription;
+
+using com.industry.rx_epl.operators.internals.EveryOnConnection;
+
+event Every {
+	action<any> returns boolean predicate;
+	
+	static action create(action<any> returns boolean predicate) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Every(predicate).pipeModifier;
+	}
+
+	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
+		return EveryOnConnection.create(onConnection, predicate);
+	}
+}

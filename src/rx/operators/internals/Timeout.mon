@@ -1,0 +1,44 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+
+event TimeoutSubscriber {
+	IObserver subscriber;
+	float timeout;
+	listener timeoutListener;
+	
+	static action create(IObserver subscriber, float timeout) returns IObserver {
+		TimeoutSubscriber m := TimeoutSubscriber(subscriber, timeout, new listener);
+		return IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).build();
+	}
+    
+	action next(any value) {
+		ifpresent timeoutListener {
+			timeoutListener.quit();
+		}
+		subscriber.next(value);
+		timeoutListener := on wait(timeout) {
+			subscriber.error(Exception("Timed out after " + timeout.toString() + " seconds", "TimeoutException"));
+		}
+	}
+}
+
+event TimeoutOnConnection {
+	action<IObserver> returns ISubscription parentOnConnection;
+	float timeout;
+	
+	static action create(action<IObserver> returns ISubscription parentOnConnection, float timeout) returns action<IObserver> returns ISubscription {
+		return TimeoutOnConnection(parentOnConnection, timeout).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		return parentOnConnection(TimeoutSubscriber.create(subscriber, timeout));
+	}
+}

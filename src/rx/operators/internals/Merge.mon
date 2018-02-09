@@ -1,0 +1,76 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+
+event MergeSubscriberFactory {
+	IObserver downstreamSubscriber;
+	integer subscriberCount;
+	
+	dictionary<integer, IObserver> upstreamSubscribersById;
+	dictionary<integer, boolean> completeSubscribersById;
+	
+	static action create(IObserver subscriber) returns MergeSubscriberFactory {
+		return MergeSubscriberFactory(subscriber, 0, new dictionary<integer, IObserver>, new dictionary<integer, boolean>);
+	}
+	
+	action createUpstreamSubscriber() returns IObserver {
+		integer id := subscriberCount;
+		subscriberCount := subscriberCount + 1;
+		IObserver o := Subscriber.create().onNext(downstreamSubscriber.next).onError(downstreamSubscriber.error).onComplete(CombineLatestOnComplete.create(id, complete)).asIObserver();
+		downstreamSubscriber.onUnsubscribe(o.unsubscribe);
+		upstreamSubscribersById.add(id, o);
+		return o;
+	}
+	
+	action complete(integer id) {
+		completeSubscribersById.add(id, true);
+		if completeSubscribersById.size() = subscriberCount {
+			downstreamSubscriber.complete();
+		}
+		upstreamSubscribersById[id].unsubscribe();
+	}
+}
+
+event MergeOnConnection {
+	action<IObserver> returns ISubscription parentOnConnection;
+	sequence<IObservable> observables;
+	boolean receivedValue;
+	
+	static action create(action<IObserver> returns ISubscription parentOnConnection, sequence<IObservable> observables) returns action<IObserver> returns ISubscription {
+		return MergeOnConnection(parentOnConnection, observables, true).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		MergeSubscriberFactory factory := MergeSubscriberFactory.create(subscriber);
+		
+		IObserver mainUpstreamObserver := factory.createUpstreamSubscriber();
+		sequence<IObserver> upstreamSubscribers := new sequence<IObserver>;
+		
+		IObservable observable;
+		for observable in observables {
+			upstreamSubscribers.append(factory.createUpstreamSubscriber());
+		}
+		
+		ISubscription s := Subscription.create(subscriber).asISubscription();
+		
+		// Connect the main observable
+		ISubscription firstConnection := parentOnConnection(mainUpstreamObserver);
+		
+		// Connect the others
+		integer i := 0;
+		while i < upstreamSubscribers.size() {
+			IObserver upstream := upstreamSubscribers[i];
+			ISubscription upstreamSubscription := observables[i].connectObserver(upstream);
+			i := i + 1;
+		}
+		
+		return s;
+	}
+}

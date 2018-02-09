@@ -1,0 +1,69 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+using com.industry.rx_epl.utils.Utils;
+
+event ThrottleSubscriber {
+	IObserver subscriber;
+	float throttleDuration;
+	boolean canSendValue;
+	boolean sendFirst; // false = sendLast
+	any currentValue;
+	listener onWaitListener;
+	
+	static action create(IObserver subscriber, float throttleDuration, boolean sendFirst) returns IObserver {
+		ThrottleSubscriber m := ThrottleSubscriber(subscriber, throttleDuration, true, sendFirst, new any, new listener);
+		return IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).onComplete(m.complete).build();
+	}
+	
+	action next(any value) {
+		currentValue := value;
+		if canSendValue {
+			canSendValue := false;
+			if sendFirst {
+				subscriber.next(value);
+			}
+			onWaitListener := on wait(Utils.waitJustUnder(throttleDuration)) {
+				canSendValue := true;
+				if not sendFirst and subscriber.subscribed() {
+					ifpresent currentValue {
+						subscriber.next(currentValue);
+						currentValue := new any;
+					}
+				}
+			}
+		}
+	}
+	
+	action complete() {
+		onWaitListener.quit();
+		if not sendFirst {
+			ifpresent currentValue {
+				subscriber.next(currentValue);
+				currentValue := new any;
+			}
+		}
+		subscriber.complete();
+	}
+}
+
+event ThrottleOnConnection {
+	action<IObserver> returns ISubscription parentOnConnection;
+	float throttleDuration;
+	boolean sendFirst;
+	
+	static action create(action<IObserver> returns ISubscription parentOnConnection, float throttleDuration, boolean sendFirst) returns action<IObserver> returns ISubscription {
+		return ThrottleOnConnection(parentOnConnection, throttleDuration, sendFirst).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		return parentOnConnection(ThrottleSubscriber.create(subscriber, throttleDuration, sendFirst));
+	}
+}

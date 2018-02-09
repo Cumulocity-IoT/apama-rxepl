@@ -1,0 +1,43 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+
+event SkipLastSubscriber {
+	IObserver subscriber;
+	integer count;
+	sequence<any> values;
+	
+	static action create(IObserver subscriber, integer count) returns IObserver {
+		SkipLastSubscriber s := SkipLastSubscriber(subscriber, count, new sequence<any>);
+		return IObserverBuilder.create(subscriber.createUpstream()).onNext(s.next).build();
+	}
+	
+	action next(any value) {
+		values.append(value);
+		if values.size() > count {
+			any value := values[0];
+			values.remove(0);
+			subscriber.next(value);
+		}
+	}
+}
+
+event SkipLastOnConnection {
+	action<IObserver> returns ISubscription parentOnConnection;
+	integer count;
+	
+	static action create(action<IObserver> returns ISubscription parentOnConnection, integer count) returns action<IObserver> returns ISubscription {
+		return SkipLastOnConnection(parentOnConnection, count).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		return parentOnConnection(SkipLastSubscriber.create(subscriber, count));
+	}
+}

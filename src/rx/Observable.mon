@@ -2,6 +2,118 @@ package com.industry.rx_epl;
 
 using com.apama.exceptions.Exception;
 
+using com.industry.rx_epl.operators.Amb;
+using com.industry.rx_epl.operators.Async;
+using com.industry.rx_epl.operators.Average;
+using com.industry.rx_epl.operators.AverageDecimal;
+using com.industry.rx_epl.operators.Buffer;
+using com.industry.rx_epl.operators.BufferCount;
+using com.industry.rx_epl.operators.BufferCountSkip;
+//using com.industry.rx_epl.operators.BufferTime;
+using com.industry.rx_epl.operators.BufferTimeOrCount;
+using com.industry.rx_epl.operators.CatchError;
+using com.industry.rx_epl.operators.CombineLatest;
+using com.industry.rx_epl.operators.CombineLatestToSequence;
+using com.industry.rx_epl.operators.Concat;
+using com.industry.rx_epl.operators.ConcatString;
+using com.industry.rx_epl.operators.Contains;
+using com.industry.rx_epl.operators.Count;
+//using com.industry.rx_epl.operators.Debounce;
+using com.industry.rx_epl.operators.DefaultIfEmpty;
+using com.industry.rx_epl.operators.Delay;
+using com.industry.rx_epl.operators.Distinct;
+using com.industry.rx_epl.operators.DistinctBy;
+using com.industry.rx_epl.operators.DistinctByUntilChanged;
+using com.industry.rx_epl.operators.DistinctUntilChanged;
+using com.industry.rx_epl.operators.Do;
+using com.industry.rx_epl.operators.ElementAt;
+using com.industry.rx_epl.operators.Every;
+using com.industry.rx_epl.operators.Filter;
+using com.industry.rx_epl.operators.First;
+using com.industry.rx_epl.operators.FlatMap;
+//using com.industry.rx_epl.operators.GroupBy;
+//using com.industry.rx_epl.operators.GroupByWindow;
+using com.industry.rx_epl.operators.IgnoreElements;
+using com.industry.rx_epl.operators.Last;
+using com.industry.rx_epl.operators.Map;
+using com.industry.rx_epl.operators.Max;
+using com.industry.rx_epl.operators.MaxDecimal;
+using com.industry.rx_epl.operators.MaxFloat;
+using com.industry.rx_epl.operators.MaxInteger;
+using com.industry.rx_epl.operators.Min;
+using com.industry.rx_epl.operators.MinDecimal;
+using com.industry.rx_epl.operators.MinFloat;
+using com.industry.rx_epl.operators.MinInteger;
+using com.industry.rx_epl.operators.Merge;
+using com.industry.rx_epl.operators.Pipe;
+using com.industry.rx_epl.operators.Pluck;
+using com.industry.rx_epl.operators.Reduce;
+using com.industry.rx_epl.operators.ReduceWithInitial;
+using com.industry.rx_epl.operators.Repeat;
+using com.industry.rx_epl.operators.Retry;
+//using com.industry.rx_epl.operators.Sample;
+//using com.industry.rx_epl.operators.SampleCount;
+//using com.industry.rx_epl.operators.SampleTime;
+//using com.industry.rx_epl.operators.SampleTimeOrCount;
+using com.industry.rx_epl.operators.Scan;
+using com.industry.rx_epl.operators.ScanWithInitial;
+using com.industry.rx_epl.operators.SequenceEqual;
+using com.industry.rx_epl.operators.Skip;
+using com.industry.rx_epl.operators.SkipLast;
+using com.industry.rx_epl.operators.SkipUntil;
+using com.industry.rx_epl.operators.SkipWhile;
+using com.industry.rx_epl.operators.StartWith;
+using com.industry.rx_epl.operators.Sum;
+using com.industry.rx_epl.operators.SumDecimal;
+using com.industry.rx_epl.operators.SumFloat;
+using com.industry.rx_epl.operators.SumInteger;
+using com.industry.rx_epl.operators.SwitchMap;
+using com.industry.rx_epl.operators.SwitchOnNext;
+using com.industry.rx_epl.operators.Take;
+using com.industry.rx_epl.operators.TakeLast;
+using com.industry.rx_epl.operators.TakeUntil;
+using com.industry.rx_epl.operators.TakeWhile;
+using com.industry.rx_epl.operators.ThrottleFirst;
+using com.industry.rx_epl.operators.ThrottleLast;
+using com.industry.rx_epl.operators.TimeInterval;
+using com.industry.rx_epl.operators.Timeout;
+using com.industry.rx_epl.operators.Timestamp;
+using com.industry.rx_epl.operators.UpdateTimestamp;
+using com.industry.rx_epl.operators.WithLatestFrom;
+using com.industry.rx_epl.operators.WithLatestFromToSequence;
+//using com.industry.rx_epl.operators.WindowCount;
+//using com.industry.rx_epl.operators.WindowTime;
+//using com.industry.rx_epl.operators.WindowTimeOrCount;
+using com.industry.rx_epl.operators.Zip;
+using com.industry.rx_epl.operators.ZipToSequence;
+
+using com.industry.rx_epl.operators.internals.CreateOnConnection;
+using com.industry.rx_epl.operators.internals.DebounceHandler;
+using com.industry.rx_epl.operators.internals.EmptyNeverError;
+using com.industry.rx_epl.operators.internals.FromChannelOnConnection;
+using com.industry.rx_epl.operators.internals.FromIteratorOnConnection;
+using com.industry.rx_epl.operators.internals.FromStreamOnConnection;
+using com.industry.rx_epl.operators.internals.FromOnConnection;
+using com.industry.rx_epl.operators.internals.GetSyncHandler;
+using com.industry.rx_epl.operators.internals.GroupByOnConnection;
+using com.industry.rx_epl.operators.internals.IntervalOnConnection;
+using com.industry.rx_epl.operators.internals.JustOnConnection;
+using com.industry.rx_epl.operators.internals.ObserveOnHandler;
+using com.industry.rx_epl.operators.internals.PublishHandler;
+using com.industry.rx_epl.operators.internals.PublishReplayHandler;
+using com.industry.rx_epl.operators.internals.PublishToHandler;
+using com.industry.rx_epl.operators.internals.RangeOnConnection;
+using com.industry.rx_epl.operators.internals.ReceiveFromConnect;
+using com.industry.rx_epl.operators.internals.ReceiveFromOnConnection;
+using com.industry.rx_epl.operators.internals.RefCountOnConnection;
+using com.industry.rx_epl.operators.internals.SampleMapper;
+using com.industry.rx_epl.operators.internals.StartOnConnection;
+using com.industry.rx_epl.operators.internals.SubscribeOnConnection;
+using com.industry.rx_epl.operators.internals.ToStream;
+using com.industry.rx_epl.operators.internals.WindowCountOnConnection;
+using com.industry.rx_epl.operators.internals.WindowOnConnection;
+using com.industry.rx_epl.operators.internals.WindowTimeOrCountOnConnection;
+
 event Observable {	
 	action<IObserver> returns ISubscription onConnection;
 	
@@ -32,33 +144,25 @@ event Observable {
 	static action create(action<IResolver> resolver) returns IObservable {
 		// A user defined resolver cannot handle pull requests so it's hot
 		Observable o := _create();
-		
 		o.onConnection := CreateOnConnection.create(resolver);
-		
 		return o.asIObservable();
 	}
 
 	static action fromValues(any values) returns IObservable {
 		Observable o := _create();
-		
 		o.onConnection := FromOnConnection.create(values);
-		
 		return o.asIObservable();
 	}
 	
 	static action fromIterator(action<> returns any iterator) returns IObservable {
 		Observable o := _create();
-		
 		o.onConnection := FromIteratorOnConnection.create(iterator);
-		
 		return o.asIObservable();
 	}
 	
 	static action just(any value) returns IObservable {
 		Observable o := _create();
-		
 		o.onConnection := JustOnConnection.create(value);
-		
 		return o.asIObservable();		
 	}
 	
@@ -67,9 +171,7 @@ event Observable {
 	 */
 	static action fromChannel(string channelName) returns IObservable {
 		Observable o := _create();
-		
 		o.onConnection := FromChannelOnConnection.create(channelName);
-		
 		return o.asIObservable();		
 	}
 
@@ -79,17 +181,13 @@ event Observable {
 	 */
 	static action interval(float seconds) returns IObservable {
 		Observable o := _create();
-		
 		o.onConnection := IntervalOnConnection.create(seconds);
-		
 		return o.asIObservable();	
 	}
 	
 	static action range(integer start, integer end) returns IObservable {
 		Observable o := _create();
-		
 		o.onConnection := RangeOnConnection.create(start, end);
-		
 		return o.asIObservable();	
 	}
 	
@@ -110,9 +208,7 @@ event Observable {
 	
 	static action start(action<> returns any valueGenerator) returns IObservable {
 		Observable o := _create();
-		
 		o.onConnection := StartOnConnection.create(valueGenerator);
-		
 		return o.asIObservable();
 	}
 	
@@ -138,9 +234,7 @@ event Observable {
 	
 	static action fromStream(stream<any> valueStream) returns IObservable {
 		Observable o := _create();
-		
 		o.onConnection := FromStreamOnConnection.create(valueStream);
-		
 		return o.asIObservable();
 	}
 	
@@ -250,8 +344,7 @@ event Observable {
 	
 	action map(action<any> returns any mapper) returns IObservable {
 		Observable o := _create();		
-		o.onConnection := MapOnConnection.create(onConnection, mapper);
-		
+		o.onConnection := Map.create(mapper)(onConnection);
 		return o.asIObservable();
 	}
 	
@@ -280,121 +373,97 @@ event Observable {
 
 	action take(integer count) returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := TakeOnConnection.create(onConnection, count);
-		
+		o.onConnection := Take.create(count)(onConnection);
 		return o.asIObservable();	
 	}
 
 	action takeLast(integer count) returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := TakeLastOnConnection.create(onConnection, count);
-		
+		o.onConnection := TakeLast.create(count)(onConnection);
 		return o.asIObservable();	
 	}
 
 	action first() returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := TakeOnConnection.create(onConnection, 1);
-		
+		o.onConnection := First.create()(onConnection);
 		return o.asIObservable();	
 	}
 	
 	action last() returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := TakeLastOnConnection.create(onConnection, 1);
-		
+		o.onConnection := Last.create()(onConnection);
 		return o.asIObservable();	
 	}
 	
 	action skip(integer count) returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := SkipOnConnection.create(onConnection, count);
-		
+		o.onConnection := Skip.create(count)(onConnection);
 		return o.asIObservable();			
 	}
 
 	action skipLast(integer count) returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := SkipLastOnConnection.create(onConnection, count);
-		
+		o.onConnection := SkipLast.create(count)(onConnection);
 		return o.asIObservable();			
 	}
 	
 	action filter(action<any> returns boolean predicate) returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := FilterOnConnection.create(onConnection, predicate);
-		
+		o.onConnection := Filter.create(predicate)(onConnection);
 		return o.asIObservable();			
 	}
 
 	action scan(action<any, any> returns any scanner) returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := ScanOnConnection.create(onConnection, scanner, new any, false);
-		
+		o.onConnection := Scan.create(scanner)(onConnection);
 		return o.asIObservable();		
 	}
 	
 	action scanWithInitial(action<any, any> returns any scanner, any initialValue) returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := ScanOnConnection.create(onConnection, scanner, initialValue, true);
-		
+		o.onConnection := ScanWithInitial.create(scanner, initialValue)(onConnection);
 		return o.asIObservable();		
 	}
 	
 	action distinct() returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := DistinctByOnConnection.create(onConnection, new action<any> returns any);
-		
+		o.onConnection := Distinct.create()(onConnection);
 		return o.asIObservable();		
 	}
 	
-	action distinctBy(action<any> returns any keyGetter) returns IObservable {
+	action distinctBy(action<any> returns any by) returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := DistinctByOnConnection.create(onConnection, keyGetter);
-		
-		return o.asIObservable();		
+		o.onConnection := DistinctBy.create(by)(onConnection);
+		return o.asIObservable();			
 	}
 	
 	action combineLatestFromInstance(sequence<IObservable> otherObservables, action<sequence<any> > returns any combiner) returns IObservable {
-		return combineLatestToSequenceFromInstance(otherObservables).map(CombineLatestCombinerMapper.create(combiner));
+		Observable o := _create();
+		o.onConnection := CombineLatest.create(otherObservables, combiner)(onConnection);
+		return o.asIObservable();
 	}
 	
 	action withLatestFrom(sequence<IObservable> otherObservables, action<sequence<any> > returns any combiner) returns IObservable {
-		return withLatestFromToSequence(otherObservables).map(CombineLatestCombinerMapper.create(combiner));
+		Observable o := _create();
+		o.onConnection := WithLatestFrom.create(otherObservables, combiner)(onConnection);
+		return o.asIObservable();
 	}
 	
 	action delay(float seconds) returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := DelayOnConnection.create(onConnection, seconds);
-		
+		o.onConnection := Delay.create(seconds)(onConnection);
 		return o.asIObservable();
 	}
 	
 	action async() returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := DelayOnConnection.create(onConnection, 0.0);
-		
+		o.onConnection := Async.create()(onConnection);
 		return o.asIObservable();
 	}
 	
 	action do(Subscriber doer) returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := DoOnConnection.create(onConnection, doer);
-		
+		o.onConnection := Do.create(doer)(onConnection);
 		return o.asIObservable();
 	}
 	
@@ -422,66 +491,63 @@ event Observable {
 	
 	action takeUntil(IObservable until) returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := TakeUntilOnConnection.create(onConnection, until);
-		
+		o.onConnection := TakeUntil.create(until)(onConnection);
 		return o.asIObservable();
 	}
 	
 	// Called repeat when accessed via the interface
 	action repeatObservable(integer count) returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := RepeatOnConnection.create(onConnection, count);
-		
+		o.onConnection := Repeat.create(count)(onConnection);
 		return o.asIObservable();
 	}
 	
 	action flatMap(action<any> returns any mapper) returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := FlatMapOnConnection.create(onConnection, mapper);
-		
+		o.onConnection := FlatMap.create(mapper)(onConnection);
 		return o.asIObservable();
 	}
 	
 	action mergeFromInstance(sequence<IObservable> otherObservables) returns IObservable {
 		Observable o := _create();
-		
-		sequence<IObservable> observables := [self.asIObservable()];
-		observables.appendSequence(otherObservables);
-		
-		o.onConnection := MergeOnConnection.create(observables);
-		
+		o.onConnection := Merge.create(otherObservables)(onConnection);
 		return o.asIObservable();
 	}
 	
 	action zipFromInstance(sequence<IObservable> otherObservables, action<sequence<any> > returns any combiner) returns IObservable {
-		return zipToSequenceFromInstance(otherObservables).map(CombineLatestCombinerMapper.create(combiner));
+		Observable o := _create();
+		o.onConnection := Zip.create(otherObservables, combiner)(onConnection);
+		return o.asIObservable();
 	}
 	
 	action switchOnNext() returns IObservable {
-		return switchMap(SwitchOnNext.switchMapper);
+		Observable o := _create();
+		o.onConnection := SwitchOnNext.create()(onConnection);
+		return o.asIObservable();
 	}
 	
 	action skipUntil(IObservable until) returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := SkipUntilOnConnection.create(onConnection, until);
-		
+		o.onConnection := SkipUntil.create(until)(onConnection);
 		return o.asIObservable();
 	}
 	
 	action elementAt(integer n) returns IObservable {
-		return take(n).skip(n-1);
+		Observable o := _create();
+		o.onConnection := ElementAt.create(n)(onConnection);
+		return o.asIObservable();
 	}
 	
 	action reduce(action<any, any> returns any reducer) returns IObservable {
-		return scan(reducer).last();
+		Observable o := _create();
+		o.onConnection := Reduce.create(reducer)(onConnection);
+		return o.asIObservable();
 	}
 	
 	action reduceWithInitial(action<any, any> returns any reducer, any initialValue) returns IObservable {
-		return scanWithInitial(reducer, initialValue).last();
+		Observable o := _create();
+		o.onConnection := ReduceWithInitial.create(reducer, initialValue)(onConnection);
+		return o.asIObservable();
 	}
 	
 	/**
@@ -492,34 +558,26 @@ event Observable {
 		return ToStream.create(self.asIObservable());
 	}
 	
-	action catchError(IObservable onCatch) returns IObservable {
+	action catchError(IObservable onError) returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := CatchErrorOnConnection.create(onConnection, onCatch);
-		
+		o.onConnection := CatchError.create(onError)(onConnection);
 		return o.asIObservable();
 	}
 	
 	action retry(integer retryCount) returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := RetryOnConnection.create(onConnection, retryCount);
-		
+		o.onConnection := Retry.create(retryCount)(onConnection);
 		return o.asIObservable();
 	}
 	
-	/**
-	 * Note: Unsubscribe should be called on the the ISubscription once the downstreams have finished.
-	 */
 	action observeOn(context observingContext, action<IObservable> observableConstructor) returns ISubscription {
 		return ObserveOnHandler.createAndStart(publishToContext, receiveFromContext, observingContext, observableConstructor);
 	}
 	
 	action groupBy(action<any> returns any groupBy) returns IObservable {
 		Observable o := _create();
-		
+		// Can't use GroupBy.create because internally it uses Subject which would cause a circular loop
 		o.onConnection := GroupByOnConnection.create(_createAsIObservable, getSetOnConnection, onConnection, groupBy);
-		
 		return o.asIObservable();		
 	}
 
@@ -531,78 +589,62 @@ event Observable {
 		return PublishToHandler.createChannel(onConnection, channelName);
 	}
 
-	/**
-	 * Note: Unsubscribe should be called on the the ISubscription once the downstreams have finished.
-	 */
 	action observeOnNewContext(action<IObservable> observableConstructor) returns ISubscription {
 		return ObserveOnHandler.createAndStart(publishToContext, receiveFromContext, context("ObserveOnNewContext" + integer.getUnique().toString(), false), observableConstructor);
 	}
 	
 	action every(action<any> returns boolean predicate) returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := EveryOnConnection.create(onConnection, predicate);
-		
+		o.onConnection := Every.create(predicate)(onConnection);
 		return o.asIObservable();	
 	}
 
 	action contains(action<any> returns boolean predicate) returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := ContainsOnConnection.create(onConnection, predicate);
-		
+		o.onConnection := Contains.create(predicate)(onConnection);
 		return o.asIObservable();	
 	}
 	
 	action takeWhile(action<any> returns boolean predicate) returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := TakeWhileOnConnection.create(onConnection, predicate);
-		
+		o.onConnection := TakeWhile.create(predicate)(onConnection);
 		return o.asIObservable();	
 	}
 
 	action skipWhile(action<any> returns boolean predicate) returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := SkipWhileOnConnection.create(onConnection, predicate);
-		
+		o.onConnection := SkipWhile.create(predicate)(onConnection);
 		return o.asIObservable();	
 	}
 	
 	action concatFromInstance(sequence<IObservable> otherObservables) returns IObservable {
 		Observable o := _create();
-		
-		sequence<IObservable> observables := [self.asIObservable()];
-		observables.appendSequence(otherObservables);
-		
-		o.onConnection := ConcatOnConnection.create(observables);
-		
+		o.onConnection := Concat.create(otherObservables)(onConnection);
 		return o.asIObservable();	
 	}
 	
 	action startWith(sequence<any> values) returns IObservable {
-		return fromValues(values).concat([self.asIObservable()]);
+		Observable o := _create();
+		o.onConnection := StartWith.create(values)(onConnection);
+		return o.asIObservable();	
 	}
 	
 	action defaultIfEmpty(any defaultValue) returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := DefaultIfEmptyOnConnection.create(onConnection, defaultValue);
-		
+		o.onConnection := DefaultIfEmpty.create(defaultValue)(onConnection);
 		return o.asIObservable();	
 	}
 	
 	action ignoreElements() returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := IgnoreElementsOnConnection.create(onConnection);
-		
+		o.onConnection := IgnoreElements.create()(onConnection);
 		return o.asIObservable();	
 	}
 	
 	action count() returns IObservable {
-		return reduceWithInitial(Aggregations.count, 0);
+		Observable o := _create();
+		o.onConnection := Count.create()(onConnection);
+		return o.asIObservable();
 	}
 	
 	/**
@@ -610,26 +652,36 @@ event Observable {
 	 * The result is always a float
 	 */
 	action sum() returns IObservable {
-		return reduceWithInitial(Aggregations.sum, 0.0);
+		Observable o := _create();
+		o.onConnection := Sum.create()(onConnection);
+		return o.asIObservable();
 	}
 	
 	action sumInteger() returns IObservable {
-		return reduceWithInitial(Aggregations.sumInteger, 0);
+		Observable o := _create();
+		o.onConnection := SumInteger.create()(onConnection);
+		return o.asIObservable();
 	}
 	
 	action sumFloat() returns IObservable {
-		return reduceWithInitial(Aggregations.sumFloat, 0.0);
+		Observable o := _create();
+		o.onConnection := SumFloat.create()(onConnection);
+		return o.asIObservable();
 	}
 	
 	action sumDecimal() returns IObservable {
-		return reduceWithInitial(Aggregations.sumDecimal, 0.0d);
+		Observable o := _create();
+		o.onConnection := SumDecimal.create()(onConnection);
+		return o.asIObservable();
 	}
 	
 	/**
 	 * Will use .toString() for any non-string types
 	 */
 	action concatString() returns IObservable {
-		return reduceWithInitial(Aggregations.concatString, "");
+		Observable o := _create();
+		o.onConnection := ConcatString.create()(onConnection);
+		return o.asIObservable();
 	}
 	
 	/**
@@ -637,19 +689,27 @@ event Observable {
 	 * The result is always a float
 	 */
 	action max() returns IObservable {
-		return reduceWithInitial(Aggregations.max, -float.INFINITY);
+		Observable o := _create();
+		o.onConnection := Max.create()(onConnection);
+		return o.asIObservable();
 	}
 	
 	action maxInteger() returns IObservable {
-		return reduceWithInitial(Aggregations.maxInteger, integer.MIN);
+		Observable o := _create();
+		o.onConnection := MaxInteger.create()(onConnection);
+		return o.asIObservable();
 	}
 	
 	action maxFloat() returns IObservable {
-		return reduceWithInitial(Aggregations.maxFloat, -float.INFINITY);
+		Observable o := _create();
+		o.onConnection := MaxFloat.create()(onConnection);
+		return o.asIObservable();
 	}
 	
 	action maxDecimal() returns IObservable {
-		return reduceWithInitial(Aggregations.maxDecimal, -decimal.INFINITY);
+		Observable o := _create();
+		o.onConnection := MaxDecimal.create()(onConnection);
+		return o.asIObservable();
 	}
 	
 	/**
@@ -657,19 +717,27 @@ event Observable {
 	 * The result is always a float
 	 */
 	action min() returns IObservable {
-		return reduceWithInitial(Aggregations.min, float.INFINITY);
+		Observable o := _create();
+		o.onConnection := Min.create()(onConnection);
+		return o.asIObservable();
 	}
 	
 	action minInteger() returns IObservable {
-		return reduceWithInitial(Aggregations.minInteger, integer.MAX);
+		Observable o := _create();
+		o.onConnection := MinInteger.create()(onConnection);
+		return o.asIObservable();
 	}
 	
 	action minFloat() returns IObservable {
-		return reduceWithInitial(Aggregations.minFloat, float.INFINITY);
+		Observable o := _create();
+		o.onConnection := MinFloat.create()(onConnection);
+		return o.asIObservable();
 	}
 	
 	action minDecimal() returns IObservable {
-		return reduceWithInitial(Aggregations.minDecimal, decimal.INFINITY);
+		Observable o := _create();
+		o.onConnection := MinDecimal.create()(onConnection);
+		return o.asIObservable();
 	}
 	
 	/**
@@ -677,7 +745,9 @@ event Observable {
 	 * The result is always a float
 	 */
 	action average() returns IObservable {
-		return reduceWithInitial(Average.reduceToAverage, new Average).map(Average.calculateAverage);
+		Observable o := _create();
+		o.onConnection := Average.create()(onConnection);
+		return o.asIObservable();
 	}
 	
 	/**
@@ -685,44 +755,38 @@ event Observable {
 	 * The result is always a decimal
 	 */
 	action averageDecimal() returns IObservable {
-		return reduceWithInitial(AverageDecimal.reduceToAverage, new AverageDecimal).map(AverageDecimal.calculateAverage);
+		Observable o := _create();
+		o.onConnection := AverageDecimal.create()(onConnection);
+		return o.asIObservable();
 	}
 	
 	action sequenceEqualFromInstance(sequence<IObservable> otherObservables) returns IObservable {
-		Observable o := _create();
-		
-		sequence<IObservable> observables := [self.asIObservable()];
-		observables.appendSequence(otherObservables);
-		
-		o.onConnection := SequenceEqualOnConnection.create(observables);
-		
+		Observable o := _create();		
+		o.onConnection := SequenceEqual.create(otherObservables)(onConnection);
 		return o.asIObservable();	
 	}
 	
 	action ambFromInstance(sequence<IObservable> otherObservables) returns IObservable {
-		Observable o := _create();
-		
-		sequence<IObservable> observables := [self.asIObservable()];
-		observables.appendSequence(otherObservables);
-		
-		o.onConnection := AmbOnConnection.create(observables);
-		
-		return o.asIObservable();	
+		Observable o := _create();		
+		o.onConnection := Amb.create(otherObservables)(onConnection);
+		return o.asIObservable();
 	}
 	
 	action timestamp() returns IObservable {
-		return map(Timestamp.add);
+		Observable o := _create();		
+		o.onConnection := Timestamp.create()(onConnection);
+		return o.asIObservable();
 	}
 	
 	action updateTimestamp() returns IObservable {
-		return map(Timestamp.update);
+		Observable o := _create();		
+		o.onConnection := UpdateTimestamp.create()(onConnection);
+		return o.asIObservable();
 	}
 	
 	action timeout(float timeout) returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := TimeoutOnConnection.create(onConnection, timeout);
-		
+		o.onConnection := Timeout.create(timeout)(onConnection);
 		return o.asIObservable();	
 	}
 	
@@ -736,123 +800,95 @@ event Observable {
 	
 	action timeInterval() returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := TimeIntervalOnConnection.create(onConnection);
-		
+		o.onConnection := TimeInterval.create()(onConnection);
 		return o.asIObservable();	
 	}
 	
 	action distinctUntilChanged() returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := DistinctByUntilChangedOnConnection.create(onConnection, new action<any> returns any);
-		
+		o.onConnection := DistinctUntilChanged.create()(onConnection);
 		return o.asIObservable();	
 	}
 	
 	action distinctByUntilChanged(action<any> returns any by) returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := DistinctByUntilChangedOnConnection.create(onConnection, by);
-		
+		o.onConnection := DistinctByUntilChanged.create(by)(onConnection);
 		return o.asIObservable();	
 	}
 	
 	action switchMap(action<any> returns IObservable mapper) returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := SwitchMapOnConnection.create(onConnection, mapper);
-		
+		o.onConnection := SwitchMap.create(mapper)(onConnection);
 		return o.asIObservable();	
 	}
 	
 	action debounce(float duration) returns IObservable {
+		// Can't use operators.Debounce because there'd be a circular dependency on Observable.just
 		return switchMap(DebounceHandler.create(duration, just));
 	}
 	
 	action groupByWindow(IObservable trigger) returns IObservable {
 		Observable o := _create();
-		
+		// Can't use operators.GroupByWindow because there'd be a circular dependency on Observable
 		o.onConnection := WindowOnConnection.create(_createAsIObservable, getSetOnConnection, onConnection, trigger);
-		
 		return o.asIObservable();	
 	}
 	
 	action throttleFirst(float throttleDuration) returns IObservable {
 		Observable o := _create();
-
-		o.onConnection := ThrottleOnConnection.create(onConnection, throttleDuration, true);
-		
+		o.onConnection := ThrottleFirst.create(throttleDuration)(onConnection);
 		return o.asIObservable();	
 	}
 	
 	action throttleLast(float throttleDuration) returns IObservable {
 		Observable o := _create();
-
-		o.onConnection := ThrottleOnConnection.create(onConnection, throttleDuration, false);
-		
+		o.onConnection := ThrottleLast.create(throttleDuration)(onConnection);
 		return o.asIObservable();	
 	}
 	
 	action sample(IObservable trigger) returns IObservable {
-		return groupByWindow(trigger).switchMap(Sample.switchMapSample);
+		// Can't use operators.sample as there would be a circular dependency on Observable
+		return groupByWindow(trigger).switchMap(SampleMapper.switchMapSample);
 	}
 	
 	action buffer(IObservable trigger) returns IObservable {
 		Observable o := _create();
-
-		o.onConnection := BufferOnConnection.create(onConnection, trigger);
-		
+		o.onConnection := Buffer.create(trigger)(onConnection);
 		return o.asIObservable();	
 	}
 	
 	action bufferTime(float duration) returns IObservable {
+		// Can't use operators.BufferTime as there would be a circular dependency on Observable
 		return buffer(interval(duration));
 	}
 	
 	action bufferCount(integer count) returns IObservable {
 		Observable o := _create();
-
-		o.onConnection := BufferCountOnConnection.create(onConnection, count);
-		
+		o.onConnection := BufferCount.create(count)(onConnection);
 		return o.asIObservable();	
 	}
 	
 	action bufferTimeOrCount(float duration, integer count) returns IObservable {
 		Observable o := _create();
-
-		o.onConnection := BufferTimeOrCountOnConnection.create(onConnection, duration, count);
-		
-		return o.asIObservable();	
+		o.onConnection := BufferTimeOrCount.create(duration, count)(onConnection);
+		return o.asIObservable();		
 	}
 	
 	action combineLatestToSequenceFromInstance(sequence<IObservable> otherObservables) returns IObservable {
-		Observable o := _create();
-		
-		sequence<IObservable> observables := [self.asIObservable()];
-		observables.appendSequence(otherObservables);
-		
-		o.onConnection := CombineLatestOnConnection.create(observables);
-		
+		Observable o := _create();		
+		o.onConnection := CombineLatestToSequence.create(otherObservables)(onConnection);
 		return o.asIObservable();	
 	}
 	
 	action withLatestFromToSequence(sequence<IObservable> otherObservables) returns IObservable {
 		Observable o := _create();
-		
-		o.onConnection := WithLatestFromOnConnection.create(self.asIObservable(), otherObservables);
-		
+		o.onConnection := WithLatestFromToSequence.create(otherObservables)(onConnection);
 		return o.asIObservable();	
 	}
 	
 	action zipToSequenceFromInstance(sequence<IObservable> otherObservables) returns IObservable {
 		Observable o := _create();
-		
-		sequence<IObservable> observables := [self.asIObservable()];
-		observables.appendSequence(otherObservables);
-		
-		o.onConnection := ZipOnConnection.create(observables);
-		
+		o.onConnection := ZipToSequence.create(otherObservables)(onConnection);
 		return o.asIObservable();
 	}
 	
@@ -861,32 +897,51 @@ event Observable {
 	}
 	
 	action windowCount(integer count) returns IObservable {
+		// Can't use operators.BufferTime as there would be a circular dependency on Observable
 		Observable o := _create();
-		
 		o.onConnection := WindowCountOnConnection.create(_createAsIObservable, getSetOnConnection, onConnection, count);
-		
 		return o.asIObservable();	
 
 	}
 	
 	action windowTimeOrCount(float time, integer count) returns IObservable {
+		// Can't use operators.BufferTime as there would be a circular dependency on Observable
 		Observable o := _create();
-		
 		o.onConnection := WindowTimeOrCountOnConnection.create(_createAsIObservable, getSetOnConnection, onConnection, time, count);
-		
 		return o.asIObservable();	
 	}
 	
 	action sampleTime(float time) returns IObservable {
-		return windowTime(time).switchMap(Sample.switchMapSample);
+		// Can't use operators.BufferTime as there would be a circular dependency on Observable
+		return windowTime(time).switchMap(SampleMapper.switchMapSample);
 	}
 	
 	action sampleCount(integer count) returns IObservable {
-		return windowCount(count).switchMap(Sample.switchMapSample);
+		// Can't use operators.BufferTime as there would be a circular dependency on Observable
+		return windowCount(count).switchMap(SampleMapper.switchMapSample);
 	}
 	
 	action sampleTimeOrCount(float time, integer count) returns IObservable {
-		return windowTimeOrCount(time, count).switchMap(Sample.switchMapSample);
+		// Can't use operators.BufferTime as there would be a circular dependency on Observable
+		return windowTimeOrCount(time, count).switchMap(SampleMapper.switchMapSample);
+	}
+
+	action bufferCountSkip(integer count, integer skip) returns IObservable {
+		Observable o := _create();
+		o.onConnection := BufferCountSkip.create(count, skip)(onConnection);
+		return o.asIObservable();	
+	}
+	
+	action pluck(string fieldName) returns IObservable {
+		Observable o := _create();
+		o.onConnection := Pluck.create(fieldName)(onConnection);
+		return o.asIObservable();	
+	}
+	
+	action pipe(sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> pipeModifiers) returns IObservable {
+		Observable o := _create();
+		o.onConnection := Pipe.create(pipeModifiers)(onConnection);
+		return o.asIObservable();
 	}
 	
 	static action invalidConnect() returns IDisposable {
@@ -903,6 +958,6 @@ event Observable {
 		
 	action asIObservable() returns IObservable {
 		return IObservable(self, 
-		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial, toStream, catchError, retry, observeOn, groupBy, publishToContext, publishToChannel, observeOnNewContext, every, contains, takeWhile, skipWhile, concatFromInstance, startWith, defaultIfEmpty, ignoreElements, count, sum, sumInteger, sumFloat, sumDecimal, concatString, max, maxInteger, maxFloat, maxDecimal, min, minInteger, minFloat, minDecimal, average, averageDecimal, sequenceEqualFromInstance, ambFromInstance, timestamp, updateTimestamp, timeout, getSync, getSyncOr, timeInterval, distinctUntilChanged, distinctByUntilChanged, switchMap, debounce, windowTime, throttleFirst, throttleLast, sampleTime, buffer, bufferTime, bufferCount, bufferTimeOrCount, combineLatestToSequenceFromInstance, withLatestFromToSequence, zipToSequenceFromInstance, groupByWindow, windowCount, windowTimeOrCount, sample, sampleCount, sampleTimeOrCount);
+		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial, toStream, catchError, retry, observeOn, groupBy, publishToContext, publishToChannel, observeOnNewContext, every, contains, takeWhile, skipWhile, concatFromInstance, startWith, defaultIfEmpty, ignoreElements, count, sum, sumInteger, sumFloat, sumDecimal, concatString, max, maxInteger, maxFloat, maxDecimal, min, minInteger, minFloat, minDecimal, average, averageDecimal, sequenceEqualFromInstance, ambFromInstance, timestamp, updateTimestamp, timeout, getSync, getSyncOr, timeInterval, distinctUntilChanged, distinctByUntilChanged, switchMap, debounce, windowTime, throttleFirst, throttleLast, sampleTime, buffer, bufferTime, bufferCount, bufferTimeOrCount, combineLatestToSequenceFromInstance, withLatestFromToSequence, zipToSequenceFromInstance, groupByWindow, windowCount, windowTimeOrCount, sample, sampleCount, sampleTimeOrCount, bufferCountSkip, pipe, pluck);
 	}
 }

@@ -1,0 +1,61 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+using com.industry.rx_epl.ISubject;
+using com.industry.rx_epl.Subject;
+
+event PipeWindowCountSubscriber {
+	IObserver subscriber;
+	IObserver upstream;
+	integer count;
+	integer currentCount;
+	optional<ISubject> currentSubject;
+	
+	static action create(IObserver subscriber, integer count) returns IObserver {
+		PipeWindowCountSubscriber w := PipeWindowCountSubscriber(subscriber, new IObserver, count, 0, new optional<ISubject>);
+		w.createNextSubject();
+		return IObserverBuilder.create(subscriber.createUpstream()).onNext(w.next).onComplete(w.complete).build();
+	}
+	
+	action next(any value) {
+		currentCount := currentCount + 1;
+		currentSubject.getOrThrow().next(value);
+		if currentCount = count {
+			createNextSubject();
+		}
+	}
+	
+	action complete() {
+		currentSubject.getOrThrow().complete();
+		subscriber.complete();
+	}
+	
+	action createNextSubject() {
+		currentCount := 0;
+		ifpresent currentSubject {
+			currentSubject.complete();
+		}
+		currentSubject := Subject.create();
+		subscriber.next(currentSubject.getOrThrow().asIObservable());
+	}
+}
+
+event PipeWindowCountOnConnection {
+	action<IObserver> returns ISubscription parentOnConnection;
+	integer count;
+	
+	static action create(action<IObserver> returns ISubscription parentOnConnection, integer count) returns action<IObserver> returns ISubscription {
+		return PipeWindowCountOnConnection(parentOnConnection, count).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		return parentOnConnection(PipeWindowCountSubscriber.create(subscriber, count));
+	}
+}

@@ -1,0 +1,57 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+using com.industry.rx_epl.utils.Utils;
+
+event DelaySubscriber {
+	IObserver subscriber;
+	IObserver upstreamSubscriber;
+	float delay;
+	
+	static action create(IObserver subscriber, float delay) returns IObserver {
+		DelaySubscriber m := DelaySubscriber(subscriber, new IObserver, delay);
+		m.upstreamSubscriber := Subscriber.create().onNext(m.next).onError(subscriber.error).onComplete(m.complete).asIObserver();
+		subscriber.onUnsubscribe(m.upstreamSubscriber.unsubscribe);
+		return m.upstreamSubscriber;
+	}
+	
+	action next(any value) {
+		on wait(delay) {
+			if subscriber.subscribed() {
+				subscriber.next(value);
+			}
+		}
+	}
+	
+	action complete() {
+		on wait(delay) {
+			if subscriber.subscribed() {
+				subscriber.complete();
+			}
+		}
+		upstreamSubscriber.unsubscribe();
+	}
+}
+
+event DelayOnConnection {
+	action<IObserver> returns ISubscription parentOnConnection;
+	float delay;
+	
+	static action create(action<IObserver> returns ISubscription parentOnConnection, float delay) returns action<IObserver> returns ISubscription {
+		return DelayOnConnection(parentOnConnection, delay).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		IObserver delaySubscriber := DelaySubscriber.create(subscriber, delay);
+		ISubscription downstreamSubscription := Subscription.create(subscriber).asISubscription();
+		ISubscription s := parentOnConnection(delaySubscriber);
+		return downstreamSubscription;
+	}
+}

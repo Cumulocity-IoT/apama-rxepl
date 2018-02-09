@@ -1,0 +1,17 @@
+package com.industry.rx_epl.operators;
+
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.ISubscription;
+
+event Reduce {	
+	static action create(action<any, any> returns any reducer) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Pipe.create([Scan.create(reducer), Last.create()]);
+	}
+}
+
+event ReduceWithInitial {	
+	static action create(action<any, any> returns any reducer, any initialValue) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Pipe.create([ScanWithInitial.create(reducer, initialValue), Last.create()]);
+	}
+}

@@ -1,0 +1,14 @@
+package com.industry.rx_epl.operators;
+
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.ISubscription;
+
+using com.industry.rx_epl.operators.internals.DebounceHandler;
+
+event Debounce {
+	static action create(float duration) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return SwitchMap.create(DebounceHandler.create(duration, Observable.just));
+	}
+}

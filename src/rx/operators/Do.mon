@@ -1,0 +1,19 @@
+package com.industry.rx_epl.operators;
+
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscriber;
+
+using com.industry.rx_epl.operators.internals.DoOnConnection;
+
+event Do {	
+	Subscriber s;
+	static action create(Subscriber s) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Do(s).pipeModifier;
+	}
+
+	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
+		return DoOnConnection.create(onConnection, s);
+	}
+}

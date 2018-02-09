@@ -1,4 +1,4 @@
-package com.industry.rx_epl;
+package com.industry.rx_epl.utils;
 
 using com.apama.exceptions.Exception;
 

@@ -1,0 +1,53 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+
+event TakeLastSubscriber {
+	IObserver subscriber;
+	integer count;
+	sequence<any> values;
+	
+	static action create(IObserver downstreamSubscriber, integer count) returns IObserver {
+		TakeLastSubscriber m := TakeLastSubscriber(downstreamSubscriber, count, new sequence<any>);
+		return IObserverBuilder.create(downstreamSubscriber.createUpstream()).onNext(m.next).onComplete(m.complete).build();
+	}
+	
+	action next(any value) {
+		values.append(value);
+		if values.size() > count {
+			values.remove(0);
+		}
+	}
+	
+	action complete() {
+		any value;
+		for value in values {
+			subscriber.next(value);
+			if not subscriber.subscribed() {
+				return;
+			}
+		}
+		subscriber.complete();
+	}
+}
+
+event TakeLastOnConnection {
+	action<IObserver> returns ISubscription parentOnConnection;
+	integer count;
+	
+	static action create(action<IObserver> returns ISubscription parentOnConnection, integer count) returns action<IObserver> returns ISubscription {
+		return TakeLastOnConnection(parentOnConnection, count).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		IObserver takeLastSubscriber := TakeLastSubscriber.create(subscriber, count);
+		return parentOnConnection(takeLastSubscriber);
+	}
+}

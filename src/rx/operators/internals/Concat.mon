@@ -1,0 +1,59 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+using com.industry.rx_epl.utils.Utils;
+
+event ConcatSubscriber {
+	IObserver downstreamSubscriber;
+	sequence<action<IObserver> returns ISubscription> onConnections;
+	optional<IObserver> upstreamSubscriber;
+	
+	static action create(IObserver downstreamSubscriber, sequence<action<IObserver> returns ISubscription> onConnections) returns ISubscription {
+		ConcatSubscriber m := ConcatSubscriber(downstreamSubscriber, onConnections, new optional<IObserver>);
+		ISubscription s := Subscription.create(downstreamSubscriber).asISubscription();
+		m.nextObservable();
+		return s;
+	}
+	
+	action nextObservable() {
+		if onConnections.size() > 0 {
+			action<IObserver> returns ISubscription onConnection := onConnections[0];
+			onConnections.remove(0);
+			ifpresent upstreamSubscriber {
+				upstreamSubscriber.unsubscribe();
+			}
+			upstreamSubscriber := Subscriber.create().onNext(downstreamSubscriber.next).onError(downstreamSubscriber.error).onComplete(nextObservable).asIObserver();
+			downstreamSubscriber.onUnsubscribe(upstreamSubscriber.getOrThrow().unsubscribe);
+			downstreamSubscriber.onUnsubscribe(onConnections.clear);
+			ISubscription s := onConnection(upstreamSubscriber.getOrThrow());
+		} else {
+			downstreamSubscriber.complete();
+		}
+	}
+}
+
+event ConcatOnConnection {
+	action<IObserver> returns ISubscription parentOnConnection;
+	sequence<IObservable> observables;
+	
+	static action create(action<IObserver> returns ISubscription parentOnConnection, sequence<IObservable> observables) returns action<IObserver> returns ISubscription {
+		return ConcatOnConnection(parentOnConnection, observables).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		sequence<action<IObserver> returns ISubscription> onConnections := new sequence<action<IObserver> returns ISubscription>;
+		onConnections.append(parentOnConnection);
+		IObservable o;
+		for o in observables {
+			onConnections.append(o.connectObserver);
+		}
+		return ConcatSubscriber.create(subscriber, onConnections);
+	}
+}

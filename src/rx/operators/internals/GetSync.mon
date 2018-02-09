@@ -1,0 +1,26 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+using com.industry.rx_epl.utils.Utils;
+
+event GetSyncHandler {
+	any currentValue;
+	
+	static action create(IObservable o, any defaultValue) returns any {
+		GetSyncHandler g := GetSyncHandler(defaultValue);
+		o.subscribe(Subscriber.create().onNext(g.next))
+			.unsubscribe();
+		return g.currentValue;
+	}
+	
+	action next(any value) {
+		currentValue := value;
+	}
+}

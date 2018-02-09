@@ -1,0 +1,19 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+event PluckMapper {
+	string fieldName;
+	
+	static action create(string fieldName) returns action<any> returns any {
+		return PluckMapper(fieldName).pluck;
+	}
+	
+	action pluck(any value) returns any {
+		try {
+			return value.getEntry(fieldName);
+		} catch (Exception e) {
+			throw Exception("Can't pluck " + fieldName + ", value does not have the field", "InvalidOperation");
+		}
+	}
+}

@@ -1,0 +1,41 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+using com.industry.rx_epl.IDisposable;
+
+event RefCountOnConnection {
+	IDisposable connection;
+	action<> returns IDisposable connect;
+	action<IObserver> returns ISubscription parentOnConnection;
+	integer refCount;
+	
+	static action create(IDisposable connection, action<> returns IDisposable connect, action<IObserver> returns ISubscription parentOnConnection) returns action<IObserver> returns ISubscription {
+		return RefCountOnConnection(connection, connect, parentOnConnection, 0).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		refCount := refCount + 1;
+		subscriber.onUnsubscribe(decrementRefCount);
+		ISubscription subscription := parentOnConnection(subscriber);
+		if connection.disposed() {
+			connection := connect();
+		}
+		return subscription;
+	}
+	
+	action decrementRefCount() {
+		refCount := refCount - 1;
+		if refCount = 0 {
+			if not connection.disposed() {
+				connection.dispose();
+			}
+		}
+	}
+}

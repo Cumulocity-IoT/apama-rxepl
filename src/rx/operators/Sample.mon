@@ -1,0 +1,31 @@
+package com.industry.rx_epl.operators;
+
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.ISubscription;
+
+using com.industry.rx_epl.operators.internals.SampleMapper;
+
+event Sample {	
+	static action create(IObservable trigger) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Pipe.create([GroupByWindow.create(trigger), SwitchMap.create(SampleMapper.switchMapSample)]);
+	}
+}
+
+event SampleTime {	
+	static action create(float time) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Pipe.create([WindowTime.create(time), SwitchMap.create(SampleMapper.switchMapSample)]);
+	}
+}
+
+event SampleCount {	
+	static action create(integer count) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Pipe.create([WindowCount.create(count), SwitchMap.create(SampleMapper.switchMapSample)]);
+	}
+}
+
+event SampleTimeOrCount {	
+	static action create(float time, integer count) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Pipe.create([WindowTimeOrCount.create(time, count), SwitchMap.create(SampleMapper.switchMapSample)]);
+	}
+}

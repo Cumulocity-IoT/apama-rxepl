@@ -1,0 +1,47 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+using com.industry.rx_epl.utils.Utils;
+
+event DefaultIfEmptySubscriber {
+	IObserver subscriber;
+	any defaultValue;
+	boolean isEmpty;
+	
+	static action create(IObserver subscriber, any defaultValue) returns IObserver {
+		DefaultIfEmptySubscriber m := DefaultIfEmptySubscriber(subscriber, defaultValue, true);
+		return IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).onComplete(m.complete).build();
+	}
+    
+	action next(any value) {
+		isEmpty := false;
+		subscriber.next(value);
+	}
+	
+	action complete() {
+		if isEmpty {
+			subscriber.next(defaultValue);
+		}
+		subscriber.complete();
+	}
+}
+
+event DefaultIfEmptyOnConnection {
+	action<IObserver> returns ISubscription parentOnConnection;
+	any defaultValue;
+	
+	static action create(action<IObserver> returns ISubscription parentOnConnection, any defaultValue) returns action<IObserver> returns ISubscription {
+		return DefaultIfEmptyOnConnection(parentOnConnection, defaultValue).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		return parentOnConnection(DefaultIfEmptySubscriber.create(subscriber, defaultValue));
+	}
+}

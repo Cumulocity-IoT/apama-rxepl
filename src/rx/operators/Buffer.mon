@@ -1,0 +1,53 @@
+package com.industry.rx_epl.operators;
+
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.ISubscription;
+
+using com.industry.rx_epl.operators.internals.BufferOnConnection;
+using com.industry.rx_epl.operators.internals.BufferCountOnConnection;
+using com.industry.rx_epl.operators.internals.BufferTimeOrCountOnConnection;
+
+event Buffer {
+	IObservable trigger;
+	
+	static action create(IObservable trigger) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Buffer(trigger).pipeModifier;
+	}
+
+	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
+		return BufferOnConnection.create(onConnection, trigger);
+	}
+}
+
+event BufferCountSkip {
+	integer count;
+	integer skip;
+	
+	static action create(integer count, integer skip) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return BufferCountSkip(count, skip).pipeModifier;
+	}
+
+	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
+		return BufferCountOnConnection.create(onConnection, count, skip);
+	}
+}
+
+event BufferCount {	
+	static action create(integer count) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return BufferCountSkip(count, count).pipeModifier;
+	}
+}
+
+event BufferTimeOrCount {
+	float time;
+	integer count;
+	
+	static action create(float time, integer count) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return BufferTimeOrCount(time, count).pipeModifier;
+	}
+
+	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
+		return BufferTimeOrCountOnConnection.create(onConnection, time, count);
+	}
+}

@@ -1,0 +1,32 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.IResolver;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+using com.industry.rx_epl.utils.Utils;
+
+event CreateOnConnection {
+	action<IResolver> resolver;
+	static action create(action<IResolver> resolver) returns action<IObserver> returns ISubscription {
+		return CreateOnConnection(resolver).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		// Must create subscription before calling ay next, error, complete
+		ISubscription subscription := Subscription.create(subscriber).asISubscription();
+		IResolver r := IResolver(subscriber.next, subscriber.error, subscriber.complete, subscriber.onUnsubscribe);
+		subscriber.onUnsubscribe(r.disconnect);
+		try {
+			resolver(r);
+		} catch (Exception e) {
+			subscriber.error(e);
+		}
+		return subscription;
+	}
+}

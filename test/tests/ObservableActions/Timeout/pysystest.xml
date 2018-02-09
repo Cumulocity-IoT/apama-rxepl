@@ -2,8 +2,8 @@
 <pysystest type="auto" state="runnable">
     
   <description> 
-    <title>UpdateTimestamp Async</title>    
-    <purpose><![CDATA[UpdateTimestamp Async]]></purpose>
+    <title>Timeout</title>    
+    <purpose><![CDATA[Timeout]]></purpose>
   </description>
 
   <classification>

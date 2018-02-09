@@ -1,0 +1,12 @@
+package com.industry.rx_epl.operators;
+
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscriber;
+
+event ElementAt {	
+	static action create(integer n) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Pipe.create([Take.create(n), Last.create()]);
+	}
+}

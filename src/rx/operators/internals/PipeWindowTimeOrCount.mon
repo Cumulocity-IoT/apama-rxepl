@@ -1,0 +1,79 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+using com.industry.rx_epl.ISubject;
+using com.industry.rx_epl.Subject;
+
+event PipeWindowTimeOrCountSubscriber {
+	IObserver subscriber;
+	IObserver upstream;
+	integer count;
+	integer currentCount;
+	float duration;
+	optional<ISubject> currentSubject;
+	listener timeListener;
+	
+	static action create(IObserver subscriber, float duration, integer count) returns IObserver {
+		PipeWindowTimeOrCountSubscriber w := PipeWindowTimeOrCountSubscriber(subscriber, new IObserver, count, 0, duration, new optional<ISubject>, new listener);
+		subscriber.onUnsubscribe(w.unsubscribe);
+		w.createNextSubject();
+		return IObserverBuilder.create(subscriber.createUpstream()).onNext(w.next).onComplete(w.complete).build();
+	}
+	
+	action next(any value) {
+		currentCount := currentCount + 1;
+		currentSubject.getOrThrow().next(value);
+		if currentCount = count {
+			createNextSubject();
+		}
+	}
+	
+	action complete() {
+		currentSubject.getOrThrow().complete();
+		subscriber.complete();
+	}
+	
+	action unsubscribe() {
+		timeListener.quit();
+	}
+	
+	action createNextSubject() {
+		currentCount := 0;
+		ifpresent currentSubject {
+			currentSubject.complete();
+		}
+		currentSubject := Subject.create();
+		subscriber.next(currentSubject.getOrThrow().asIObservable());
+		createNewTimeListener();
+	}
+	
+	action createNewTimeListener() {
+		ifpresent timeListener {
+			timeListener.quit();
+		}
+		timeListener := on wait(duration) {
+			createNextSubject();
+		}
+	}
+}
+
+event PipeWindowTimeOrCountOnConnection {
+	action<IObserver> returns ISubscription parentOnConnection;
+	float duration;
+	integer count;
+	
+	static action create(action<IObserver> returns ISubscription parentOnConnection, float duration, integer count) returns action<IObserver> returns ISubscription {
+		return PipeWindowTimeOrCountOnConnection(parentOnConnection, duration, count).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		return parentOnConnection(PipeWindowTimeOrCountSubscriber.create(subscriber, duration, count));
+	}
+}

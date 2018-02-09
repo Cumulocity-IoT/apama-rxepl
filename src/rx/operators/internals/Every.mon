@@ -1,0 +1,50 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+using com.industry.rx_epl.utils.Utils;
+
+event EverySubscriber {
+	IObserver subscriber;
+	action<any> returns boolean predicate;
+	
+	static action create(IObserver subscriber, action<any> returns boolean predicate) returns IObserver {
+		EverySubscriber a := EverySubscriber(subscriber, predicate);
+		return IObserverBuilder.create(subscriber.createUpstream()).onNext(a.next).onComplete(a.complete).build();
+	}
+	
+	action next(any value) {
+		try {
+			if not predicate(value) {
+				subscriber.next(false);
+				subscriber.complete();
+			}
+		} catch(Exception e) {
+			subscriber.error(e);
+		}
+	}
+	
+	action complete() {
+		subscriber.next(true);
+		subscriber.complete();
+	}
+}
+
+event EveryOnConnection {
+	action<IObserver> returns ISubscription parentOnConnection;
+	action<any> returns boolean predicate;
+	
+	static action create(action<IObserver> returns ISubscription parentOnConnection, action<any> returns boolean predicate) returns action<IObserver> returns ISubscription {
+		return EveryOnConnection(parentOnConnection, predicate).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		return parentOnConnection(EverySubscriber.create(subscriber, predicate));
+	}
+}

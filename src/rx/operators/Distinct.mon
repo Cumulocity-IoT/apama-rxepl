@@ -1,0 +1,43 @@
+package com.industry.rx_epl.operators;
+
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.ISubscription;
+
+using com.industry.rx_epl.operators.internals.DistinctByOnConnection;
+using com.industry.rx_epl.operators.internals.DistinctByUntilChangedOnConnection;
+
+event DistinctBy {
+	action<any> returns any by;
+	
+	static action create(action<any> returns any by) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return DistinctBy(by).pipeModifier;
+	}
+
+	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
+		return DistinctByOnConnection.create(onConnection, by);
+	}	
+}
+
+event Distinct {	
+	static action create() returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return DistinctBy.create(new action<any> returns any);
+	}
+}
+event DistinctByUntilChanged {
+	action<any> returns any by;
+	
+	static action create(action<any> returns any by) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return DistinctByUntilChanged(by).pipeModifier;
+	}
+
+	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
+		return DistinctByUntilChangedOnConnection.create(onConnection, by);
+	}	
+}
+
+event DistinctUntilChanged {	
+	static action create() returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return DistinctByUntilChanged.create(new action<any> returns any);
+	}
+}

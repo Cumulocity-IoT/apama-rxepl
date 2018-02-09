@@ -1,0 +1,34 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+
+event ObserveOnHandler {
+	string id;
+	context upstreamContext;
+	context downstreamContext;
+	action<string, context> returns IObservable receiveFrom;
+	action<IObservable> observableConstructor;
+	
+	static action createAndStart(action<string, context> returns ISubscription publishTo, action<string, context> returns IObservable receiveFrom, context downstreamContext, action<IObservable> observableConstructor) returns ISubscription {
+		ObserveOnHandler o := ObserveOnHandler(integer.getUnique().toString(), context.current(), downstreamContext, receiveFrom, observableConstructor);
+		
+		o.spawnToContext();
+		
+		return publishTo(o.id, downstreamContext);
+	}
+	
+	action spawnToContext() {
+		spawn runOnOtherContext() to downstreamContext;
+	}
+	
+	action runOnOtherContext() {
+		observableConstructor(receiveFrom(id, upstreamContext).refCount());
+	}
+}

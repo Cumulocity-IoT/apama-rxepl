@@ -1,0 +1,59 @@
+package com.industry.rx_epl.operators;
+
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.ISubscription;
+
+using com.industry.rx_epl.operators.internals.PipeWindowOnConnection;
+using com.industry.rx_epl.operators.internals.PipeWindowCountOnConnection;
+using com.industry.rx_epl.operators.internals.PipeWindowTimeOnConnection;
+using com.industry.rx_epl.operators.internals.PipeWindowTimeOrCountOnConnection;
+
+event GroupByWindow {
+	IObservable trigger;
+	
+	static action create(IObservable trigger) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return GroupByWindow(trigger).pipeModifier;
+	}
+
+	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
+		return PipeWindowOnConnection.create(onConnection, trigger);
+	}
+}
+
+event WindowCount {
+	integer count;
+	
+	static action create(integer count) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return WindowCount(count).pipeModifier;
+	}
+
+	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
+		return PipeWindowCountOnConnection.create(onConnection, count);
+	}
+}
+
+event WindowTime {
+	float time;
+	
+	static action create(float time) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return WindowTime(time).pipeModifier;
+	}
+
+	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
+		return PipeWindowTimeOnConnection.create(onConnection, time);
+	}
+}
+
+event WindowTimeOrCount {
+	float time;
+	integer count;
+	
+	static action create(float time, integer count) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return WindowTimeOrCount(time, count).pipeModifier;
+	}
+
+	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
+		return PipeWindowTimeOrCountOnConnection.create(onConnection, time, count);
+	}
+}

@@ -1,0 +1,21 @@
+package com.industry.rx_epl.operators;
+
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.ISubscription;
+
+event Pipe {
+	sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> pipeModifiers;
+	
+	static action create(sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> pipeModifiers) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Pipe(pipeModifiers).pipeModifier;
+	}
+
+	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {		
+		action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription pipeModifier;
+		for pipeModifier in pipeModifiers {
+			onConnection := pipeModifier(onConnection);
+		}
+		return onConnection;
+	}
+}
