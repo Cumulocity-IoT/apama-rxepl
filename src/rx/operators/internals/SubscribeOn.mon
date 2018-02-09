@@ -1,0 +1,47 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+using com.industry.rx_epl.utils.Utils;
+
+event SubscribeOn {
+	action<Subscriber> returns ISubscription subscribe;
+	Subscriber subscriber;
+	context targetContext;
+	string channel;
+	
+	static action create(action<Subscriber> returns ISubscription subscribe, Subscriber subscriber, context targetContext) returns ISubscription {
+		SubscribeOn s := SubscribeOn(subscribe, subscriber, targetContext, "SubscribeOnChannel" + integer.getUnique().toString());
+		s.handleUnsubscribe();
+		s.spawnToTargetContext();	
+		return Subscription.create(subscriber.asIObserver()).asISubscription();
+	}
+	
+	action spawnToTargetContext() {
+		spawn doOnOtherContext() to targetContext;
+	}
+	
+	action doOnOtherContext() {
+		handleUnsubscribe();
+		subscriber.onUnsubscribe(sendUnsubscribed);		
+		ISubscription s := subscribe(subscriber);
+		send Spawned(channel) to channel;
+	}
+	
+	action sendUnsubscribed() {
+		send Unsubscribe(channel, channel) to channel;
+	}
+	
+	action handleUnsubscribe() {
+		monitor.subscribe(channel);
+		on Spawned(channel = channel) and Unsubscribe(channel = channel) {
+			subscriber.unsubscribe();
+		}
+	}
+}

@@ -100,6 +100,7 @@ using com.industry.rx_epl.operators.internals.GroupByOnConnection;
 using com.industry.rx_epl.operators.internals.IntervalOnConnection;
 using com.industry.rx_epl.operators.internals.JustOnConnection;
 using com.industry.rx_epl.operators.internals.ObserveOnHandler;
+using com.industry.rx_epl.operators.internals.PipeOnOnConnection;
 using com.industry.rx_epl.operators.internals.PublishHandler;
 using com.industry.rx_epl.operators.internals.PublishReplayHandler;
 using com.industry.rx_epl.operators.internals.ObserveToHandler;
@@ -110,6 +111,7 @@ using com.industry.rx_epl.operators.internals.RefCountOnConnection;
 using com.industry.rx_epl.operators.internals.SampleMapper;
 using com.industry.rx_epl.operators.internals.StartOnConnection;
 using com.industry.rx_epl.operators.internals.SubscribeOnConnection;
+using com.industry.rx_epl.operators.internals.SubscribeOn;
 using com.industry.rx_epl.operators.internals.ToStream;
 using com.industry.rx_epl.operators.internals.WindowCountOnConnection;
 using com.industry.rx_epl.operators.internals.WindowOnConnection;
@@ -935,6 +937,26 @@ event Observable {
 		return o.asIObservable();
 	}
 	
+	action pipeOn(sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> pipeModifiers, context targetContext) returns IObservable {
+		Observable o := _create();
+		o.onConnection := PipeOnOnConnection.create(observeFromChannel, onConnection, targetContext, pipeModifiers);
+		return o.asIObservable();
+	}
+	
+	action pipeOnNewContext(sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> pipeModifiers) returns IObservable {
+		Observable o := _create();
+		o.onConnection := PipeOnOnConnection.create(observeFromChannel, onConnection, context("PipeOnContext" + integer.getUnique().toString(), false), pipeModifiers);
+		return o.asIObservable();
+	}
+	
+	action subscribeOn(Subscriber subscriber, context targetContext) returns ISubscription {
+		return SubscribeOn.create(subscribe, subscriber, targetContext);
+	}
+	
+	action subscribeOnNewContext(Subscriber subscriber) returns ISubscription {
+		return SubscribeOn.create(subscribe, subscriber, context("SubscribeOnContext" + integer.getUnique().toString(), false));
+	}
+	
 	static action invalidConnect() returns IDisposable {
 		throw Exception("Can only connect a published Observable", "UnsupportedOperation");
 	}
@@ -949,6 +971,6 @@ event Observable {
 		
 	action asIObservable() returns IObservable {
 		return IObservable(self, 
-		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial, toStream, catchError, retry, observeOn, groupBy, observeToChannel, observeOnNewContext, every, contains, takeWhile, skipWhile, concatFromInstance, startWith, defaultIfEmpty, ignoreElements, count, sum, sumInteger, sumFloat, sumDecimal, concatString, max, maxInteger, maxFloat, maxDecimal, min, minInteger, minFloat, minDecimal, average, averageDecimal, sequenceEqualFromInstance, ambFromInstance, timestamp, updateTimestamp, timeout, getSync, getSyncOr, timeInterval, distinctUntilChanged, distinctByUntilChanged, switchMap, debounce, windowTime, throttleFirst, throttleLast, sampleTime, buffer, bufferTime, bufferCount, bufferTimeOrCount, combineLatestToSequenceFromInstance, withLatestFromToSequence, zipToSequenceFromInstance, groupByWindow, windowCount, windowTimeOrCount, sample, sampleCount, sampleTimeOrCount, bufferCountSkip, pipe, pluck, mergeAll);
+		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial, toStream, catchError, retry, observeOn, groupBy, observeToChannel, observeOnNewContext, every, contains, takeWhile, skipWhile, concatFromInstance, startWith, defaultIfEmpty, ignoreElements, count, sum, sumInteger, sumFloat, sumDecimal, concatString, max, maxInteger, maxFloat, maxDecimal, min, minInteger, minFloat, minDecimal, average, averageDecimal, sequenceEqualFromInstance, ambFromInstance, timestamp, updateTimestamp, timeout, getSync, getSyncOr, timeInterval, distinctUntilChanged, distinctByUntilChanged, switchMap, debounce, windowTime, throttleFirst, throttleLast, sampleTime, buffer, bufferTime, bufferCount, bufferTimeOrCount, combineLatestToSequenceFromInstance, withLatestFromToSequence, zipToSequenceFromInstance, groupByWindow, windowCount, windowTimeOrCount, sample, sampleCount, sampleTimeOrCount, bufferCountSkip, pipe, pluck, mergeAll, pipeOn, pipeOnNewContext, subscribeOn, subscribeOnNewContext);
 	}
 }

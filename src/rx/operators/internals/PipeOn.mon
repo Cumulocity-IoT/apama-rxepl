@@ -1,0 +1,96 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IDisposable;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscriber;
+
+event Spawned {
+	string channel;
+}
+
+event PipeOnOnConnection {
+	action<IObserver> returns ISubscription parentOnConnection;
+	string upstreamChannel;
+	string downstreamChannel;
+	context downstreamContext;
+	action<string> returns IObservable observeFromChannel;
+	sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> pipeModifiers;
+	optional<IDisposable> upstream;
+	boolean downstreamCreated;
+	boolean downstreamBeingCreated;
+	integer subscriberCount;
+	
+	static action create(action<string> returns IObservable observeFromChannel, action<IObserver> returns ISubscription parentOnConnection, context downstreamContext, sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> pipeModifiers) returns action<IObserver> returns ISubscription {
+		string uniqueId := integer.getUnique().toString();
+		PipeOnOnConnection o := PipeOnOnConnection(parentOnConnection, "PipeOnUpstreamChannel" + uniqueId, "PipeOnDownstreamChannel" + uniqueId, downstreamContext, observeFromChannel, pipeModifiers, new optional<IDisposable>, false, false, 0);
+		return o.onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		if upstream.empty() {
+			upstream := ObserveToHandler.create(parentOnConnection, upstreamChannel);
+		}
+		
+		subscriber.onUnsubscribe(decrementSubscriberCountAndDisposeIfNecessary);
+		subscriberCount := subscriberCount + 1;
+		
+		string downstreamChannel := "PipeOnUpstreamChannel" + integer.getUnique().toString();
+		
+		if not downstreamCreated and not downstreamBeingCreated {
+			downstreamBeingCreated := true;
+			spawnToContext(downstreamChannel);
+		}
+		if downstreamBeingCreated {
+			monitor.subscribe(downstreamChannel);
+			on Spawned(channel = downstreamChannel) {
+				downstreamBeingCreated := false;
+				downstreamCreated := true;
+				ISubscription s := observeFromChannel(downstreamChannel).connectObserver(subscriber);
+			}
+		} else {
+			ISubscription s := observeFromChannel(downstreamChannel).connectObserver(subscriber);
+		}
+		
+		return Subscription.create(subscriber).asISubscription();
+	}
+	
+	action decrementSubscriberCountAndDisposeIfNecessary() {
+		subscriberCount := subscriberCount - 1;
+		disposeIfNecessary();
+	}
+	
+	action disposeIfNecessary() {
+		if downstreamBeingCreated {
+			on wait(1.0) {
+				disposeIfNecessary();
+			}
+			return;
+		}
+		if subscriberCount = 0 {
+			ifpresent upstream {
+				upstream.dispose();
+			}
+			upstream := new IDisposable;
+			
+			if downstreamCreated {
+				send Dispose(downstreamChannel) to downstreamChannel;
+			}
+			downstreamCreated := false;
+		}
+	}
+	
+	action spawnToContext(string downstreamChannel) {
+		spawn runOnOtherContext(downstreamChannel) to downstreamContext;
+	}
+	
+	action runOnOtherContext(string downstreamChannel) {
+		IDisposable disposable := observeFromChannel(upstreamChannel).pipe(pipeModifiers).observeToChannel(downstreamChannel);
+		send Spawned(downstreamChannel) to downstreamChannel;
+	}
+}

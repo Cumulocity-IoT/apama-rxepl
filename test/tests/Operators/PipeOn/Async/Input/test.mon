@@ -1,0 +1,61 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IResolver;
+using com.industry.rx_epl.Subscriber;
+
+using com.industry.rx_epl.operators.Do;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+
+	integer teardownCount := 0;
+
+	action onload() {
+		context testContext := context("NewTestContext", false);
+		context pipeContext := context("NewPipeContext", false);
+
+	    any discard := TestObservables.createAsync().take(4)
+			.do(Subscriber.create().onNext(checkContextNext).onComplete(checkContext))
+			.pipeOn([Do.create(Subscriber.create().onNext(checkPipeContextNext).onComplete(checkPipeContext))], pipeContext)
+			.do(ExpectValues.create([<any>0.0, 1.0, 2.0, 3.0], checkContext, test.fail))
+	      	.subscribeOn(Subscriber.create().onNext(checkContextNext).onComplete(checkContextComplete), testContext);
+	}
+
+	action generator(IResolver resolver) {
+		checkContext();
+		on all wait(0.1) and not wait(0.5) {
+			resolver.next("Value");
+		}
+		on wait(0.5) {
+			resolver.complete();
+		}
+	}
+
+	action checkContextNext(any value) {
+		checkContext();
+	}
+
+	action checkContextComplete() {
+		checkContext();
+		test.complete();
+	}
+
+	action checkContext() {
+		if context.current().getName() != "NewTestContext" {
+			test.fail("Running on wrong context");
+		}
+	}
+	
+	action checkPipeContextNext(any value) {
+		checkPipeContext();
+	}
+	
+	action checkPipeContext() {
+		if context.current().getName() != "NewPipeContext" {
+			test.fail("Running on wrong context");
+		}		
+	}
+}

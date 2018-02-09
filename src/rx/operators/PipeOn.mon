@@ -1,0 +1,26 @@
+package com.industry.rx_epl.operators;
+
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.ISubscription;
+
+using com.industry.rx_epl.operators.internals.PipePipeOnOnConnection;
+
+event PipeOn {
+	sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> pipeModifiers;
+	context targetContext;
+	
+	static action create(sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> pipeModifiers, context targetContext) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return PipeOn(pipeModifiers, targetContext).pipeModifier;
+	}
+
+	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {		
+		return PipePipeOnOnConnection.create(onConnection,targetContext, pipeModifiers);
+	}
+}
+
+event PipeOnNewContext {
+	static action create(sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> pipeModifiers) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return PipeOn.create(pipeModifiers, context("PipeOnContext" + integer.getUnique().toString(), false));
+	}
+}

@@ -102,4 +102,8 @@ event IObservable {
 	action<sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> > returns IObservable pipe;
 	action<string> returns IObservable pluck;
 	action<> returns IObservable mergeAll;
+	action<sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription>, context> returns IObservable pipeOn;
+	action<sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> > returns IObservable pipeOnNewContext;
+	action<Subscriber, context> returns ISubscription subscribeOn;
+	action<Subscriber> returns ISubscription subscribeOnNewContext;
 }
