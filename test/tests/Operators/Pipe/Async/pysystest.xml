@@ -2,8 +2,8 @@
 <pysystest type="auto" state="runnable">
     
   <description> 
-    <title>Map Async</title>    
-    <purpose><![CDATA[Map Async]]></purpose>
+    <title>Pipe Async</title>    
+    <purpose><![CDATA[Pipe Async]]></purpose>
   </description>
 
   <classification>
