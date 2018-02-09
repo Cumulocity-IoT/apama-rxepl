@@ -13,6 +13,6 @@ monitor TestObservable {
 		any discard := Observable.interval(0.1)
 			.take(5)
 			.bufferCountSkip(3,1)
-      		.subscribe(ExpectValues.create([<any>[<any>0,1,2], [<any>1,2,3], [<any>2,3,4]], test.complete, test.fail));
+      		.subscribe(ExpectValues.create([<any>[<any>0,1,2], [<any>1,2,3], [<any>2,3,4], [<any>3,4],[<any>4]], test.complete, test.fail));
 	}
 }

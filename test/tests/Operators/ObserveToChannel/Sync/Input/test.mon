@@ -7,8 +7,6 @@ using utils.Test;
 using utils.TestObservables;
 using utils.ExpectValues;
 
-event TornDown {}
-
 monitor TestObservable {
 	Test test := Test("TestResult");
 
@@ -19,19 +17,10 @@ monitor TestObservable {
 	action onload() {
 		disposable := TestObservables.createSync().take(3)
 			.do(ExpectValues.create([<any>0.0,1.0,2.0], countTeardownsAndDispose, test.fail))
-  			.observeOnNewContext(onDiffContext);
-
-		on TornDown() {
-			countTeardownsAndDispose();
-		}
-	}
-	
-	action onDiffContext(IObservable o, action<> dispose) {
-		ISubscription downstreamSubscription := o.subscribe(ExpectValues.create([<any>0.0,1.0,2.0], sendTornDown, test.fail));
-	}
-	
-	action sendTornDown() {
-		send TornDown() to "";
+  			.observeToChannel("TestChannel");
+		
+		ISubscription downstreamSubscription := Observable.observeFromChannel("TestChannel")
+  			.subscribe(ExpectValues.create([<any>0.0,1.0,2.0], countTeardownsAndDispose, test.fail));
 	}
 	
 	action countTeardownsAndDispose() {

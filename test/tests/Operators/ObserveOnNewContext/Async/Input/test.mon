@@ -1,6 +1,7 @@
 using com.industry.rx_epl.Observable;
 using com.industry.rx_epl.IObservable;
 using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.IDisposable;
 
 using utils.Test;
 using utils.TestObservables;
@@ -13,18 +14,19 @@ monitor TestObservable {
 
 	integer teardownCount := 0;
 	
+	IDisposable disposable;
+	
 	action onload() {
-		ISubscription subscription := TestObservables.createAsync().take(3)
+		disposable := TestObservables.createAsync().take(3)
+			.do(ExpectValues.create([<any>0.0,1.0,2.0], countTeardownsAndDispose, test.fail))
   			.observeOnNewContext(onDiffContext);
 
-		subscription.onUnsubscribe(countTeardowns);
-		
 		on TornDown() {
-			countTeardowns();
+			countTeardownsAndDispose();
 		}
 	}
 	
-	action onDiffContext(IObservable o) {
+	action onDiffContext(IObservable o, action<> dispose) {
 		ISubscription downstreamSubscription := o.subscribe(ExpectValues.create([<any>0.0,1.0,2.0], sendTornDown, test.fail));
 	}
 	
@@ -32,9 +34,10 @@ monitor TestObservable {
 		send TornDown() to "";
 	}
 	
-	action countTeardowns() {
+	action countTeardownsAndDispose() {
 		teardownCount := teardownCount + 1;
 		if teardownCount = 2 {
+			disposable.dispose();
 			test.complete();
 		}
 	}

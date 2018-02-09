@@ -16,9 +16,6 @@ class PySysTest(BaseTest):
 		
 		# Start test results receiver
 		correlator.receive(filename='TestResult.evt', channels=['TestResult'], logChannels=True)
-		
-		# Set the log level to DEBUG so that we can see when the listeners are killed
-		correlator.setApplicationLogLevel(verbosity='DEBUG')
 				
 		# Inject test
 		correlator.injectEPL(filenames=['test.mon'])
@@ -35,7 +32,4 @@ class PySysTest(BaseTest):
 		
 		# Check that the test didn't fail
 		self.assertGrep('TestResult.evt', expr='TestFailed', contains=False)
-		
-		# Check that the publishToChannel was killed
-		self.assertLineCount('correlator.log', expr='Tearing down PublishTo', condition='==1')
 		

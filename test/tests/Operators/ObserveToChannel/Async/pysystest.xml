@@ -2,8 +2,8 @@
 <pysystest type="auto" state="runnable">
     
   <description> 
-    <title>PublishToChannel Async</title>    
-    <purpose><![CDATA[PublishToChannel Async]]></purpose>
+    <title>ObserveToChannel Async</title>    
+    <purpose><![CDATA[ObserveToChannel Async]]></purpose>
   </description>
 
   <classification>

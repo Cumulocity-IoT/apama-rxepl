@@ -15,33 +15,42 @@ event BufferCountSubscriber {
 	sequence<any> buffer;
 	integer count;
 	integer skip;
+	integer remainingToSkip;
 	
 	static action create(IObserver subscriber, integer count, integer skip) returns IObserver {
 		if skip <= 0 {
 			throw Exception("skip must be > 0", "IllegalArgumentException");
 		}
-		BufferCountSubscriber b := BufferCountSubscriber(subscriber, new sequence<any>, count, skip);
+		BufferCountSubscriber b := BufferCountSubscriber(subscriber, new sequence<any>, count, skip, 0);
 		return IObserverBuilder.create(subscriber.createUpstream()).onNext(b.next).onComplete(b.complete).build();
 	}
 	
 	action next(any value) {
-		buffer.append(value);
-		if buffer.size() = count {
-			sequence<any> newBuffer := new sequence<any>;
-			newBuffer.appendSequence(buffer);
-			subscriber.next(buffer);
-			integer skipCount := skip;
-			while skipCount > 0 {
-				newBuffer.remove(0);
-				skipCount := skipCount - 1;
+		if remainingToSkip = 0 {
+			buffer.append(value);
+			if buffer.size() = count {
+				emitBuffer();
 			}
-			buffer := newBuffer;
+		} else {
+			remainingToSkip := remainingToSkip - 1;
 		}
 	}
 	
+	action emitBuffer() {
+		sequence<any> newBuffer := new sequence<any>;
+		newBuffer.appendSequence(buffer);
+		subscriber.next(buffer);
+		remainingToSkip := skip;
+		while remainingToSkip > 0 and newBuffer.size() > 0 {
+			newBuffer.remove(0);
+			remainingToSkip := remainingToSkip - 1;
+		}
+		buffer := newBuffer;
+	}
+	
 	action complete() {
-		if buffer.size() > 0 {
-			subscriber.next(buffer);
+		while buffer.size() > 0 {
+			emitBuffer();
 		}
 		subscriber.complete();
 	}

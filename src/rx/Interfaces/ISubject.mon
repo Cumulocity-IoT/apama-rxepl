@@ -47,11 +47,10 @@ event ISubject {
 	action<> returns DisposableStream toStream;
 	action<IObservable> returns IObservable catchError;
 	action<integer> returns IObservable retry;
-	action<context, action<IObservable> > returns ISubscription observeOn;
+	action<context, action<IObservable, action<> > > returns IDisposable observeOn;
 	action<action<any> returns any> returns IObservable groupBy;
-	action<string, context> returns ISubscription publishToContext;
-	action<string> returns ISubscription publishToChannel;
-	action<action<IObservable> > returns ISubscription observeOnNewContext;
+	action<string> returns IDisposable observeToChannel;
+	action<action<IObservable, action<> > > returns IDisposable observeOnNewContext;
 	action<action<any> returns boolean> returns IObservable every;
 	action<action<any> returns boolean> returns IObservable contains;
 	action<action<any> returns boolean> returns IObservable takeWhile;

@@ -1,0 +1,95 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IDisposable;
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+
+event Connect {
+	string channel;
+	string connectionId;
+}
+
+event Next {
+	string channel;
+	string connectionId;
+	any value;
+}
+
+event Error {
+	string channel;
+	string connectionId;
+	any error;
+}
+
+event Complete {
+	string channel;
+	string connectionId;
+}
+
+event Dispose {
+	string channel;
+}
+
+event Unsubscribe {
+	string channel;
+	string connectionId;
+}
+
+event ObserveToChannelSubscriber {
+	string channel;
+	string connectionId;
+	IObserver subscriber;
+	
+	static action create(string channel, string connectionId) returns IObserver {
+		ObserveToChannelSubscriber s := ObserveToChannelSubscriber(channel, connectionId, new IObserver);
+		s.subscriber := Subscriber.create().onNext(s.next).onError(s.error).onComplete(s.complete).asIObserver();
+		return s.subscriber;
+	}
+
+	action next(any value) {
+		send Next(channel, connectionId, value) to channel;
+	}
+	action error(any e) {
+		send Error(channel, connectionId, e) to channel;
+		subscriber.unsubscribe();
+	}
+	action complete() {
+		send Complete(channel, connectionId) to channel;
+		subscriber.unsubscribe();
+	}
+}
+
+event ObserveToHandler {
+	action<IObserver> returns ISubscription parentOnConnect;
+	string channel;
+	
+	static action create(action<IObserver> returns ISubscription parentOnConnect, string channel) returns IDisposable {
+		ObserveToHandler p := ObserveToHandler(parentOnConnect, channel);
+		monitor.subscribe(channel);
+		return p.init();
+	}
+	
+	action init() returns IDisposable {
+		on (all Connect(channel = channel) as connection) and not Dispose(channel = channel) {
+			IObserver subscriber := ObserveToChannelSubscriber.create(channel, connection.connectionId);
+			on Unsubscribe(channel = channel, connectionId = connection.connectionId) or Dispose(channel = channel) {
+				subscriber.unsubscribe();
+			}
+			ISubscription s := parentOnConnect(subscriber);
+		}
+		on (Dispose(channel = channel) -> Connect(channel = channel) as connection) and not (Dispose(channel) -> wait(1.0)) {
+			sendDispose();
+		}
+		return IDisposable(sendDispose);
+	}
+	
+	action sendDispose() {
+		send Dispose(channel) to channel;
+	}
+}

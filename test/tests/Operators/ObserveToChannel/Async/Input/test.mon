@@ -1,6 +1,7 @@
 using com.industry.rx_epl.Observable;
 using com.industry.rx_epl.IObservable;
 using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.IDisposable;
 
 using utils.Test;
 using utils.TestObservables;
@@ -13,13 +14,12 @@ monitor TestObservable {
 	
 	
 	action onload() {
-		ISubscription subscription := TestObservables.createAsync().take(3)
-  			.publishToChannel("TestChannel");
-
-		subscription.onUnsubscribe(countTeardowns);
+		IDisposable disposable := TestObservables.createAsync()
+			.take(3)
+			.do(ExpectValues.create([<any>0.0,1.0,2.0], countTeardowns, test.fail))
+  			.observeToChannel("TestChannel");
 		
-		ISubscription downstreamSubscription := Observable.receiveFromChannel("TestChannel")
-  			.refCount()
+		ISubscription downstreamSubscription := Observable.observeFromChannel("TestChannel")
   			.subscribe(ExpectValues.create([<any>0.0,1.0,2.0], countTeardowns, test.fail));
 	}
 	

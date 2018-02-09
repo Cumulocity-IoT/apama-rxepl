@@ -1,0 +1,79 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+using com.industry.rx_epl.IDisposable;
+using com.industry.rx_epl.IResolver;
+
+event ObserveFromOnUnsubscribe {
+	string channel;
+	string connectionId;
+	listener nextListener;
+	listener errorListener;
+	listener completeListener;
+	
+	static action create(string channel, string connectionId, listener nextListener, listener errorListener, listener completeListener) returns action<> {
+		return ObserveFromOnUnsubscribe(channel, connectionId, nextListener, errorListener, completeListener).unsubscribe;
+	}
+	
+	action unsubscribe() {
+		send Unsubscribe(channel, connectionId) to channel;
+		nextListener.quit();
+		errorListener.quit();
+		completeListener.quit();		
+	}
+}
+
+event ObserveFromDispose {
+	string channel;
+	
+	static action create(string channel) returns action<> {
+		return ObserveFromDispose(channel).dispose;
+	}
+	
+	action dispose() {
+		send Dispose(channel) to channel;
+	}
+}
+
+event ObserveFromOnConnection {	
+	string channel;
+	boolean isDisposed;
+	
+	static action create(string channel) returns action<IObserver> returns ISubscription {
+		ObserveFromOnConnection r := ObserveFromOnConnection(channel, false);
+		monitor.subscribe(channel);
+		on Dispose(channel = channel) {
+			r.isDisposed := true;
+		}
+		return CreateOnConnection(r.downstreamResolver).onConnection;
+	}
+	
+	action downstreamResolver(IResolver resolver) {
+		if isDisposed {
+			resolver.complete();
+		} else {
+			string connectionId := "Connection" + integer.getUnique().toString();
+			listener nextListener := on all Next(channel = channel, connectionId = connectionId) as n and not Dispose(channel = channel) {
+				resolver.next(n.value);
+			}
+			listener errorListener := on Error(channel = channel, connectionId = connectionId) as e and not Dispose(channel = channel) {
+				resolver.error(e.error);
+			}
+			listener completeListener := on Complete(channel = channel, connectionId = connectionId) as c and not Dispose(channel = channel) {
+				resolver.complete();
+			}
+			on Dispose(channel = channel) {
+				resolver.complete();
+			}
+			resolver.onUnsubscribe(ObserveFromOnUnsubscribe.create(channel, connectionId, nextListener, errorListener, completeListener));
+			send Connect(channel, connectionId) to channel;
+		}
+	}
+}

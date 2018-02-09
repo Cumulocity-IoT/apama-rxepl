@@ -5,23 +5,21 @@ using com.apama.exceptions.Exception;
 using com.industry.rx_epl.IObserver;
 using com.industry.rx_epl.IObserverBuilder;
 using com.industry.rx_epl.IObservable;
-using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.IDisposable;
 using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 
 event ObserveOnHandler {
-	string id;
-	context upstreamContext;
+	string channel;
 	context downstreamContext;
-	action<string, context> returns IObservable receiveFrom;
-	action<IObservable> observableConstructor;
+	action<string> returns IObservable observeFromChannel;
+	action<IObservable, action<> > observableConstructor;
 	
-	static action createAndStart(action<string, context> returns ISubscription publishTo, action<string, context> returns IObservable receiveFrom, context downstreamContext, action<IObservable> observableConstructor) returns ISubscription {
-		ObserveOnHandler o := ObserveOnHandler(integer.getUnique().toString(), context.current(), downstreamContext, receiveFrom, observableConstructor);
-		
+	static action create(action<string> returns IDisposable observeToChannel, action<string> returns IObservable observeFromChannel, context downstreamContext, action<IObservable, action<> > observableConstructor) returns IDisposable {
+		ObserveOnHandler o := ObserveOnHandler("ObserveOnChannel" + integer.getUnique().toString(), downstreamContext, observeFromChannel, observableConstructor);
+		IDisposable d := observeToChannel(o.channel);
 		o.spawnToContext();
-		
-		return publishTo(o.id, downstreamContext);
+		return d;
 	}
 	
 	action spawnToContext() {
@@ -29,6 +27,6 @@ event ObserveOnHandler {
 	}
 	
 	action runOnOtherContext() {
-		observableConstructor(receiveFrom(id, upstreamContext).refCount());
+		observableConstructor(observeFromChannel(channel), ObserveFromDispose.create(channel));
 	}
 }
