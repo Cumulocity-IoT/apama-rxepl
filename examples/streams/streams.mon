@@ -1,0 +1,72 @@
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscriber;
+
+
+event Tick {
+	string symbol;
+	decimal price;
+}
+
+monitor StreamComparison {
+	constant decimal THRESHOLD := 1.0d;
+	
+	action onload() {
+		spawn watchForStock("ibm");
+		spawn watchForStock("msft");
+	}
+
+	action watchForStock(string symbol) {
+//		stream<Tick> ticks := all Tick(symbol=symbol);
+		IObservable ticks := Observable.fromStream(from t in all Tick(symbol=symbol) select <any> t);
+		
+//		stream<decimal> averages := from t in ticks retain 10 select mean(t.price);
+		IObservable average := ticks.pipe([WithPreviousUptoCount.create(9)]).switchMap(averagePrice).share();
+		
+//		stream<decimal> previous := from a in averages retain 1 select rstream a;
+		IObservable previous := average.bufferCountSkip(2,1).map(firstFromSequence);
+		
+//		from a in averages from p in previous where a > p+THRESHOLD or a < p-THRESHOLD select a-p as alertPrice {
+//			send Tick(symbol, alertPrice) to "output";
+//		}
+		any discard := average.withLatestFrom([previous], aMinusP)
+			.filter(outsideThreshold)
+			.withLatestFrom([Observable.just(symbol)], toTick)
+			.subscribe(Subscriber.create().onNext(sendOutput));
+	}
+	
+	action toTick(sequence<any> priceDeltaAndSymbol) returns any {
+		return Tick(<string> priceDeltaAndSymbol[1], <decimal> priceDeltaAndSymbol[0]);
+	}
+	
+	action getSymbol(any value) returns any {
+		return (<Tick> value).symbol;
+	}
+
+	action printValue(any value) {
+		log value.valueToString();
+	}
+
+	action sendOutput(any value) {
+		log "PriceAlert: " + value.toString();
+	}
+	
+	action aMinusP(sequence<any> averageAndPrevious) returns any {
+		decimal a := <decimal>averageAndPrevious[0];
+		decimal p := <decimal>averageAndPrevious[1];
+		return a - p;
+	}
+	
+	action firstFromSequence(any seq) returns any {
+		return (<sequence<any> > seq)[0];
+	}
+	
+	action averagePrice(any valuesInArray) returns IObservable {
+		return Observable.fromValues(valuesInArray).pluck("price").averageDecimal();
+	}
+	
+	action outsideThreshold(any delta) returns boolean {
+		return (<decimal>delta).abs() > THRESHOLD;
+	}
+}

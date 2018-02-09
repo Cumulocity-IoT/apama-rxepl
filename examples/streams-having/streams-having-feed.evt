@@ -1,0 +1,40 @@
+// $Copyright (c) 2010 Progress Software Corporation. All Rights Reserved.$
+// $Copyright (c) 2013 Software AG, Darmstadt, Germany and/or Software AG USA Inc., Reston, VA, USA, and/or its subsidiaries and/or its affiliates and/or their licensors.$
+// Use, reproduction, transfer, publication or disclosure is prohibited except as specifically provided for in your License Agreement with Software AG
+
+//
+// Event data feed for the streams sample application
+//
+
+
+Tick("ibm", 1.0)
+Tick("ibm", 1.2)
+Tick("msft", 15.0)
+Tick("ibm", 0.9)
+Tick("msft", 15.2)
+Tick("msft", 15.5)
+Tick("ibm", 1.5)
+Tick("ibm", 1.6)
+Tick("msft", 15.1)
+Tick("msft", 14.8)
+Tick("ibm", 5.0)
+Tick("msft", 14.9)
+Tick("msft", 12.1)
+Tick("ibm", 2.0)
+Tick("ibm", 2.2)
+Tick("ibm", 2.8)
+Tick("ibm", 10.0)
+Tick("msft", 1.5)
+Tick("msft", 1.6)
+Tick("ibm", 10.1)
+Tick("ibm", 12.1)
+Tick("ibm", 13.1)
+Tick("ibm", 12.1)
+Tick("ibm", 11.5)
+Tick("ibm", 11.6)
+Tick("ibm", 13.0)
+Tick("ibm", 1.1)
+Tick("ibm", 1.4)
+Tick("ibm", 1.2)
+Tick("ibm", 1.0)
+Tick("ibm", 1.2)

@@ -1,0 +1,23 @@
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.ScanWithInitial;
+
+event WithPreviousUptoCount {
+	integer count;
+	
+	static action create(integer count) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		WithPreviousUptoCount w := WithPreviousUptoCount(count + 1);
+		return ScanWithInitial.create(w.withUptoPrevious, new sequence<any>);
+	}
+	
+	action withUptoPrevious(any previous, any value) returns any {
+		sequence<any> previousSeq := (<sequence<any > > previous);
+		sequence<any> result := new sequence<any>;
+		result.appendSequence(previousSeq);
+		result.append(value);
+		if result.size() > count {
+			result.remove(0);
+		}
+		return result;
+	}
+}

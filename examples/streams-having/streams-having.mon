@@ -1,0 +1,88 @@
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscriber;
+
+
+event Tick {
+	string symbol;
+	decimal price;
+}
+
+monitor StreamComparison {
+	constant decimal THRESHOLD := 1.0d;
+	
+	string symbol;
+	
+	action onload() {
+//		stream<Tick> means :=
+//			from t in all Tick()
+//				partition by t.symbol         <---------------
+//				retain 10
+//				group by t.symbol             <---------------
+//				select Tick(t.symbol, mean(t.price));
+		any discard := Observable.fromStream(from t in all Tick() select <any> t)
+			.groupBy(getSymbol)
+			.subscribe(Subscriber.create().onNext(checkMeanDeltaOnNewContext));
+	}
+	
+	action checkMeanDeltaOnNewContext(any symbolGroup) {
+		any discard := (<IObservable>symbolGroup).observeOnNewContext(checkMeanDelta);
+	}
+	
+	action checkMeanDelta(IObservable symbolGroup) {
+		IObservable symbol := symbolGroup.pluck("symbol").take(1);
+		
+//		stream<Tick> means :=
+//			from t in all Tick()
+//				partition by t.symbol
+//				retain 10                              <------------------------------
+//				group by t.symbol
+//				select Tick(t.symbol, mean(t.price));  <------------------------------
+		IObservable average := symbolGroup.pipe([WithPreviousUptoCount.create(9)]).switchMap(averagePrice);
+		
+//		stream<Tick> alerts :=
+//			from t in means
+//				partition by t.symbol
+//				retain 2
+//				group by t.symbol
+//				having last(t.price) > first(t.price)+THRESHOLD
+//				    or last(t.price) < first(t.price)-THRESHOLD
+//				select Tick(t.symbol, last(t.price)-first(t.price));
+		any discard := average.bufferCountSkip(2, 1)
+			.map(aMinusP)
+			.filter(outsideThreshold)
+			.withLatestFrom([symbol], toTick)
+			.subscribe(Subscriber.create().onNext(sendOutput));
+	}
+	
+	action toTick(sequence<any> priceDeltaAndSymbol) returns any {
+		return Tick(<string> priceDeltaAndSymbol[1], <decimal> priceDeltaAndSymbol[0]);
+	}
+
+	action printValue(any value) {
+		log value.valueToString();
+	}
+	
+	action sendOutput(any value) {
+		log "PriceAlert: " + value.toString();
+	}
+	
+	action aMinusP(any averageAndPrevious) returns any {
+		decimal a := (<decimal>(<sequence<any> > averageAndPrevious)[0]);
+		decimal p := (<decimal>(<sequence<any> > averageAndPrevious)[1]);
+		return a - p;
+	}
+	
+	action averagePrice(any valuesInArray) returns IObservable {
+		return Observable.fromValues(valuesInArray).pluck("price").averageDecimal();
+	}
+	
+	action getSymbol(any tick) returns any {
+		return (<Tick>tick).symbol;
+	}
+	
+	action outsideThreshold(any aMinusP) returns boolean {
+		return (<decimal>aMinusP).abs() > THRESHOLD;
+	}
+}
