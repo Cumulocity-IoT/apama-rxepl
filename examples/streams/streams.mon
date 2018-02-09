@@ -25,7 +25,7 @@ monitor StreamComparison {
 		IObservable average := ticks.pipe([WithPreviousUptoCount.create(9)]).switchMap(averagePrice).share();
 		
 //		stream<decimal> previous := from a in averages retain 1 select rstream a;
-		IObservable previous := average.bufferCountSkip(2,1).map(firstFromSequence);
+		IObservable previous := average.skipLast(1);
 		
 //		from a in averages from p in previous where a > p+THRESHOLD or a < p-THRESHOLD select a-p as alertPrice {
 //			send Tick(symbol, alertPrice) to "output";
@@ -56,10 +56,6 @@ monitor StreamComparison {
 		decimal a := <decimal>averageAndPrevious[0];
 		decimal p := <decimal>averageAndPrevious[1];
 		return a - p;
-	}
-	
-	action firstFromSequence(any seq) returns any {
-		return (<sequence<any> > seq)[0];
 	}
 	
 	action averagePrice(any valuesInArray) returns IObservable {

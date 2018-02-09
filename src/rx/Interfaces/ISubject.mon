@@ -112,4 +112,5 @@ event ISubject {
 	action<sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> > returns IObservable pipeOnNewContext;
 	action<Subscriber, context> returns ISubscription subscribeOn;
 	action<Subscriber> returns ISubscription subscribeOnNewContext;
+	action<> returns IObservable pairwise;
 }

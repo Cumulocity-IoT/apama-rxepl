@@ -1,0 +1,11 @@
+package com.industry.rx_epl.operators;
+
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.ISubscription;
+
+event Pairwise {	
+	static action create() returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Pipe.create([BufferCountSkip.create(2,1), SkipLast.create(1)]);
+	}
+}

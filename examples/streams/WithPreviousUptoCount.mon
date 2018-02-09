@@ -1,6 +1,7 @@
 using com.industry.rx_epl.IObserver;
 using com.industry.rx_epl.ISubscription;
-using com.industry.rx_epl.ScanWithInitial;
+
+using com.industry.rx_epl.operators.ScanWithInitial;
 
 event WithPreviousUptoCount {
 	integer count;

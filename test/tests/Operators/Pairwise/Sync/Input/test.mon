@@ -1,0 +1,17 @@
+using com.industry.rx_epl.Observable;
+
+using utils.Test;
+using utils.TestObservables;
+using utils.ExpectValues;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	integer teardownCount := 0;
+	
+	action onload() {
+		any discard := Observable.fromValues([<any>0,1,2,3,4])
+			.pairwise()
+  			.subscribe(ExpectValues.create([<any>[<any>0,1], [<any>1,2], [<any>2,3], [<any>3,4]], test.complete, test.fail));
+	}
+}
