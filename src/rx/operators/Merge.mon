@@ -6,6 +6,8 @@ using com.industry.rx_epl.ISubscription;
 
 using com.industry.rx_epl.operators.internals.MergeOnConnection;
 
+using com.industry.rx_epl.utils.Utils;
+
 event Merge {	
 	sequence<IObservable> otherObservables;
 	static action create(sequence<IObservable> otherObservables) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
@@ -14,5 +16,11 @@ event Merge {
 
 	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
 		return MergeOnConnection.create(onConnection, otherObservables);
+	}
+}
+
+event MergeAll {
+	static action create() returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return FlatMap.create(Utils.noOpMapper);
 	}
 }

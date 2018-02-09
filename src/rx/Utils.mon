@@ -31,6 +31,10 @@ event Utils {
 			callback();
 		}
 	}
+	
+	static action noOpMapper(any value) returns any {
+		return value;
+	}
 
 	static action noOp() {}
 	

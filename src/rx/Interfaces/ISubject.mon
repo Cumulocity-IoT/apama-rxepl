@@ -107,4 +107,5 @@ event ISubject {
 	action<integer, integer> returns IObservable bufferCountSkip;
 	action<sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> > returns IObservable pipe;
 	action<string> returns IObservable pluck;
+	action<> returns IObservable mergeAll;
 }
