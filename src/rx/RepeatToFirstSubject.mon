@@ -1,0 +1,10 @@
+package com.industry.rx_epl;
+
+using com.apama.exceptions.Exception;
+
+event RepeatToFirstSubject {		
+	static action create() returns ISubject {
+		Observable o := Observable._create();
+		return BaseRepeatToFirstSubject.create(o.asIObservable(), o.setOnConnection);
+	}
+}

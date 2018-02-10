@@ -22,7 +22,7 @@ monitor StreamComparison {
 //				group by t.symbol             <---------------
 //				select Tick(t.symbol, mean(t.price));
 		any discard := Observable.fromStream(from t in all Tick() select <any> t)
-			.groupBy(getSymbol)
+			.groupByField("symbol")
 			.subscribe(Subscriber.create().onNext(checkMeanDeltaOnNewContext));
 	}
 	
@@ -76,10 +76,6 @@ monitor StreamComparison {
 	
 	action averagePrice(any valuesInArray) returns IObservable {
 		return Observable.fromValues(valuesInArray).pluck("price").averageDecimal();
-	}
-	
-	action getSymbol(any tick) returns any {
-		return (<Tick>tick).symbol;
 	}
 	
 	action outsideThreshold(any aMinusP) returns boolean {

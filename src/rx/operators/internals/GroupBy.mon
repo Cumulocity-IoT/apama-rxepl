@@ -9,7 +9,7 @@ using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.ISubject;
 using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
-using com.industry.rx_epl.BaseSubject;
+using com.industry.rx_epl.BaseRepeatToFirstSubject;
 using com.industry.rx_epl.utils.Utils;
 
 event GroupBySubscriber {
@@ -33,7 +33,7 @@ event GroupBySubscriber {
 				subject := subjectByGroup[group];
 			} else {
 				IObservable o := createObservable();
-				subject := BaseSubject.create(o, getSetOnConnection(o));
+				subject := BaseRepeatToFirstSubject.create(o, getSetOnConnection(o));
 				subjectByGroup.add(group, subject);
 				subscriber.next(subject.asIObservable());
 			}

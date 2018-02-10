@@ -44,6 +44,7 @@ event PipeOnOnConnection {
 		
 		if not downstreamCreated and not downstreamBeingCreated {
 			downstreamBeingCreated := true;
+			// TODO: start buffer to be sent downstream to synchronously connecting observables - Note to self - this isn't possible without knowing if observable is hot
 			spawnToContext(downstreamChannel);
 		}
 		if downstreamBeingCreated {
@@ -52,9 +53,11 @@ event PipeOnOnConnection {
 				downstreamBeingCreated := false;
 				downstreamCreated := true;
 				ISubscription s := observeFromChannel(downstreamChannel).connectObserver(subscriber);
+				// TODO: emit buffer to anyone that has just connected (they connected synchronously but missed some data)
 			}
 		} else {
 			ISubscription s := observeFromChannel(downstreamChannel).connectObserver(subscriber);
+			// No need to emit buffer here
 		}
 		
 		return Subscription.create(subscriber).asISubscription();

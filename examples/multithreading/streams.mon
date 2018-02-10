@@ -1,0 +1,36 @@
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscriber;
+
+using com.industry.rx_epl.utils.Utils;
+
+using com.industry.rx_epl.operators.Map;
+
+monitor StreamComparison {
+	constant decimal THRESHOLD := 1.0d;
+	
+	action onload() {
+		ISubscription s := Observable.interval(1.0)
+			.groupBy(valueMod3)
+			.map(processEachOnNewThread)
+			.mergeAll()
+			.subscribeOnNewContext(Subscriber.create().onNext(printValue));
+	}
+	
+	action processEachOnNewThread(any obs) returns any {
+		return (<IObservable> obs).pipeOnNewContext([Map.create(multiplyBy10)]);
+	}
+	
+	action valueMod3(any value) returns any {
+		return <integer>value % 3;
+	}
+	
+	action printValue(any value) {
+		log value.valueToString();
+	}
+	
+	action multiplyBy10(any value) returns any {
+		return <integer>value * 10;
+	}
+}

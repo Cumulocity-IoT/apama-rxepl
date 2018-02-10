@@ -8,10 +8,11 @@ using com.industry.rx_epl.IObservable;
 using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.ISubject;
 using com.industry.rx_epl.Subscription;
-using com.industry.rx_epl.Subject;
+using com.industry.rx_epl.RepeatToFirstSubject;
 
 // This file exists because it is not possible to have circular dependencies
 // In this case Subject causes a circular dependency - so the .groupBy on an Observable uses an alternative constructor
+// This can be fixed from version 10.2 with something like subject := any.newInstance("RepeatToFirstSubject").callAction("create")
 
 event PipeGroupBySubscriber {
 	IObserver subscriber;
@@ -31,7 +32,7 @@ event PipeGroupBySubscriber {
 			if subjectByGroup.hasKey(group) {
 				subject := subjectByGroup[group];
 			} else {
-				subject := Subject.create();
+				subject := RepeatToFirstSubject.create();
 				subjectByGroup.add(group, subject);
 				subscriber.next(subject.asIObservable());
 			}
