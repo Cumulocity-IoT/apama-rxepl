@@ -19,3 +19,9 @@ event Pipe {
 		return onConnection;
 	}
 }
+
+event Let {
+	static action create(action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription pipeModifier) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Pipe.create([pipeModifier]);
+	}
+}

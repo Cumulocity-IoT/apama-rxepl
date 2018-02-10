@@ -5,6 +5,7 @@ using com.industry.rx_epl.IObserver;
 using com.industry.rx_epl.ISubscription;
 
 using com.industry.rx_epl.operators.internals.PipeGroupByOnConnection;
+using com.industry.rx_epl.operators.internals.PluckMapper;
 
 event GroupBy {
 	action<any> returns any by;
@@ -15,5 +16,11 @@ event GroupBy {
 
 	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
 		return PipeGroupByOnConnection.create(onConnection, by);
+	}
+}
+
+event GroupByField {
+	static action create(any fieldName) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return GroupBy.create(PluckMapper.create(fieldName));
 	}
 }

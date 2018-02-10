@@ -1,0 +1,43 @@
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.Subscriber;
+
+event Data {
+	string sourceId;
+	integer value;
+}
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	action onload() {		
+		any discard := Observable.fromValues([<any>Data("a", 1), Data("b", 1), Data("a", 2), Data("b", 2)])
+							.groupByField("sourceId")
+							.subscribe(Subscriber.create().onNext(subscribeToEachGroup).onComplete(onTeardown));
+	} 
+	
+	integer teardownCount;
+	action onTeardown() {
+		teardownCount := teardownCount + 1;
+		if teardownCount = 3 {
+			test.complete();
+		} else if teardownCount > 3 {
+			test.fail("Received unexpected teardown");
+		}
+	}
+	
+	integer i := 0;
+	action subscribeToEachGroup(any value) {
+		if i = 0 {
+			any subscription := (<IObservable> value).subscribe(ExpectValues.create([<any>Data("a",1),Data("a",2)], onTeardown, test.fail));
+		} else if i = 1 {
+			any subscription := (<IObservable> value).subscribe(ExpectValues.create([<any>Data("b",1),Data("b",2)], onTeardown, test.fail));
+		} else {
+			test.fail("Unexpected group received");
+		}
+		i := i + 1;
+	}
+}

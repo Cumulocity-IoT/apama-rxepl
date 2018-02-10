@@ -106,11 +106,13 @@ event ISubject {
 	action<float, integer> returns IObservable sampleTimeOrCount;
 	action<integer, integer> returns IObservable bufferCountSkip;
 	action<sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> > returns IObservable pipe;
-	action<string> returns IObservable pluck;
+	action<any> returns IObservable pluck;
 	action<> returns IObservable mergeAll;
 	action<sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription>, context> returns IObservable pipeOn;
 	action<sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> > returns IObservable pipeOnNewContext;
 	action<Subscriber, context> returns ISubscription subscribeOn;
 	action<Subscriber> returns ISubscription subscribeOnNewContext;
 	action<> returns IObservable pairwise;
+	action<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> returns IObservable let;
+	action<any> returns IObservable groupByField;
 }

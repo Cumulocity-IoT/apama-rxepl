@@ -7,7 +7,7 @@ using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.operators.internals.PluckMapper;
 
 event Pluck {	
-	static action create(string fieldName) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+	static action create(any fieldName) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
 		return Map.create(PluckMapper.create(fieldName));
 	}
 }

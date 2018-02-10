@@ -3,9 +3,9 @@ package com.industry.rx_epl.operators.internals;
 using com.apama.exceptions.Exception;
 
 event PluckMapper {
-	string fieldName;
+	any fieldName;
 	
-	static action create(string fieldName) returns action<any> returns any {
+	static action create(any fieldName) returns action<any> returns any {
 		return PluckMapper(fieldName).pluck;
 	}
 	
@@ -13,7 +13,7 @@ event PluckMapper {
 		try {
 			return value.getEntry(fieldName);
 		} catch (Exception e) {
-			throw Exception("Can't pluck " + fieldName + ", value does not have the field", "InvalidOperation");
+			throw Exception("Can't pluck " + fieldName.valueToString() + ", value does not have the field", "InvalidOperation");
 		}
 	}
 }

@@ -1,0 +1,16 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.operators.Take;
+using com.industry.rx_epl.operators.Map;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	action onload() {
+	    any discard := TestObservables.createSync()
+      	.let(Take.create(3))
+      	.subscribe(ExpectValues.create([<any>0.0, 1.0, 2.0], test.complete, test.fail));
+	}
+}
