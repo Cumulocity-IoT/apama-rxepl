@@ -1,0 +1,27 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+using com.industry.rx_epl.utils.Utils;
+
+event ComplexPipe {
+	action<> returns IObservable createObservable;
+	action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection;
+	action<IObservable> returns IObservable complexPipe;
+	
+	static action create(action<> returns IObservable createObservable, action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection, action<IObservable> returns IObservable complexPipe) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return ComplexPipe(createObservable, getSetOnConnection, complexPipe).pipeable;
+	}
+	
+	action pipeable(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
+		IObservable o := createObservable();
+		getSetOnConnection(o)(onConnection);
+		return complexPipe(o).connectObserver;
+	}
+}

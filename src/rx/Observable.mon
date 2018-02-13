@@ -14,6 +14,7 @@ using com.industry.rx_epl.operators.BufferTimeOrCount;
 using com.industry.rx_epl.operators.CatchError;
 using com.industry.rx_epl.operators.CombineLatest;
 using com.industry.rx_epl.operators.CombineLatestToSequence;
+//using com.industry.rx_epl.operators.ComplexPipe;
 using com.industry.rx_epl.operators.Concat;
 using com.industry.rx_epl.operators.ConcatString;
 using com.industry.rx_epl.operators.Contains;
@@ -91,6 +92,7 @@ using com.industry.rx_epl.operators.WithLatestFromToSequence;
 using com.industry.rx_epl.operators.Zip;
 using com.industry.rx_epl.operators.ZipToSequence;
 
+using com.industry.rx_epl.operators.internals.ComplexPipe;
 using com.industry.rx_epl.operators.internals.CreateOnConnection;
 using com.industry.rx_epl.operators.internals.DebounceHandler;
 using com.industry.rx_epl.operators.internals.EmptyNeverError;
@@ -981,6 +983,21 @@ event Observable {
 		return groupBy(PluckMapper.create(fieldName));
 	}
 	
+	action complexPipe(action<IObservable> returns IObservable complexPipe) returns IObservable {
+		// Can't use operators.complexPipe it would cause a circular loop
+		return complexPipe(self.asIObservable());
+	}
+	
+	action complexPipeOn(action<IObservable> returns IObservable complexPipe, context targetContext) returns IObservable {
+		// Can't use operators.complexPipeOn it would cause a circular loop
+		return pipeOn([ComplexPipe.create(_createAsIObservable, getSetOnConnection, complexPipe)], targetContext);
+	}
+	
+	action complexPipeOnNewContext(action<IObservable> returns IObservable complexPipe) returns IObservable {
+		// Can't use operators.complexPipeOn it would cause a circular loop
+		return pipeOnNewContext([ComplexPipe.create(_createAsIObservable, getSetOnConnection, complexPipe)]);
+	}
+	
 	static action invalidConnect() returns IDisposable {
 		throw Exception("Can only connect a published Observable", "UnsupportedOperation");
 	}
@@ -995,6 +1012,6 @@ event Observable {
 		
 	action asIObservable() returns IObservable {
 		return IObservable(self, 
-		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial, toStream, catchError, retry, observeOn, groupBy, observeToChannel, observeOnNewContext, every, contains, takeWhile, skipWhile, concatFromInstance, startWith, defaultIfEmpty, ignoreElements, count, sum, sumInteger, sumFloat, sumDecimal, concatString, max, maxInteger, maxFloat, maxDecimal, min, minInteger, minFloat, minDecimal, average, averageDecimal, sequenceEqualFromInstance, ambFromInstance, timestamp, updateTimestamp, timeout, getSync, getSyncOr, timeInterval, distinctUntilChanged, distinctByUntilChanged, switchMap, debounce, windowTime, throttleFirst, throttleLast, sampleTime, buffer, bufferTime, bufferCount, bufferTimeOrCount, combineLatestToSequenceFromInstance, withLatestFromToSequence, zipToSequenceFromInstance, groupByWindow, windowCount, windowTimeOrCount, sample, sampleCount, sampleTimeOrCount, bufferCountSkip, pipe, pluck, mergeAll, pipeOn, pipeOnNewContext, subscribeOn, subscribeOnNewContext, pairwise, let, groupByField);
+		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial, toStream, catchError, retry, observeOn, groupBy, observeToChannel, observeOnNewContext, every, contains, takeWhile, skipWhile, concatFromInstance, startWith, defaultIfEmpty, ignoreElements, count, sum, sumInteger, sumFloat, sumDecimal, concatString, max, maxInteger, maxFloat, maxDecimal, min, minInteger, minFloat, minDecimal, average, averageDecimal, sequenceEqualFromInstance, ambFromInstance, timestamp, updateTimestamp, timeout, getSync, getSyncOr, timeInterval, distinctUntilChanged, distinctByUntilChanged, switchMap, debounce, windowTime, throttleFirst, throttleLast, sampleTime, buffer, bufferTime, bufferCount, bufferTimeOrCount, combineLatestToSequenceFromInstance, withLatestFromToSequence, zipToSequenceFromInstance, groupByWindow, windowCount, windowTimeOrCount, sample, sampleCount, sampleTimeOrCount, bufferCountSkip, pipe, pluck, mergeAll, pipeOn, pipeOnNewContext, subscribeOn, subscribeOnNewContext, pairwise, let, groupByField, complexPipe, complexPipeOn, complexPipeOnNewContext);
 	}
 }

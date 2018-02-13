@@ -1,0 +1,20 @@
+package com.industry.rx_epl.operators;
+
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.ISubscription;
+
+using com.apama.exceptions.Exception;
+
+event ComplexPipeOn {
+	static action create(action<IObservable> returns IObservable complexPipe, context targetContext) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return PipeOn.create([ComplexPipe.create(complexPipe)], targetContext);
+	}
+}
+
+event ComplexPipeOnNewContext {
+	static action create(action<IObservable> returns IObservable complexPipe) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return PipeOnNewContext.create([ComplexPipe.create(complexPipe)]);
+	}
+}

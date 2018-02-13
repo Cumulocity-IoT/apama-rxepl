@@ -16,9 +16,10 @@ event FlatMapSubscriber {
 	IObserver upstreamSubscriber;
 	action<any> returns any mapper;
 	dictionary<integer, Subscriber> mappedValueSubscribersById;
+	integer id;
 	
 	static action create(IObserver subscriber, action<any> returns any mapper) returns IObserver {
-		FlatMapSubscriber m := FlatMapSubscriber(subscriber, new IObserver, mapper, new dictionary<integer, Subscriber>);
+		FlatMapSubscriber m := FlatMapSubscriber(subscriber, new IObserver, mapper, new dictionary<integer, Subscriber>, 0);
 		m.upstreamSubscriber := Subscriber.create().onNext(m.next).onError(subscriber.error).onComplete(m.mainComplete).asIObserver();
 		subscriber.subscribe();
 		subscriber.onUnsubscribe(m.unsubscribe);
@@ -52,14 +53,14 @@ event FlatMapSubscriber {
 	action mappedValueComplete(integer id) {
 		mappedValueSubscribersById[id].unsubscribe();
 		mappedValueSubscribersById.remove(id);
-		if not upstreamSubscriber.subscribed() and mappedValueSubscribersById.size() = 0 {
+		if not upstreamSubscriber.subscribed() and mappedValueSubscribersById.size() = 0 and downstreamSubscriber.subscribed() {
 			downstreamSubscriber.complete();
 		}
 	}
 	
 	action mainComplete() {
 		upstreamSubscriber.unsubscribe();
-		if mappedValueSubscribersById.size() = 0 {
+		if mappedValueSubscribersById.size() = 0 and downstreamSubscriber.subscribed() {
 			downstreamSubscriber.complete();
 		}
 	}
@@ -72,9 +73,9 @@ event FlatMapSubscriber {
 	}
 	
 	action connectToMappedObservable(IObservable o) {
-		integer id := mappedValueSubscribersById.size();
 		Subscriber mappedValueSubscriber := Subscriber.create().onNext(downstreamSubscriber.next).onError(downstreamSubscriber.error).onComplete(CombineLatestOnComplete.create(id, mappedValueComplete));
 		mappedValueSubscribersById.add(id, mappedValueSubscriber);
+		id := id + 1;
 		ISubscription discard := o.subscribe(mappedValueSubscriber);
 	}
 }

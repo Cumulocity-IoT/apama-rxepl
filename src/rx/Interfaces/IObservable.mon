@@ -109,4 +109,7 @@ event IObservable {
 	action<> returns IObservable pairwise;
 	action<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> returns IObservable let;
 	action<any> returns IObservable groupByField;
+	action<action<IObservable> returns IObservable> returns IObservable complexPipe;
+	action<action<IObservable> returns IObservable, context> returns IObservable complexPipeOn;
+	action<action<IObservable> returns IObservable> returns IObservable complexPipeOnNewContext;
 }
