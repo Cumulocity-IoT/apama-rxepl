@@ -58,6 +58,7 @@ event Subscriber {
 	static action defaultError(any e) {
 		switch(e) {
 			case Exception: {
+				log "Original Exception: " + e.toStringWithStackTrace() at ERROR;
 				throw e;
 			}
 			default: {
