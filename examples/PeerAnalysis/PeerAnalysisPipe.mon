@@ -1,0 +1,49 @@
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IObservable;
+
+using com.industry.rx_epl.operators.Map;
+
+event PeerAnalysis {
+	decimal threshold;
+	float timeWindow;
+	string sourceIdField;
+	string valueField;
+	
+	/**
+	 * @param timeWindow the period of time in which you would expect to receive a reading from every machine
+	 * @param threshold the threshold on the distance from the mean
+	 */
+	static action create(decimal threshold, float timeWindow, string sourceIdField, string valueField) returns action<IObservable> returns IObservable {
+		return PeerAnalysis(threshold, timeWindow, sourceIdField, valueField).peerAnalysis;
+	}
+	
+	action peerAnalysis(IObservable source) returns IObservable {
+		IObservable avg := source.windowTime(timeWindow).map(calculateAverage).mergeAll();
+		
+		return source.withLatestFrom([avg], delta)
+			.filter(outsideThreshold)
+			.withLatestFrom([source.pluck(sourceIdField)], toMachineTemp);
+	}
+	
+	action toMachineTemp(sequence<any> deltaAndMachineId) returns any {
+		return MachineTemp(<string>deltaAndMachineId[1], <decimal>deltaAndMachineId[0]);
+	}
+	
+	action calculateAverage(any windowedTemps) returns any {
+		return (<IObservable> windowedTemps).groupByField(sourceIdField).map(calculateAverageForGroup).mergeAll();
+	}
+	
+	action calculateAverageForGroup(any groupInWindow) returns any {
+		return (<IObservable> groupInWindow).pluck(valueField).averageDecimal();
+	}
+	
+	action delta(sequence<any> tempAndAverage) returns any {
+		MachineTemp machineTemp := <MachineTemp>tempAndAverage[0];
+		decimal avg := <decimal>tempAndAverage[1];
+		return machineTemp.temp - avg;
+	}
+	
+	action outsideThreshold(any value) returns boolean {
+		return (<decimal> value).abs() > threshold;
+	}
+}
