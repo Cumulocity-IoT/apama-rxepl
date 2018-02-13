@@ -1,0 +1,25 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.IObservable;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+
+	integer teardownCount := 0;
+
+	action onload() {
+	    any discard := TestObservables.createSync().take(4)
+			.complexPipe(pipe)
+      		.subscribe(ExpectValues.create([<any>0.0,10.0,20.0,30.0], test.complete, test.fail));
+	}
+	
+	action pipe(IObservable source) returns IObservable {
+		return source.map(multiplyBy10);
+	}
+	
+	action multiplyBy10(any value) returns any {
+		return (<float> value) * 10.0;
+	}
+}
