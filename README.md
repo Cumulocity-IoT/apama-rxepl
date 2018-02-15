@@ -1,36 +1,43 @@
+
 # RxEPL - Observables in EPL
+## Contents
 * [Installation](#install)
 * [Introduction to ReactiveX and Observables](#intro) 
 * Main
-	* [Package Structure](#packages)
-	* [Examples](#examples)
-	* [Observable](#observable)
-		* [Creating](#observable-construction)
-		* [Subscribing](#subscribing)
-		* [Operators](#operators)
-		* [Joining & Combining](#combining)
-		* [Error Handling](#errors)
-		* [Publishing/Sharing and Multicasting](#multicasting)
-	* [Subject](#subject)
-		* [Types](#subject-types)
-		* [Creating](#subject-construction)
-		* [Sending Data](#subject-sending)
-	* [Multithreading](#multithreading)
-	* [Debugging](#debugging)
-	* [Reusability: Build your own Operator](#reusability)
+    * [Package Structure](#packages)
+    * [Examples](#examples)
+    * [Observable](#observable)
+        * [Creating](#observable-construction)
+        * [Subscribing](#subscribing)
+        * [Operators](#operators)
+        * [Joining & Combining](#combining)
+        * [Error Handling](#errors)
+        * [Publishing/Sharing and Multicasting](#multicasting)
+    * [Subject](#subject)
+        * [Types](#subject-types)
+        * [Creating](#subject-construction)
+        * [Sending Data](#subject-sending)
+    * [Interoperability](#interop)
+        * [Streams](#streams)
+        * [Channels](#channels)
+    * [Multithreading](#multithreading)
+    * [Debugging](#debugging)
+    * [Reusability: Build your own Operator](#reusability)
 * [Gotchas](#gotchas)
-	* [Publish/Share/Subject with SubscribeOn](#gotcha-subscribe-on)
+    * [Publish/Share/Subject with SubscribeOn](#gotcha-subscribe-on)
 * [Help and Other Resources](#other)
 ## <a id="install"></a>Installation
 
 ## <a id="intro"></a>ReactiveX: an Introduction
 ReactiveX is a framework designed to handle streams of data like water through pipes. It has libraries which implement the framework in a [most](http://reactivex.io/languages.html) major programming languages.
 ```javascript
-IObservable temperatureBreaches := Observable.fromChannel("TemperatureSensor") 	// Get all of the events being sent to this channel
-						   .pluck("temperature") 								// Get the temperature value
-						   .filter(aboveThreshold); 							// Filter to only the temperatures we want
-
-ISubscription generateAlerts := temperatureBreaches.subscribe(Subscriber.create().onNext(generateAlert)); // Generate an alert
+IObservable temperatureBreaches := 
+    Observable.fromChannel("TemperatureSensor") // Get all of the events being sent to this channel
+              .pluck("temperature")             // Get the temperature value
+              .filter(aboveThreshold);          // Filter to only the temperatures we want
+              
+// Generate an alert
+ISubscription generateAlerts := temperatureBreaches.subscribe(Subscriber.create().onNext(generateAlert)); 
 ```
 Features:
 * Functional Programming
@@ -41,7 +48,7 @@ Features:
 For a comprehensive introduction to ReactiveX and Observables see the [ReactiveX Website](http://reactivex.io/intro.html).
 ## <a id="packages"></a>Package Structure
 **Interfaces:**
-`com.industry.rx_epl.IObservable` - The main observable interface, returned after calling an operator or custructor (See [Observable](#observable))
+`com.industry.rx_epl.IObservable` - The main observable interface, returned after calling an operator or constructor (See [Observable](#observable))
 `com.industry.rx_epl.ISubject` - The subject interface, returned from construction of a subject (see [Subject](#subject))
 `com.industry.rx_epl.ISubscription` - Returned by `.subscribe()` allows unsubscription
 `com.industry.rx_epl.IDisposable` - Sometimes a listener has to be created that this library doesn't know when to tear down, in that case it returns an `IDisposable` and should be torn down by the user if/when all subscribers are done (see [Multithreading](#multithreading))
@@ -67,11 +74,11 @@ IObservable o := Observable.just("Hello World");
             o := Observable.interval(1.0);
             o := Observable.fromChannel("MyChannel");
             o := Observable.fromStream(from e in all E() select <any> e);
-			o := Observable.create(generator);
+            o := Observable.create(generator);
 
 action generator(IResolver r) {
-	r.next("Hello");
-	r.complete();
+    r.next("Hello");
+    r.complete();
 }
 ```
 
@@ -113,23 +120,23 @@ action printError(any e) {
 All of the built-in operators are accessible directly from the IObservable interface:
 ```javascript
 IObservable o := Observable.range(0,20)
-						   .skip(1)
-						   .take(3)
-						   .map(multiplyBy10);
-							
+                           .skip(1)
+                           .take(3)
+                           .map(multiplyBy10);
+                            
 ISubscription s := o.subscribe(Subscriber.create().onNext(printValue).onComplete(printDone));
 // Output: 1, 2, 3, Done
 ```
 They are also accessible via a "pure function" pipe, and can then be combined with custom operators:
 ```javascript
 IObservable o := Observable.range(0,20)
-						   .let(Skip.create(1))  // Use a single operator
-						   .pipe([				 // Chain multiple operators
-								Take.create(3),
-								Map.create(multiplyBy10),
-								MyCustomOperator.create(123.4)
-							]);
-							
+                           .let(Skip.create(1))  // Use a single operator
+                           .pipe([                 // Chain multiple operators
+                                Take.create(3),
+                                Map.create(multiplyBy10),
+                                MyCustomOperator.create(123.4)
+                            ]);
+                            
 ISubscription s := o.subscribe(Subscriber.create().onNext(printValue).onComplete(printDone));
 // Output: 1, 2, 3, Done
 ```
@@ -207,17 +214,65 @@ Retry instructs the observable to reconnect to the source in the event of an err
 IObservable hotObservable; // = 0, 1, Error, 2, 3
 ISubscription s := hotObservable 
                     .retry(1)
-                    .subscribe(Subscriber.create().onNext(printValue).onError(printError).onComplete(printComplete));
+                    .subscribe(Subscriber.create()
+                                         .onNext(printValue)
+                                         .onError(printError)
+                                         .onComplete(printComplete));
 // Output: 0, 1, 2, 3
 ```
+## <a id="interop"></a>Interoperability
+### <a id="streams"></a>Streams
+**Receiving from a stream**
+```javascript
+// Receiving events 
+IObservable o := Observable.fromStream(from e in all MyEventType() select <any> e);
 
+// Receiving values
+using com.industry.rx_epl.WrappedAny;
+IObservable o := Observable.fromStream(from e in all WrappedAny() select e.value);
+```
+**Output to a stream**
+```javascript
+IObservable o := Observable.interval(1.0);
+
+DisposableStream strm := o.toStream();
+
+from value in strm.getStream() select value {
+    log value;
+}
+
+// When done, the stream should be disposed
+strm.dispose();
+```
+### <a id="channels"></a>Channels
+**Receiving from a channel**
+```javascript
+// Receiving events 
+IObservable o := Observable.fromChannel("myChannel");
+
+send MyEvent("abc", 123) to "myChannel";
+
+// Values sent in a WrappedAny are automatically unwrapped
+using com.industry.rx_epl.WrappedAny;
+send WrappedAny("abc") to "myChannel";
+```
+**Output to a channel**
+```javascript
+IObservable o := Observable.interval(1.0);
+
+Subscription s := o.subscribe(Subscriber.create().onNext(sendToChannel));
+
+action sendToChannel(any value) {
+    send value to "myChannel";
+}
+```
 ## Multithreading
 Multithreading allows complex or slow processing to be handled asynchronously on a different context.
 ### observeOn
 Observe on is useful when you want the subscription and some of the processing to be done on a different thread. The connection to the original observable is still done on the main context and all data is forwarded to the other context.
 ```javascript
 // Ideally should dispose of this when the spawned context is done processing (if ever)
-IDisposable d := Observable.interval(1.0).observeOn(doSomething, context("A specific context", false));
+IDisposable d := Observable.interval(1.0).observeOnNewContext(doSomething);
 
 action doSomething(IObservable source) {
     // This part will run on a different context
@@ -243,7 +298,7 @@ PipeOn allows part of the processing in a chain to be done on a different contex
 // Values start on the main context
 ISubscription s := Observable.interval(1.0)
                             // Send to a different context to do the heavy lifting
-                            .pipeOn([Map.create(multiplyBy10)], context("A specific context", false));
+                            .pipeOnNewContext([Map.create(multiplyBy10)]);
                             // Back on the main context for the output
                             .subscribe(Subscriber.create().onNext(printValue));
 // Output: 0, 10, 20, 30...
@@ -254,7 +309,7 @@ Much the same as PipeOn, ComplexPipeOn allows part of an observable chain to be 
 // Values start on the main context
 ISubscription s := Observable.interval(1.0)
                             // Send to a different context to do the heavy lifting
-                            .complexPipeOn(doSomething, context("A specific context", false));
+                            .complexPipeOnNewContext(doSomething);
                             // Back on the main context for the output
                             .subscribe(Subscriber.create().onNext(printValue));
                             
@@ -268,8 +323,8 @@ SubscribeOn will move an entire chain (from source to subscription) onto another
 ```javascript
 ISubscription s := Observable.interval(1.0)
                             .map(multiplyBy10)
-                            // Move all processing to a different context (including the .map and the observable source)
-                            .subscribeOn(Subscriber.create().onNext(printValue), context("A specific context", false));
+// Move all processing to a different context (including the .map and the observable source)
+                            .subscribeOnNewContext(Subscriber.create().onNext(printValue));
 // Output from "A specific context": 0, 10, 20, 30...
 ```
 
@@ -342,8 +397,8 @@ Subjects are just like channels in EPL in that they are a multicast way to send 
 Creating a Subject is an alternative way to start an Observable chain (See also: [Observable](#observable))
 ```javascript
 ISubject s := Subject.create();
-		 s := BehaviourSubject.create("InitialValue");
-		 s := ReplaySubject.create(3);
+         s := BehaviourSubject.create("InitialValue");
+         s := ReplaySubject.create(3);
 ```
 ### <a id="subject-sending"></a>Sending Data
 **next(any value)** - Send the next value to be processed
@@ -380,9 +435,15 @@ Do is a handy operator that allows you to inspect the values as they pass throug
 ```javascript
 IObservable o := Observable.interval(1.0);
 ISubscription s := o.take(5);
-                    .do(Subscriber.create().onNext(printValue).onError(printError).onComplete(printComplete));
-                    .map(multiplyBy10)
-                    .subscribe(Subscriber.create().onNext(printValue).onError(printError).onComplete(printComplete));
+                    .do(Subscriber.create()
+                                  .onNext(printValue)
+                                  .onError(printError)
+                                  .onComplete(printComplete));
+                     .map(multiplyBy10)
+                     .subscribe(Subscriber.create()
+                                          .onNext(printValue)
+                                          .onError(printError)
+                                          .onComplete(printComplete));
 // Output from Do: 0, 1, 2, 3, 4, Done
 // Output from Subscriber: 0, 10, 20, 30, 40, Done
 ```
@@ -401,34 +462,36 @@ There are several options:
 ### Option 1: Wrap into an action - Good
 ```javascript
 action tempTooHigh(IObservable source) returns IObservable {
-	return observable
-			   .pluck("temperature")
-			   .filter(aboveThreshold);
+    return observable
+               .pluck("temperature")
+               .filter(aboveThreshold);
 }
 ```
 
 You might be tempted just to call that action eg. `tempTooHigh(myObservableTemps)`, but **don't**, there's a better way:
 ```javascript
 IObservable o := myObservableTemps
-					.complexPipe(tempTooHigh);
+                    .complexPipe(tempTooHigh);
 ```
 Why is this better? It is much more obvious what order the chain is processing in.
 ### Option 2: Convert to pipe - Better
 ```javascript
-sequence<action<action<IObserver> returns ISubscription> > returns action<IObserver> returns ISubscription> 
-	tempTooHigh := [Pluck.create("temperature"), Filter.create(outsideThreshold)];
-	
+sequence<action<action<IObserver> returns ISubscription> > returns
+											 action<IObserver> returns ISubscription> 
+    tempTooHigh := [Pluck.create("temperature"), Filter.create(outsideThreshold)];
+    
 IObservable o := myObservableTemps
    .pipe(tempTooHigh);
 ```
 ### Option 3:  Create a custom pipe - Best
 ```javascript
-event TempTooHigh {	
-	static action create() returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
-		return Pipe.create([Pluck.create("temperature"), Filter.create(outsideThreshold)]);
-	}
+event TempTooHigh {    
+    static action create() returns action<action<IObserver> returns ISubscription>
+                                             returns action<IObserver> returns ISubscription {
+        return Pipe.create([Pluck.create("temperature"), Filter.create(outsideThreshold)]);
+    }
 }
-	
+    
 IObservable o := myObservableTemps
    .pipe([TempTooHigh.create()]);
 
@@ -443,9 +506,9 @@ IObservable o := myObservableTemps
 IObservable sharedObs := Observable.interval(1.0);
 ISubscription s1 := sharedObs.subscribe(Subscriber.create().onNext(printValue));
 // Output: 0,1,2,3...
-on wait(2.0) {	
-	ISubscription s2 := sharedObs.subscribe(Subscriber.create().onNext(printValue));
-	// Output: 0,1,2,3... What?
+on wait(2.0) {    
+    ISubscription s2 := sharedObs.subscribe(Subscriber.create().onNext(printValue));
+    // Output: 0,1,2,3... What?
 }
 ```
 **Why?**
@@ -456,19 +519,19 @@ Use [Share](#multicasting)
 IObservable sharedObs := Observable.interval(1.0).share();
 ISubscription s1 := sharedObs.subscribe(Subscriber.create().onNext(printValue));
 // Output: 0,1,2,3...
-on wait(2.0) {	
-	ISubscription s2 := sharedObs.subscribe(Subscriber.create().onNext(printValue));
-	// Output: 2,3...
+on wait(2.0) {    
+    ISubscription s2 := sharedObs.subscribe(Subscriber.create().onNext(printValue));
+    // Output: 2,3...
 }
 ```
 ### <a id="gotcha-subscribe-on"></a>Publish/Share/Subject and SubscribeOn
 ```javascript
 IObservable sharedObs := Observable.interval(1.0).share();
 
-ISubscription s1 := sharedObs.subscribe(Subscriber.create().onNext(printValue));	
+ISubscription s1 := sharedObs.subscribe(Subscriber.create().onNext(printValue));    
 ISubscription s2 := sharedObs.subscribeOnNewContext(Subscriber.create().onNext(printValue));
 // Output on "Main Context": 0,1,2,3...
-// Output on "New Context": 0,0,1,1,2,2,3,3... What?!	   
+// Output on "New Context": 0,0,1,1,2,2,3,3... What?!       
 ```
 **Why?**
 Publish, Share, Subject all store a list of subscribers so that they know who to send their data to.
@@ -477,10 +540,11 @@ When the first subscriber connects it is added to the list.
 ***Solution*** - `.async()`
 ```javascript
 IObservable sharedObs := Observable.interval(1.0)
-						   .share();
+	                               .share();
 
 ISubscription s1 := sharedObs.subscribe(Subscriber.create().onNext(printValue));
-ISubscription  := sharedObs.async().subscribeOnNewContext(Subscriber.create().onNext(printValue));
+ISubscription  := sharedObs.async()
+                           .subscribeOnNewContext(Subscriber.create().onNext(printValue));
 // Output on "Main Context": 0,1,2,3...
 // Output on "New Context": 0,1,2,3...
 ```

@@ -18,6 +18,9 @@ call ".\clean.bat"
 
 engine_deploy --outputDeployDir "%~dp0output" src
 
+mkdir "%~dp0output\docs"
+xcopy /S "%~dp0docs" "%~dp0output\docs"
+
 goto:eof
 
 :error
