@@ -27,6 +27,14 @@
     * [Publish/Share/Subject with SubscribeOn](#gotcha-subscribe-on)
 * [Help and Other Resources](#other)
 ## <a id="install"></a>Installation
+### 1. Installing files
+Copy the folders contained inside `CopyContentsToApamaInstallDir` into the Apama install directory (Usually `C:\SoftwareAG\Apama` on Windows or `/opt/softwareag/apama` on Unix), merging them with what is already there.
+### 2. Adding to Designer
+1. From designer right click on your project in `Project Explorer`
+2. Select `Apama` from the drop down menu;
+3. Select `Add Bundle`
+4. Scroll down to `Standard bundles` and select `RxEpl`
+5. Click `Ok`
 
 ## <a id="intro"></a>ReactiveX: an Introduction
 ReactiveX is a framework designed to handle streams of data like water through pipes. It has libraries which implement the framework in a [most](http://reactivex.io/languages.html) major programming languages.

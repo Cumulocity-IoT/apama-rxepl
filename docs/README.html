@@ -84,6 +84,16 @@
 <li><a href="#other">Help and Other Resources</a></li>
 </ul>
 <h2 id="a-idinstallainstallation"><a id="install"></a>Installation</h2>
+<h3 id="installing-files">1. Installing files</h3>
+<p>Copy the folders contained inside <code>CopyContentsToApamaInstallDir</code> into the Apama install directory (Usually <code>C:\SoftwareAG\Apama</code> on Windows or <code>/opt/softwareag/apama</code> on Unix), merging them with what is already there.</p>
+<h3 id="adding-to-designer">2. Adding to Designer</h3>
+<ol>
+<li>From designer right click on your project in <code>Project Explorer</code></li>
+<li>Select <code>Apama</code> from the drop down menu;</li>
+<li>Select <code>Add Bundle</code></li>
+<li>Scroll down to <code>Standard bundles</code> and select <code>RxEpl</code></li>
+<li>Click <code>Ok</code></li>
+</ol>
 <h2 id="a-idintroareactivex-an-introduction"><a id="intro"></a>ReactiveX: an Introduction</h2>
 <p>ReactiveX is a framework designed to handle streams of data like water through pipes. It has libraries which implement the framework in a <a href="http://reactivex.io/languages.html">most</a> major programming languages.</p>
 <pre class=" language-javascript"><code class="prism  language-javascript">IObservable temperatureBreaches <span class="token punctuation">:</span><span class="token operator">=</span> 
