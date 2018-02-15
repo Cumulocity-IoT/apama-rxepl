@@ -7,7 +7,7 @@ using com.industry.rx_epl.utils.Utils;
 
 using com.industry.rx_epl.operators.Map;
 
-monitor StreamComparison {
+monitor Multithreading {
 	constant decimal THRESHOLD := 1.0d;
 	
 	action onload() {

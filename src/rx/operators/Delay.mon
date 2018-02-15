@@ -16,9 +16,3 @@ event Delay {
 		return DelayOnConnection.create(onConnection, time);
 	}
 }
-
-event Async {	
-	static action create() returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
-		return Delay.create(0.0);
-	}
-}

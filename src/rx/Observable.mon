@@ -3,7 +3,6 @@ package com.industry.rx_epl;
 using com.apama.exceptions.Exception;
 
 using com.industry.rx_epl.operators.Amb;
-using com.industry.rx_epl.operators.Async;
 using com.industry.rx_epl.operators.Average;
 using com.industry.rx_epl.operators.AverageDecimal;
 using com.industry.rx_epl.operators.Buffer;
@@ -447,9 +446,9 @@ event Observable {
 	}
 	
 	action async() returns IObservable {
-		Observable o := _create();
-		o.onConnection := Async.create()(onConnection);
-		return o.asIObservable();
+		string channelName := "AsyncChannel" + integer.getUnique().toString();
+		IDisposable d := observeToChannel(channelName);
+		return observeFromChannel(channelName);
 	}
 	
 	action do(Subscriber doer) returns IObservable {

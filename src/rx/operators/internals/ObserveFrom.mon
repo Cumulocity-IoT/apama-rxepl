@@ -48,7 +48,6 @@ event ObserveFromOnConnection {
 	
 	static action create(string channel) returns action<IObserver> returns ISubscription {
 		ObserveFromOnConnection r := ObserveFromOnConnection(channel, false);
-		monitor.subscribe(channel);
 		on Dispose(channel = channel) {
 			r.isDisposed := true;
 		}
@@ -56,6 +55,7 @@ event ObserveFromOnConnection {
 	}
 	
 	action downstreamResolver(IResolver resolver) {
+		monitor.subscribe(channel);
 		if isDisposed {
 			resolver.complete();
 		} else {
