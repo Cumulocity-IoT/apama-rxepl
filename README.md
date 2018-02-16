@@ -1,4 +1,5 @@
 
+
 # RxEPL - Observables in EPL
 ## Contents
 * [Installation](#install)
@@ -330,9 +331,11 @@ action doSomething(IObservable o) returns IObservable {
 SubscribeOn will move an entire chain (from source to subscription) onto another context. There are a couple of [Gotchas](#gotchas) with this when used with publishing and sharing.
 ```javascript
 ISubscription s := Observable.interval(1.0)
-                            .map(multiplyBy10)
-// Move all processing to a different context (including the .map and the observable source)
-                            .subscribeOnNewContext(Subscriber.create().onNext(printValue));
+                             .map(multiplyBy10)
+                             // Move all processing to a different context 
+                             // (including the .map and the observable source)
+                             .subscribeOnNewContext(Subscriber.create()
+                                                              .onNext(printValue));
 // Output from "A specific context": 0, 10, 20, 30...
 ```
 
@@ -485,7 +488,7 @@ Why is this better? It is much more obvious what order the chain is processing i
 ### Option 2: Convert to pipe - Better
 ```javascript
 sequence<action<action<IObserver> returns ISubscription> > returns
-											 action<IObserver> returns ISubscription> 
+                                             action<IObserver> returns ISubscription> 
     tempTooHigh := [Pluck.create("temperature"), Filter.create(outsideThreshold)];
     
 IObservable o := myObservableTemps
@@ -496,7 +499,10 @@ IObservable o := myObservableTemps
 event TempTooHigh {    
     static action create() returns action<action<IObserver> returns ISubscription>
                                              returns action<IObserver> returns ISubscription {
-        return Pipe.create([Pluck.create("temperature"), Filter.create(outsideThreshold)]);
+        return Pipe.create([
+            Pluck.create("temperature"),
+            Filter.create(outsideThreshold)
+        ]);
     }
 }
     
@@ -548,11 +554,12 @@ When the first subscriber connects it is added to the list.
 ***Solution*** - `.async()`
 ```javascript
 IObservable sharedObs := Observable.interval(1.0)
-	                               .share();
+                             .share();
 
 ISubscription s1 := sharedObs.subscribe(Subscriber.create().onNext(printValue));
 ISubscription  := sharedObs.async()
-                           .subscribeOnNewContext(Subscriber.create().onNext(printValue));
+                             .subscribeOnNewContext(Subscriber.create()
+                                                              .onNext(printValue));
 // Output on "Main Context": 0,1,2,3...
 // Output on "New Context": 0,1,2,3...
 ```
