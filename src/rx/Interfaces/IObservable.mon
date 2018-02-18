@@ -360,20 +360,123 @@ event IObservable {
 	 * Check that any value passes a predicate.<br><br>
 	 * Params: <br>
 	 * &emsp;predicate - An action that determines whether a value passes.<br>
-	 * Returns: An observable that is true if a single item passes and false otherwise
+	 * Returns: An observable that is true if at least one item passes and false otherwise
 	 * @see #every Check all values match the predicate
 	 */
 	action<action<any> returns boolean> returns IObservable contains;
+	/**
+	 * Take while a predicate returns true.<br><br>
+	 * Params: <br>
+	 * &emsp;predicate - An action that determines whether a value passes.<br>
+	 * Returns: An observable of any values
+	 * @see #skipWhile Skip while a predicate returns true
+	 * @see #take Take the first N values
+	 * @see #takeUntil Take until an observable returns a value
+	 */
 	action<action<any> returns boolean> returns IObservable takeWhile;
+	/**
+	 * Skip while a predicate returns true.<br><br>
+	 * Params: <br>
+	 * &emsp;predicate - An action that determines whether a value is skipped.<br>
+	 * Returns: An observable of any values
+	 * @see #takeWhile Take while a predicate returns true
+	 * @see #skip Skip the first N values
+	 * @see #skipUntil Skip until an observable returns a value
+	 */
 	action<action<any> returns boolean> returns IObservable skipWhile;
+	/**
+	 * Append the values from one or more observables to this observable.<br><br>
+	 * Params: <br>
+	 * &emsp;otherObservables - A sequence of other observables<br>
+	 * Returns: An observable containing the values from all observables
+	 * @see #concatAll Convert an observable of observables back to a single observable of values by concatenating all of the values
+	 */
 	action<sequence<IObservable> > returns IObservable concat;
+	/**
+	 * Add some values to the start of an observable.<br><br>
+	 * Params: <br>
+	 * &emsp;values - The values to start the observable with<br>
+	 * Returns: An observable containing the provided values and the values from this observable
+	 * @see #concat Combine 2 observables by concatenating their output
+	 */
 	action<sequence<any> > returns IObservable startWith;
+	/**
+	 * Return a value just before completion if no other values were emitted.<br><br>
+	 * Params: <br>
+	 * &emsp;value - The value to emit if no others were<br>
+	 * Returns: An observable containing at least one any value
+	 */
 	action<any> returns IObservable defaultIfEmpty;
+	/**
+	 * Ignore all values but allow completion and error.<br><br>
+	 * Returns: An observable containing no values
+	 */
 	action<> returns IObservable ignoreElements;
+	/**
+	 * Count the number of items emitted by an observable.<br><br>
+	 * Note: only emits on completion <br>
+	 * Returns: An observable containing the count
+	 * @see #sum Sum all of the observable values
+	 * @see #min Find the minimum value in an observable
+	 * @see #max Find the maximum value in an observable
+	 * @see #average Find the average of the values in an observable
+	 */
 	action<> returns IObservable count;
+	/**
+	 * Sum any numeric values emitted by an observable.<br><br>
+	 * Note: only emits on completion <br>
+	 * Accepts: float, decimal, integer <br>
+	 * Returns: An observable containing the sum as a float
+	 * @see #sumInteger sum only integer values and produce an integer result
+	 * @see #sumFloat sum only float values and produce a float result
+	 * @see #sumDecimal sum only decimal values and produce a decimal result
+	 * @see #count Count the number of values emitted
+	 * @see #min Find the minimum value in an observable
+	 * @see #max Find the maximum value in an observable
+	 * @see #average Find the average of the values in an observable
+	 */
 	action<> returns IObservable sum;
+	/**
+	 * Sum integer values emitted by an observable.<br><br>
+	 * Note: only emits on completion <br>
+	 * Accepts: integer <br>
+	 * Returns: An observable containing the sum as a integer
+	 * @see #sum Sum any numeric values and produce a float result
+	 * @see #sumFloat sum only float values and produce a float result
+	 * @see #sumDecimal sum only decimal values and produce a decimal result
+	 * @see #count Count the number of values emitted
+	 * @see #min Find the minimum value in an observable
+	 * @see #max Find the maximum value in an observable
+	 * @see #average Find the average of the values in an observable
+	 */
 	action<> returns IObservable sumInteger;
+	/**
+	 * Sum float values emitted by an observable.<br><br>
+	 * Note: only emits on completion <br>
+	 * Accepts: float <br>
+	 * Returns: An observable containing the sum as a float
+	 * @see #sum Sum any numeric values and produce a float result
+	 * @see #sumInteger sum only integer values and produce an integer result
+	 * @see #sumDecimal sum only decimal values and produce a decimal result
+	 * @see #count Count the number of values emitted
+	 * @see #min Find the minimum value in an observable
+	 * @see #max Find the maximum value in an observable
+	 * @see #average Find the average of the values in an observable
+	 */
 	action<> returns IObservable sumFloat;
+	/**
+	 * Sum decimal values emitted by an observable.<br><br>
+	 * Note: only emits on completion <br>
+	 * Accepts: decimal <br>
+	 * Returns: An observable containing the sum as a float
+	 * @see #sum Sum any numeric values and produce a float result
+	 * @see #sumInteger sum only integer values and produce an integer result
+	 * @see #sumFloat sum only float values and produce a float result
+	 * @see #count Count the number of values emitted
+	 * @see #min Find the minimum value in an observable
+	 * @see #max Find the maximum value in an observable
+	 * @see #average Find the average of the values in an observable
+	 */
 	action<> returns IObservable sumDecimal;
 	action<> returns IObservable concatString;
 	action<> returns IObservable max;
