@@ -2,8 +2,8 @@
 <pysystest type="auto" state="runnable">
     
   <description> 
-    <title>ObserveOnNewContext Async</title>    
-    <purpose><![CDATA[ObserveOnNewContext Async]]></purpose>
+    <title>ObserveOnNew Sync</title>    
+    <purpose><![CDATA[ObserveOnNew Sync]]></purpose>
   </description>
 
   <classification>

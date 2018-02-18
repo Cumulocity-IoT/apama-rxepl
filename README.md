@@ -281,7 +281,7 @@ Multithreading allows complex or slow processing to be handled asynchronously on
 Observe on is useful when you want the subscription and some of the processing to be done on a different thread. The connection to the original observable is still done on the main context and all data is forwarded to the other context.
 ```javascript
 // Ideally should dispose of this when the spawned context is done processing (if ever)
-IDisposable d := Observable.interval(1.0).observeOnNewContext(doSomething);
+IDisposable d := Observable.interval(1.0).observeOnNew(doSomething);
 
 action doSomething(IObservable source) {
     // This part will run on a different context
@@ -307,7 +307,7 @@ PipeOn allows part of the processing in a chain to be done on a different contex
 // Values start on the main context
 ISubscription s := Observable.interval(1.0)
                             // Send to a different context to do the heavy lifting
-                            .pipeOnNewContext([Map.create(multiplyBy10)]);
+                            .pipeOnNew([Map.create(multiplyBy10)]);
                             // Back on the main context for the output
                             .subscribe(Subscriber.create().onNext(printValue));
 // Output: 0, 10, 20, 30...
@@ -318,7 +318,7 @@ Much the same as PipeOn, ComplexPipeOn allows part of an observable chain to be 
 // Values start on the main context
 ISubscription s := Observable.interval(1.0)
                             // Send to a different context to do the heavy lifting
-                            .complexPipeOnNewContext(doSomething);
+                            .complexPipeOnNew(doSomething);
                             // Back on the main context for the output
                             .subscribe(Subscriber.create().onNext(printValue));
                             
@@ -334,7 +334,7 @@ ISubscription s := Observable.interval(1.0)
                              .map(multiplyBy10)
                              // Move all processing to a different context 
                              // (including the .map and the observable source)
-                             .subscribeOnNewContext(Subscriber.create()
+                             .subscribeOnNew(Subscriber.create()
                                                               .onNext(printValue));
 // Output from "A specific context": 0, 10, 20, 30...
 ```
@@ -543,7 +543,7 @@ on wait(2.0) {
 IObservable sharedObs := Observable.interval(1.0).share();
 
 ISubscription s1 := sharedObs.subscribe(Subscriber.create().onNext(printValue));    
-ISubscription s2 := sharedObs.subscribeOnNewContext(Subscriber.create().onNext(printValue));
+ISubscription s2 := sharedObs.subscribeOnNew(Subscriber.create().onNext(printValue));
 // Output on "Main Context": 0,1,2,3...
 // Output on "New Context": 0,0,1,1,2,2,3,3... What?!       
 ```
@@ -558,7 +558,7 @@ IObservable sharedObs := Observable.interval(1.0)
 
 ISubscription s1 := sharedObs.subscribe(Subscriber.create().onNext(printValue));
 ISubscription  := sharedObs.async()
-                           .subscribeOnNewContext(Subscriber.create()
+                           .subscribeOnNew(Subscriber.create()
                                                               .onNext(printValue));
 // Output on "Main Context": 0,1,2,3...
 // Output on "New Context": 0,1,2,3...

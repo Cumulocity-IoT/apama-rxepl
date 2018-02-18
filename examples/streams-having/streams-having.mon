@@ -23,11 +23,11 @@ monitor StreamComparison {
 //				select Tick(t.symbol, mean(t.price));
 		any discard := Observable.fromStream(from t in all Tick() select <any> t)
 			.groupByField("symbol")
-			.subscribe(Subscriber.create().onNext(checkMeanDeltaOnNewContext));
+			.subscribe(Subscriber.create().onNext(checkMeanDeltaOnNew));
 	}
 	
-	action checkMeanDeltaOnNewContext(any symbolGroup) {
-		any discard := (<IObservable>symbolGroup).observeOnNewContext(checkMeanDelta);
+	action checkMeanDeltaOnNew(any symbolGroup) {
+		any discard := (<IObservable>symbolGroup).observeOnNew(checkMeanDelta);
 	}
 	
 	action checkMeanDelta(IObservable symbolGroup) {

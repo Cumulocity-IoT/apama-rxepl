@@ -13,8 +13,8 @@ event ComplexPipeOn {
 	}
 }
 
-event ComplexPipeOnNewContext {
+event ComplexPipeOnNew {
 	static action create(action<IObservable> returns IObservable complexPipe) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
-		return PipeOnNewContext.create([ComplexPipe.create(complexPipe)]);
+		return PipeOnNew.create([ComplexPipe.create(complexPipe)]);
 	}
 }

@@ -50,7 +50,7 @@ event ISubject {
 	action<action<IObservable, action<> >, context> returns IDisposable observeOn;
 	action<action<any> returns any> returns IObservable groupBy;
 	action<string> returns IDisposable observeToChannel;
-	action<action<IObservable, action<> > > returns IDisposable observeOnNewContext;
+	action<action<IObservable, action<> > > returns IDisposable observeOnNew;
 	action<action<any> returns boolean> returns IObservable every;
 	action<action<any> returns boolean> returns IObservable contains;
 	action<action<any> returns boolean> returns IObservable takeWhile;
@@ -109,13 +109,13 @@ event ISubject {
 	action<any> returns IObservable pluck;
 	action<> returns IObservable mergeAll;
 	action<sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription>, context> returns IObservable pipeOn;
-	action<sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> > returns IObservable pipeOnNewContext;
+	action<sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> > returns IObservable pipeOnNew;
 	action<Subscriber, context> returns ISubscription subscribeOn;
-	action<Subscriber> returns ISubscription subscribeOnNewContext;
+	action<Subscriber> returns ISubscription subscribeOnNew;
 	action<> returns IObservable pairwise;
 	action<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> returns IObservable let;
 	action<any> returns IObservable groupByField;
 	action<action<IObservable> returns IObservable> returns IObservable complexPipe;
 	action<action<IObservable> returns IObservable, context> returns IObservable complexPipeOn;
-	action<action<IObservable> returns IObservable> returns IObservable complexPipeOnNewContext;
+	action<action<IObservable> returns IObservable> returns IObservable complexPipeOnNew;
 }

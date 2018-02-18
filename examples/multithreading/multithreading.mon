@@ -15,11 +15,11 @@ monitor Multithreading {
 			.groupBy(valueMod3)
 			.map(processEachOnNewThread)
 			.mergeAll()
-			.subscribeOnNewContext(Subscriber.create().onNext(printValue));
+			.subscribeOnNew(Subscriber.create().onNext(printValue));
 	}
 	
 	action processEachOnNewThread(any obs) returns any {
-		return (<IObservable> obs).pipeOnNewContext([Map.create(multiplyBy10)]);
+		return (<IObservable> obs).pipeOnNew([Map.create(multiplyBy10)]);
 	}
 	
 	action valueMod3(any value) returns any {

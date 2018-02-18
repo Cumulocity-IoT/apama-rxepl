@@ -19,7 +19,7 @@ monitor TestObservable {
 	action onload() {
 		disposable := TestObservables.createAsync().take(3)
 			.do(ExpectValues.create([<any>0.0,1.0,2.0], countTeardownsAndDispose, test.fail))
-  			.observeOnNewContext(onDiffContext);
+  			.observeOnNew(onDiffContext);
 
 		on TornDown() {
 			countTeardownsAndDispose();

@@ -316,7 +316,7 @@ event IObservable {
 	 * &emsp;observation - An action to run on another context which will susbcribe to the source. The second argument provided to the observation is a dispose action to terminate all subscriptions.<br>
 	 * &emsp;targetContext - The context to run on<br>
 	 * Returns: An IDisposable that should be disposed when all the downstream subscribers are finished
-	 * @see #observeOnNewContext The same but on a new context
+	 * @see #observeOnNew The same but on a new context
  	 * @see #subscribeOn Move the entire chain onto another context
 	 */
 	action<action<IObservable, action<> >, context> returns IDisposable observeOn;
@@ -326,7 +326,7 @@ event IObservable {
 	 * &emsp;observation - An action to run on another context which will susbcribe to the source<br>
 	 * &emsp;targetContext - The context to run on<br>
 	 * Returns: An IDisposable that should be disposed when all the downstream subscribers are finished
-	 * @see #observeOnNewContext The same but on a new context
+	 * @see #observeOnNew The same but on a new context
 	 * @see #subscribeOn Move the entire chain onto another context
 	 */
 	action<action<any> returns any> returns IObservable groupBy;
@@ -340,14 +340,14 @@ event IObservable {
 	 */
 	action<string> returns IDisposable observeToChannel;
 	/**
-	 * observeOnNewContext moves the subscription and any downstream operators onto a new context.<br><br>
+	 * observeOnNew moves the subscription and any downstream operators onto a new context.<br><br>
 	 * Params: <br>
 	 * &emsp;observation - An action to run on another context which will susbcribe to the source. The second argument provided to the observation is a dispose action to terminate all subscriptions.<br>
 	 * Returns: An IDisposable that should be disposed when all the downstream subscribers are finished
 	 * @see #observeOn Move to a specific context
 	 * @see #subscribeOn Move the entire chain onto another context
 	 */
-	action<action<IObservable, action<> > > returns IDisposable observeOnNewContext;
+	action<action<IObservable, action<> > > returns IDisposable observeOnNew;
 	/**
 	 * Check that every value passes a predicate.<br><br>
 	 * Params: <br>
@@ -523,13 +523,13 @@ event IObservable {
 	action<any> returns IObservable pluck;
 	action<> returns IObservable mergeAll;
 	action<sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription>, context> returns IObservable pipeOn;
-	action<sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> > returns IObservable pipeOnNewContext;
+	action<sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> > returns IObservable pipeOnNew;
 	action<Subscriber, context> returns ISubscription subscribeOn;
-	action<Subscriber> returns ISubscription subscribeOnNewContext;
+	action<Subscriber> returns ISubscription subscribeOnNew;
 	action<> returns IObservable pairwise;
 	action<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> returns IObservable let;
 	action<any> returns IObservable groupByField;
 	action<action<IObservable> returns IObservable> returns IObservable complexPipe;
 	action<action<IObservable> returns IObservable, context> returns IObservable complexPipeOn;
-	action<action<IObservable> returns IObservable> returns IObservable complexPipeOnNewContext;
+	action<action<IObservable> returns IObservable> returns IObservable complexPipeOnNew;
 }

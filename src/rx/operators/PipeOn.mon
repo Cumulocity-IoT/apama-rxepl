@@ -19,7 +19,7 @@ event PipeOn {
 	}
 }
 
-event PipeOnNewContext {
+event PipeOnNew {
 	static action create(sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> pipeModifiers) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
 		return PipeOn.create(pipeModifiers, context("PipeOnContext" + integer.getUnique().toString(), false));
 	}
