@@ -47,16 +47,7 @@ event RepeatToFirstSubjectHandler {
 				shouldRepeat := false;
 				buffer.clear();
 			}
-			// Keep things sensible
-			if buffer.size() < 10000 {
-				buffer.append(value);
-			} else {
-				try {
-					throw Exception("There were more that 10000 synchronous values, use an async operator to avoid this error", "BufferOverflow");
-				} catch (Exception e) {
-					error(e);
-				}
-			}
+			buffer.append(value);
 		}
 		IObserver s;
 		for s in subscribers.values() {
