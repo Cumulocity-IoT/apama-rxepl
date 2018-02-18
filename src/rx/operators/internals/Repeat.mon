@@ -9,6 +9,7 @@ using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 
+/** @private */
 event RepeatReconnectionHandler {
 	action<IObserver> returns ISubscription parentOnConnection;
 	IObserver downstreamSubscriber;
@@ -45,6 +46,7 @@ event RepeatReconnectionHandler {
 	}
 }
 
+/** @private */
 event RepeatOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	integer count;

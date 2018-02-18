@@ -9,6 +9,7 @@ using com.industry.rx_epl.IDisposable;
 using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 
+/** @private */
 event ObserveOnHandler {
 	string channel;
 	context downstreamContext;

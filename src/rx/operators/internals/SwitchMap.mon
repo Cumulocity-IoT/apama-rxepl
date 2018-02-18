@@ -9,6 +9,7 @@ using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 
+/** @private */
 event SwitchMapSubscriber {
 	IObserver downstreamSubscriber;
 	IObserver upstreamSubscriber;
@@ -59,6 +60,7 @@ event SwitchMapSubscriber {
 	}
 }
 
+/** @private */
 event SwitchMapOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	action<any> returns IObservable mapper;

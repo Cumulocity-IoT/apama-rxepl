@@ -9,6 +9,7 @@ using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 
 
+/** @private */
 event AmbSubscriberFactory {
 	IObserver downstreamSubscriber;	
 	boolean receivedValue;
@@ -42,6 +43,7 @@ event AmbSubscriberFactory {
 	}
 }
 
+/** @private */
 event AmbOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	sequence<IObservable> observables;

@@ -9,6 +9,7 @@ using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 
+/** @private */
 event TakeUntilOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	IObservable until;

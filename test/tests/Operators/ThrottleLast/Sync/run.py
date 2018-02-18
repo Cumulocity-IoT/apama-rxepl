@@ -11,6 +11,7 @@ class PySysTest(BaseTest):
 	def execute(self):
 		correlator = CorrelatorHelper(self, name='correlator')
 		correlator.start(logfile='correlator.log', config=os.path.join(PROJECT.TEST_SUBJECT_DIR,'initialization.yaml'))
+		correlator.flush()
 		correlator.injectEPL(filenames='testUtils.mon', filedir=PROJECT.UTILS_DIR)
 		
 		# Start test results receiver

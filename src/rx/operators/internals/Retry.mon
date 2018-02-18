@@ -9,6 +9,7 @@ using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 
+/** @private */
 event RetrySubscription {
 	action<IObserver> returns ISubscription parentOnConnection;
 	IObserver subscriber; 
@@ -42,6 +43,7 @@ event RetrySubscription {
 	}
 }
 
+/** @private */
 event RetryOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	integer retryCount;

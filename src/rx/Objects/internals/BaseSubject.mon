@@ -1,49 +1,39 @@
 package com.industry.rx_epl;
 
-event RepeatToFirstSubjectHandler {
+/** @private */
+event SubjectOnDisconnection {
+	dictionary<integer, IObserver> subscribers;
+	integer subscriberId;
+	
+	static action create(dictionary<integer, IObserver> subscribers, integer subscriberId) returns action<> {
+		return SubjectOnDisconnection(subscribers, subscriberId).onDisconnect;
+	}
+	
+	action onDisconnect() {
+		subscribers.remove(subscriberId);
+	}
+}
+
+/** @private */
+event SubjectHandler {
 	dictionary<integer, IObserver> subscribers;
 	boolean isComplete;
-	sequence<any> buffer;
-	boolean shouldRepeat;
 	
-	static action create() returns RepeatToFirstSubjectHandler {
-		return RepeatToFirstSubjectHandler(new dictionary<integer, IObserver>, false, new sequence<any>, true);
+	static action create() returns SubjectHandler {
+		return SubjectHandler(new dictionary<integer, IObserver>, false);
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {
-		ISubscription s := Subscription.create(subscriber).asISubscription();
-		if shouldRepeat {
-			// You have 1 seconds from the first subscriber to connect another subscriber
-			on wait(1.0) {
-				shouldRepeat := false;
-				buffer.clear();
-			}
-			any value;
-			for value in buffer {
-				subscriber.next(value);
-			}
-		}
 		if not isComplete {
 			subscribers.add(subscriber.getId(), subscriber);
 			subscriber.onUnsubscribe(SubjectOnDisconnection.create(subscribers, subscriber.getId()));
 		} else {
 			subscriber.complete();
 		}
-		return s;
+		return Subscription.create(subscriber).asISubscription();
 	}
 	
 	action next(any value) {
-		if shouldRepeat {
-			 // You have 10 seconds from the first received value to connect a subscriber
-			on wait(10.0) {
-				shouldRepeat := false;
-				buffer.clear();
-			}
-			// Keep things sensible
-			if buffer.size() < 10000 {
-				buffer.append(value);
-			}
-		}
 		IObserver s;
 		for s in subscribers.values() {
 			s.next(value);
@@ -68,7 +58,8 @@ event RepeatToFirstSubjectHandler {
 	}
 }
 
-event BaseRepeatToFirstSubject {	
+/** @private */
+event BaseSubject {	
 	IObservable observable;
 	
 	action<any> next;
@@ -76,9 +67,9 @@ event BaseRepeatToFirstSubject {
 	action<> complete;
 	
 	static action create(IObservable observable, action<action<IObserver> returns ISubscription> setOnConnection) returns ISubject {
-		RepeatToFirstSubjectHandler h := RepeatToFirstSubjectHandler.create();
+		SubjectHandler h := SubjectHandler.create();
 		// Can't pull from a subject so the observable is hot
-		BaseRepeatToFirstSubject s := BaseRepeatToFirstSubject(observable, h.next, h.error, h.complete);
+		BaseSubject s := BaseSubject(observable, h.next, h.error, h.complete);
 		setOnConnection(h.onConnection);
 		return s.asISubject();
 	}

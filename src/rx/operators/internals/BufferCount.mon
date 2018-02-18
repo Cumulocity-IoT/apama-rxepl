@@ -10,6 +10,7 @@ using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 using com.industry.rx_epl.utils.Utils;
 
+/** @private */
 event BufferCountSubscriber {
 	IObserver subscriber;
 	sequence<any> buffer;
@@ -56,6 +57,7 @@ event BufferCountSubscriber {
 	}
 }
 
+/** @private */
 event BufferCountOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	integer count;

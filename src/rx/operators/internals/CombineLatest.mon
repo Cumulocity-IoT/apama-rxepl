@@ -10,6 +10,7 @@ using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 using com.industry.rx_epl.utils.Utils;
 
+/** @private */
 event CombineLatestCombinerMapper {
 	action<sequence<any> > returns any combiner;
 	
@@ -22,6 +23,7 @@ event CombineLatestCombinerMapper {
 	}
 }
 
+/** @private */
 event CombineLatestOnNext {
 	integer id;
 	action<integer, any> onNext;
@@ -35,6 +37,7 @@ event CombineLatestOnNext {
 	}
 }
 
+/** @private */
 event CombineLatestOnComplete {
 	integer id;
 	action<integer> onComplete;
@@ -48,6 +51,7 @@ event CombineLatestOnComplete {
 	}
 }
 
+/** @private */
 event CombineLatestSubscriberFactory {
 	IObserver downstreamSubscriber;
 	integer subscriberCount;
@@ -86,6 +90,7 @@ event CombineLatestSubscriberFactory {
 	}
 }
 
+/** @private */
 event CombineLatestOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	sequence<IObservable> observables;

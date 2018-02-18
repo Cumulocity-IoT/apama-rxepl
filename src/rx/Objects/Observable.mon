@@ -563,8 +563,8 @@ event Observable {
 	/**
 	 * Dispose should be called once all downstreams have finished and no new connections are expected otherwise the application leaks a connection listener (Not a big deal)
 	 */
-	action observeOn(context observingContext, action<IObservable, action<> > observableConstructorAndDisposer) returns IDisposable {
-		return ObserveOnHandler.create(observeToChannel, observeFromChannel, observingContext, observableConstructorAndDisposer);
+	action observeOn(action<IObservable, action<> > observableConstructorAndDisposer, context targetContext) returns IDisposable {
+		return ObserveOnHandler.create(observeToChannel, observeFromChannel, targetContext, observableConstructorAndDisposer);
 	}
 	
 	/**

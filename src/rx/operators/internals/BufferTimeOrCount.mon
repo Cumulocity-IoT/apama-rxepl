@@ -10,6 +10,7 @@ using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 using com.industry.rx_epl.utils.Utils;
 
+/** @private */
 event BufferTimeOrCountSubscriberFactory {
 	IObserver subscriber;
 	IObserver upstream;
@@ -60,6 +61,7 @@ event BufferTimeOrCountSubscriberFactory {
 	}
 }
 
+/** @private */
 event BufferTimeOrCountOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	float duration;

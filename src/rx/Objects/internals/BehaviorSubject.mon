@@ -1,0 +1,58 @@
+package com.industry.rx_epl.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.SubjectOnDisconnection;
+using com.industry.rx_epl.Subscription;
+
+/** @private */
+event BehaviorSubjectHandler {
+	dictionary<integer, IObserver> subscribers;
+	optional<ISubscription> subscription;
+	boolean isComplete;
+	any currentValue;
+	
+	static action create(any initialValue) returns BehaviorSubjectHandler {
+		return BehaviorSubjectHandler(new dictionary<integer, IObserver>, new optional<ISubscription>, false, initialValue);
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		if not isComplete {
+			subscribers.add(subscriber.getId(), subscriber);
+			subscriber.onUnsubscribe(SubjectOnDisconnection.create(subscribers, subscriber.getId()));
+			Subscription s := Subscription.create(subscriber);
+			subscriber.next(currentValue);
+			return s.asISubscription();
+		} else {
+			subscriber.complete();
+			return Subscription.create(subscriber).asISubscription();
+		}
+	}
+	
+	action next(any value) {
+		currentValue := value;
+		IObserver s;
+		for s in subscribers.values() {
+			s.next(value);
+		}
+	}
+	
+	action error(any e) {
+		IObserver s;
+		for s in subscribers.values(){
+			s.error(e);
+		}		
+	}
+	
+	action complete() {
+		IObserver s;
+		for s in subscribers.values() {
+			s.complete();
+			s.disconnect();
+		}
+		isComplete := true;
+		subscribers.clear();
+	}
+}

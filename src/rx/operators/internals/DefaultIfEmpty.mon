@@ -10,6 +10,7 @@ using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 using com.industry.rx_epl.utils.Utils;
 
+/** @private */
 event DefaultIfEmptySubscriber {
 	IObserver subscriber;
 	any defaultValue;
@@ -33,6 +34,7 @@ event DefaultIfEmptySubscriber {
 	}
 }
 
+/** @private */
 event DefaultIfEmptyOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	any defaultValue;

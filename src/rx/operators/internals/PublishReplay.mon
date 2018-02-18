@@ -9,6 +9,7 @@ using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 
+/** @private */
 event PublishReplayRecordingSubscriber {
 	sequence<any> replayValues;
 	integer maxCount;
@@ -38,6 +39,7 @@ event PublishReplayRecordingSubscriber {
 	}
 }
 
+/** @private */
 event PublishReplaySubscriberOnDisconnection {
 	IDisposable upstreamConnection;
 	IObserver publishReplaySubscriber;
@@ -54,6 +56,7 @@ event PublishReplaySubscriberOnDisconnection {
 	}
 }
 
+/** @private */
 event PublishReplayHandler {
 	IDisposable upstreamConnection;
 	IDisposable downstreamConnection;

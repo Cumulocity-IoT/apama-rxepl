@@ -9,11 +9,13 @@ using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 
+/** @private */
 event SubscriberAndSubscription {
 	IObserver subscriber;
 	Subscription subscription;
 }
 
+/** @private */
 event PublishSubscriber {
 	// Can't store in dictionary need reliable iteration order
 	sequence<SubscriberAndSubscription> subscribers;
@@ -51,6 +53,7 @@ event PublishSubscriber {
 	}
 }
 
+/** @private */
 event PublishOnDisconnection {
 	sequence<SubscriberAndSubscription> subscribers;
 	integer subscriberId;
@@ -75,6 +78,7 @@ event PublishOnDisconnection {
 	}
 }
 
+/** @private */
 event PublishHandler {
 	action<IObserver> returns ISubscription parentOnConnection;
 	IDisposable connection;

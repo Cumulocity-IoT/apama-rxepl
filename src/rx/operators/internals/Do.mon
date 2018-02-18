@@ -10,6 +10,7 @@ using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 using com.industry.rx_epl.utils.Utils;
 
+/** @private */
 event DoSubscriber {
 	IObserver subscriber;
 	Subscriber doer;
@@ -54,6 +55,7 @@ event DoSubscriber {
 	}
 }
 
+/** @private */
 event DoOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	Subscriber doer;

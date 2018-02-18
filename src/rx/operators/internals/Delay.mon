@@ -10,6 +10,7 @@ using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 using com.industry.rx_epl.utils.Utils;
 
+/** @private */
 event DelaySubscriber {
 	IObserver subscriber;
 	IObserver upstreamSubscriber;
@@ -40,6 +41,7 @@ event DelaySubscriber {
 	}
 }
 
+/** @private */
 event DelayOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	float delay;

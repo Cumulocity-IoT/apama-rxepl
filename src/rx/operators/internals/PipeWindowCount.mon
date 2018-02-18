@@ -11,6 +11,7 @@ using com.industry.rx_epl.Subscriber;
 using com.industry.rx_epl.ISubject;
 using com.industry.rx_epl.Subject;
 
+/** @private */
 event PipeWindowCountSubscriber {
 	IObserver subscriber;
 	IObserver upstream;
@@ -47,6 +48,7 @@ event PipeWindowCountSubscriber {
 	}
 }
 
+/** @private */
 event PipeWindowCountOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	integer count;

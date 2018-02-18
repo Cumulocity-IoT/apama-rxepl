@@ -9,6 +9,7 @@ using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 
+/** @private */
 event TakeSubscriber {
 	IObserver subscriber;
 	integer count;
@@ -38,6 +39,7 @@ event TakeSubscriber {
 	}
 }
 
+/** @private */
 event TakeOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	integer count;

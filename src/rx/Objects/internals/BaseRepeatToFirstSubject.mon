@@ -1,37 +1,63 @@
-package com.industry.rx_epl;
+package com.industry.rx_epl.internals;
 
-event SubjectOnDisconnection {
-	dictionary<integer, IObserver> subscribers;
-	integer subscriberId;
-	
-	static action create(dictionary<integer, IObserver> subscribers, integer subscriberId) returns action<> {
-		return SubjectOnDisconnection(subscribers, subscriberId).onDisconnect;
-	}
-	
-	action onDisconnect() {
-		subscribers.remove(subscriberId);
-	}
-}
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.SubjectOnDisconnection;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubject;
 
-event SubjectHandler {
+using com.apama.exceptions.Exception;
+
+/** @private */
+event RepeatToFirstSubjectHandler {
 	dictionary<integer, IObserver> subscribers;
 	boolean isComplete;
+	sequence<any> buffer;
+	boolean shouldRepeat;
 	
-	static action create() returns SubjectHandler {
-		return SubjectHandler(new dictionary<integer, IObserver>, false);
+	static action create() returns RepeatToFirstSubjectHandler {
+		return RepeatToFirstSubjectHandler(new dictionary<integer, IObserver>, false, new sequence<any>, true);
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {
+		ISubscription s := Subscription.create(subscriber).asISubscription();
+		if shouldRepeat {
+			on wait(0.0) {
+				shouldRepeat := false;
+				buffer.clear();
+			}
+			any value;
+			for value in buffer {
+				subscriber.next(value);
+			}
+		}
 		if not isComplete {
 			subscribers.add(subscriber.getId(), subscriber);
 			subscriber.onUnsubscribe(SubjectOnDisconnection.create(subscribers, subscriber.getId()));
 		} else {
 			subscriber.complete();
 		}
-		return Subscription.create(subscriber).asISubscription();
+		return s;
 	}
 	
 	action next(any value) {
+		if shouldRepeat {
+			on wait(0.0) {
+				shouldRepeat := false;
+				buffer.clear();
+			}
+			// Keep things sensible
+			if buffer.size() < 10000 {
+				buffer.append(value);
+			} else {
+				try {
+					throw Exception("There were more that 10000 synchronous values, use an async operator to avoid this error", "BufferOverflow");
+				} catch (Exception e) {
+					error(e);
+				}
+			}
+		}
 		IObserver s;
 		for s in subscribers.values() {
 			s.next(value);
@@ -56,7 +82,8 @@ event SubjectHandler {
 	}
 }
 
-event BaseSubject {	
+/** @private */
+event BaseRepeatToFirstSubject {	
 	IObservable observable;
 	
 	action<any> next;
@@ -64,9 +91,9 @@ event BaseSubject {
 	action<> complete;
 	
 	static action create(IObservable observable, action<action<IObserver> returns ISubscription> setOnConnection) returns ISubject {
-		SubjectHandler h := SubjectHandler.create();
+		RepeatToFirstSubjectHandler h := RepeatToFirstSubjectHandler.create();
 		// Can't pull from a subject so the observable is hot
-		BaseSubject s := BaseSubject(observable, h.next, h.error, h.complete);
+		BaseRepeatToFirstSubject s := BaseRepeatToFirstSubject(observable, h.next, h.error, h.complete);
 		setOnConnection(h.onConnection);
 		return s.asISubject();
 	}

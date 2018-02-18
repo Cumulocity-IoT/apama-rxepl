@@ -9,6 +9,7 @@ using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 
+/** @private */
 event ScanSubscriber {
 	IObserver subscriber;
 	action<any, any> returns any scanner;
@@ -36,6 +37,7 @@ event ScanSubscriber {
 	}
 }
 
+/** @private */
 event ScanOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	action<any, any> returns any scanner;

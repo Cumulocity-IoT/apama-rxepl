@@ -9,6 +9,7 @@ using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 
+/** @private */
 event WithLatestFromSubscriberFactory {
 	IObserver downstreamSubscriber;
 	integer subscriberCount;
@@ -55,6 +56,7 @@ event WithLatestFromSubscriberFactory {
 	}
 }
 
+/** @private */
 event WithLatestFromOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	sequence<IObservable> otherObservables;

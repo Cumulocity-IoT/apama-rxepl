@@ -10,6 +10,7 @@ using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 using com.industry.rx_epl.utils.Utils;
 
+/** @private */
 event DistinctBySubscriber {
 	IObserver subscriber;
 	action<any> returns any distinctBy;
@@ -36,6 +37,7 @@ event DistinctBySubscriber {
 	}
 }
 
+/** @private */
 event DistinctByOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	action<any> returns any mapper;

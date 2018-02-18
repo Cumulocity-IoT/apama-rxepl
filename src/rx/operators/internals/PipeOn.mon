@@ -10,10 +10,12 @@ using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.Subscriber;
 
+/** @private */
 event Spawned {
 	string channel;
 }
 
+/** @private */
 event PipeOnOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	string upstreamChannel;

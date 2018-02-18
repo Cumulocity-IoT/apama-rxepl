@@ -11,6 +11,7 @@ using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 using com.industry.rx_epl.utils.Utils;
 
+/** @private */
 event FlatMapSubscriber {
 	IObserver downstreamSubscriber;
 	IObserver upstreamSubscriber;
@@ -80,6 +81,7 @@ event FlatMapSubscriber {
 	}
 }
 
+/** @private */
 event FlatMapOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	action<any> returns any mapper;

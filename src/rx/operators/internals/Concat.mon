@@ -10,6 +10,7 @@ using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 using com.industry.rx_epl.utils.Utils;
 
+/** @private */
 event ConcatSubscriber {
 	IObserver downstreamSubscriber;
 	sequence<action<IObserver> returns ISubscription> onConnections;
@@ -39,6 +40,7 @@ event ConcatSubscriber {
 	}
 }
 
+/** @private */
 event ConcatOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	sequence<IObservable> observables;

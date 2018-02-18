@@ -11,6 +11,7 @@ using com.industry.rx_epl.Subscriber;
 using com.industry.rx_epl.ISubject;
 using com.industry.rx_epl.Subject;
 
+/** @private */
 event PipeWindowSubscriberFactory {
 	IObserver subscriber;
 	IObserver upstream;
@@ -53,6 +54,7 @@ event PipeWindowSubscriberFactory {
 	}
 }
 
+/** @private */
 event PipeWindowOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	IObservable observable;

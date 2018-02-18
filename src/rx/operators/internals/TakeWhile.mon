@@ -9,6 +9,7 @@ using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 
+/** @private */
 event TakeWhileSubscriber {
 	IObserver subscriber;
 	action<any> returns boolean predicate;
@@ -37,6 +38,7 @@ event TakeWhileSubscriber {
 	}
 }
 
+/** @private */
 event TakeWhileOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	action<any> returns boolean predicate;

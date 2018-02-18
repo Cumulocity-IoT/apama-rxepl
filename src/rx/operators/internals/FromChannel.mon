@@ -12,14 +12,17 @@ using com.industry.rx_epl.WrappedAny;
 using com.industry.rx_epl.utils.Utils;
 
 
+/** @private */
 event WrappedAnyFromChannel {
 	string channelName;
 	integer uniqueId;
 	any value;
 }
 
+/** @private */
 event KillValueWrapper {}
 
+/** @private */
 event FromChannelOnDisconnection {
 	listener channelListener;
 	context valueWrappingContext;
@@ -36,6 +39,7 @@ event FromChannelOnDisconnection {
 }
 
 
+/** @private */
 event FromChannelOnConnection {
 	string channelName;
 	

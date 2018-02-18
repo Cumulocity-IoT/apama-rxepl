@@ -554,11 +554,11 @@ When the first subscriber connects it is added to the list.
 ***Solution*** - `.async()`
 ```javascript
 IObservable sharedObs := Observable.interval(1.0)
-                             .share();
+                                   .share();
 
 ISubscription s1 := sharedObs.subscribe(Subscriber.create().onNext(printValue));
 ISubscription  := sharedObs.async()
-                             .subscribeOnNewContext(Subscriber.create()
+                           .subscribeOnNewContext(Subscriber.create()
                                                               .onNext(printValue));
 // Output on "Main Context": 0,1,2,3...
 // Output on "New Context": 0,1,2,3...

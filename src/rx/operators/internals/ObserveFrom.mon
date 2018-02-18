@@ -11,6 +11,7 @@ using com.industry.rx_epl.Subscriber;
 using com.industry.rx_epl.IDisposable;
 using com.industry.rx_epl.IResolver;
 
+/** @private */
 event ObserveFromOnUnsubscribe {
 	string channel;
 	string connectionId;
@@ -30,6 +31,7 @@ event ObserveFromOnUnsubscribe {
 	}
 }
 
+/** @private */
 event ObserveFromDispose {
 	string channel;
 	
@@ -42,6 +44,7 @@ event ObserveFromDispose {
 	}
 }
 
+/** @private */
 event ObserveFromOnConnection {	
 	string channel;
 	boolean isDisposed;

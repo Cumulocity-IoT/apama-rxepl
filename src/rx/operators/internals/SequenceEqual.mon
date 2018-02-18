@@ -9,6 +9,7 @@ using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 
+/** @private */
 event SequenceEqualSubscriberFactory {
 	IObserver downstreamSubscriber;
 	integer subscriberCount;
@@ -100,6 +101,7 @@ event SequenceEqualSubscriberFactory {
 	}
 }
 
+/** @private */
 event SequenceEqualOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	sequence<IObservable> observables;

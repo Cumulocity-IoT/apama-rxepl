@@ -9,6 +9,7 @@ using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 using com.industry.rx_epl.utils.Utils;
 
+/** @private */
 event AverageCalc {
 	float sum;
 	float count;
@@ -26,6 +27,7 @@ event AverageCalc {
 	}
 }
 
+/** @private */
 event AverageDecimalCalc {
 	decimal sum;
 	decimal count;

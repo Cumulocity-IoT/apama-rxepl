@@ -76,6 +76,7 @@ event Subscriber {
 	}
 }
 
+/** @private */
 event IObserverBuilder {
 	IObserver observer;
 	

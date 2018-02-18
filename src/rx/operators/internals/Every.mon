@@ -10,6 +10,7 @@ using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 using com.industry.rx_epl.utils.Utils;
 
+/** @private */
 event EverySubscriber {
 	IObserver subscriber;
 	action<any> returns boolean predicate;
@@ -36,6 +37,7 @@ event EverySubscriber {
 	}
 }
 
+/** @private */
 event EveryOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	action<any> returns boolean predicate;

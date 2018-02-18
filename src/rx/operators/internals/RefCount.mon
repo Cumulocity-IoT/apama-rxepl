@@ -10,6 +10,7 @@ using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 using com.industry.rx_epl.IDisposable;
 
+/** @private */
 event RefCountOnConnection {
 	IDisposable connection;
 	action<> returns IDisposable connect;

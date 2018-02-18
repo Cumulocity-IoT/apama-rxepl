@@ -14,6 +14,7 @@ using com.industry.rx_epl.RepeatToFirstSubject;
 // In this case Subject causes a circular dependency - so the .groupBy on an Observable uses an alternative constructor
 // This can be fixed from version 10.2 with something like subject := any.newInstance("RepeatToFirstSubject").callAction("create")
 
+/** @private */
 event PipeGroupBySubscriber {
 	IObserver subscriber;
 	action<any> returns any groupBy;
@@ -54,6 +55,7 @@ event PipeGroupBySubscriber {
 	}
 }
 
+/** @private */
 event PipeGroupByOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	action<any> returns any groupBy;

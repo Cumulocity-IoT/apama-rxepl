@@ -10,6 +10,7 @@ using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 using com.industry.rx_epl.DisposableStream;
 
+/** @private */
 event ToStreamOnUnsubscribe {
 	stream<any> valueStream;
 	
@@ -23,6 +24,7 @@ event ToStreamOnUnsubscribe {
 	}
 }
 
+/** @private */
 event ToStreamSubscriber {
 	IObserver subscriber;
 	stream<any> outputStream;
@@ -47,6 +49,7 @@ event ToStreamSubscriber {
 	}
 }
 
+/** @private */
 event ToStream {	
 	static action create(IObservable observable) returns DisposableStream {
 		string channelName := "__ToStream__";

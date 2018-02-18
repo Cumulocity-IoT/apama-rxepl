@@ -10,6 +10,7 @@ using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 using com.industry.rx_epl.utils.Utils;
 
+/** @private */
 event BufferSubscriberFactory {
 	IObserver subscriber;
 	IObserver upstream;
@@ -66,6 +67,7 @@ event BufferSubscriberFactory {
 	}
 }
 
+/** @private */
 event BufferOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	IObservable observable;

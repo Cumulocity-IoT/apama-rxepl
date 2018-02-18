@@ -2,6 +2,7 @@ package com.industry.rx_epl.operators.internals;
 
 using com.apama.exceptions.Exception;
 
+/** @private */
 event PluckMapper {
 	any fieldName;
 	

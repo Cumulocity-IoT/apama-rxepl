@@ -9,6 +9,7 @@ using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 
+/** @private */
 event ZipSubscriberFactory {
 	IObserver downstreamSubscriber;
 	integer subscriberCount;
@@ -67,6 +68,7 @@ event ZipSubscriberFactory {
 	}
 }
 
+/** @private */
 event ZipOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	sequence<IObservable> observables;

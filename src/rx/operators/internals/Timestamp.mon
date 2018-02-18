@@ -2,6 +2,7 @@ package com.industry.rx_epl.operators.internals;
 
 using com.industry.rx_epl.TimestampedValue;
 
+/** @private */
 event TimestampMapper {
 	static action add(any value) returns any {
 		return TimestampedValue(currentTime, value);

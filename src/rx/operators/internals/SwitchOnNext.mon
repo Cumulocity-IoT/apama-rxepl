@@ -10,6 +10,7 @@ using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 using com.industry.rx_epl.ISubject;
 
+/** @private */
 event SwitchOnNextMapper {
 	static action switchMapper(any value) returns IObservable {
 		switch(value) {

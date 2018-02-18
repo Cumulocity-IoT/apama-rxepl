@@ -11,6 +11,7 @@ using com.industry.rx_epl.Subscriber;
 using com.industry.rx_epl.ISubject;
 using com.industry.rx_epl.BaseSubject;
 
+/** @private */
 event WindowSubscriberFactory {
 	action<> returns IObservable createObservable;
 	action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection;
@@ -56,6 +57,7 @@ event WindowSubscriberFactory {
 	}
 }
 
+/** @private */
 event WindowOnConnection {
 	action<> returns IObservable createObservable;
 	action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection;

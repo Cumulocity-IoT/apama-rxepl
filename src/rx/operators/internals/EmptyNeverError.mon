@@ -4,6 +4,7 @@ using com.apama.exceptions.Exception;
 
 using com.industry.rx_epl.IResolver;
 
+/** @private */
 event EmptyNeverError {
 	static action emptyGenerator(IResolver resolver) {
 		resolver.complete();

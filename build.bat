@@ -16,10 +16,7 @@ IF DEFINED APAMA_HOME (
 
 call ".\clean.bat"
 
-engine_deploy --outputDeployDir "%~dp0output" src
-
-md "%~dp0output\CopyContentsToApamaInstallDir\monitors\RxEPL"
-move "%~dp0output\rx" "%~dp0output\CopyContentsToApamaInstallDir\monitors\RxEPL"
+engine_deploy --outputDeployDir "%~dp0output\CopyContentsToApamaInstallDir\monitors\RxEPL" src
 md "%~dp0output\docs"
 xcopy /S "%~dp0docs" "%~dp0output\docs"
 md "%~dp0output\CopyContentsToApamaInstallDir\catalogs\bundles"

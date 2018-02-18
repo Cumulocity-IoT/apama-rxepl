@@ -9,8 +9,9 @@ using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 using com.industry.rx_epl.utils.Utils;
-using com.industry.rx_epl.utils.WrappedInteger;
+using com.industry.rx_epl.utils.internal.WrappedInteger;
 
+/** @private */
 event IntervalOnDisconnection {
 	listener onWaitListener;
 	
@@ -24,6 +25,7 @@ event IntervalOnDisconnection {
 	}
 }
 
+/** @private */
 event IntervalOnConnection {
 	float timePeriod;
 	static action create(float timePeriod) returns action<IObserver> returns ISubscription {

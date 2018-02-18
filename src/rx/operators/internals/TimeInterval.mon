@@ -10,6 +10,7 @@ using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 using com.industry.rx_epl.TimeInterval;
 
+/** @private */
 event TimeIntervalSubscriber {
 	IObserver subscriber;
 	float previousTimestamp;
@@ -26,6 +27,7 @@ event TimeIntervalSubscriber {
 	}
 }
 
+/** @private */
 event TimeIntervalOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	

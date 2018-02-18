@@ -9,6 +9,7 @@ using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 
+/** @private */
 event StartOnConnection {
 	action<> returns any generator;
 	static action create(action<> returns any generator) returns action<IObserver> returns ISubscription {

@@ -77,15 +77,3 @@ event Utils {
 		return waitTime - (endTime - endTime.nextafter(0.0));
 	}
 }
-
-event WrappedInteger {
-	integer value;
-	
-	action get() returns integer {
-		return value;
-	}
-	
-	action increment() {
-		value := value + 1;
-	}
-}

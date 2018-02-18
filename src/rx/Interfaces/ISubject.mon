@@ -47,7 +47,7 @@ event ISubject {
 	action<> returns DisposableStream toStream;
 	action<IObservable> returns IObservable catchError;
 	action<integer> returns IObservable retry;
-	action<context, action<IObservable, action<> > > returns IDisposable observeOn;
+	action<action<IObservable, action<> >, context> returns IDisposable observeOn;
 	action<action<any> returns any> returns IObservable groupBy;
 	action<string> returns IDisposable observeToChannel;
 	action<action<IObservable, action<> > > returns IDisposable observeOnNewContext;

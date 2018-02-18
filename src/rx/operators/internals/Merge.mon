@@ -9,6 +9,7 @@ using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 
+/** @private */
 event MergeSubscriberFactory {
 	IObserver downstreamSubscriber;
 	integer subscriberCount;
@@ -38,6 +39,7 @@ event MergeSubscriberFactory {
 	}
 }
 
+/** @private */
 event MergeOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	sequence<IObservable> observables;

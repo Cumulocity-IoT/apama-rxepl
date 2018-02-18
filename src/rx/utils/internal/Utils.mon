@@ -1,0 +1,16 @@
+package com.industry.rx_epl.utils.internal;
+
+using com.apama.exceptions.Exception;
+
+/** @private */
+event WrappedInteger {
+	integer value;
+	
+	action get() returns integer {
+		return value;
+	}
+	
+	action increment() {
+		value := value + 1;
+	}
+}

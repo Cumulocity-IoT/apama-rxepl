@@ -10,6 +10,7 @@ using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 using com.industry.rx_epl.utils.Utils;
 
+/** @private */
 event CatchErrorSubscriber {
 	IObserver downstreamSubscriber;
 	IObservable catchObservable;
@@ -34,6 +35,7 @@ event CatchErrorSubscriber {
 	}
 }
 
+/** @private */
 event CatchErrorOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	IObservable catchObservable;
