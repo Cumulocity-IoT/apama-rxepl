@@ -532,4 +532,7 @@ event IObservable {
 	action<action<IObservable> returns IObservable> returns IObservable complexPipe;
 	action<action<IObservable> returns IObservable, context> returns IObservable complexPipeOn;
 	action<action<IObservable> returns IObservable> returns IObservable complexPipeOnNew;
+	action<> returns IObservable decouple;
+	action<string> returns IObservable distinctByField;
+	action<string> returns IObservable distinctByFieldUntilChanged;
 }

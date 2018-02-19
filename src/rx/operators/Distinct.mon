@@ -6,6 +6,7 @@ using com.industry.rx_epl.ISubscription;
 
 using com.industry.rx_epl.operators.internals.DistinctByOnConnection;
 using com.industry.rx_epl.operators.internals.DistinctByUntilChangedOnConnection;
+using com.industry.rx_epl.operators.internals.PluckMapper;
 
 event DistinctBy {
 	action<any> returns any by;
@@ -24,6 +25,13 @@ event Distinct {
 		return DistinctBy.create(new action<any> returns any);
 	}
 }
+
+event DistinctByField {
+	static action create(string fieldName) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return DistinctBy.create(PluckMapper.create(fieldName));
+	}	
+}
+
 event DistinctByUntilChanged {
 	action<any> returns any by;
 	
@@ -39,5 +47,11 @@ event DistinctByUntilChanged {
 event DistinctUntilChanged {	
 	static action create() returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
 		return DistinctByUntilChanged.create(new action<any> returns any);
+	}
+}
+
+event DistinctByFieldUntilChanged {
+	static action create(string fieldName) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return DistinctByUntilChanged.create(PluckMapper.create(fieldName));
 	}
 }

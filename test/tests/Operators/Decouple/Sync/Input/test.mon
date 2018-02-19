@@ -1,0 +1,52 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IResolver;
+using com.industry.rx_epl.Subscriber;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+
+	integer teardownCount := 0;
+
+	integer mainContext := context.current().getId();
+	
+	action onload() {
+		context testContext := context("NewTestContext", false);
+
+	    any discard := Observable.fromValues([0,1,2,3,4])
+			.take(5)
+			.do(Subscriber.create().onNext(checkMainContextNext).onComplete(checkMainContext))
+			.decouple()
+			.do(Subscriber.create().onNext(checkContextNext).onComplete(checkContext))
+			.do(ExpectValues.create([<any>0,1,2,3,4], checkContext, test.fail))
+	      	.subscribeOn(Subscriber.create().onNext(checkContextNext).onComplete(checkContextComplete), testContext);
+	}
+	
+	action checkMainContextNext(any value) {
+		checkMainContext();
+	}
+
+	action checkMainContext() {
+		if context.current().getId() != mainContext {
+			test.fail("Running on wrong context");
+		}
+	}
+
+	action checkContextNext(any value) {
+		checkContext();
+	}
+
+	action checkContextComplete() {
+		checkContext();
+		test.complete();
+	}
+
+	action checkContext() {
+		if context.current().getName() != "NewTestContext" {
+			test.fail("Running on wrong context");
+		}
+	}
+}

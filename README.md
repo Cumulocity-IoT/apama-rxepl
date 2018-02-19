@@ -1,5 +1,6 @@
 
 
+
 # RxEPL - Observables in EPL
 ## Contents
 * [Installation](#install)
@@ -25,7 +26,8 @@
     * [Debugging](#debugging)
     * [Reusability: Build your own Operator](#reusability)
 * [Gotchas](#gotchas)
-    * [Publish/Share/Subject with SubscribeOn](#gotcha-subscribe-on)
+	* [Multiple Subscribers](#gotcha-multiple-subscribers)
+    * [Publish/Share with SubscribeOn](#gotcha-subscribe-on)
 * [Help and Other Resources](#other)
 ## <a id="install"></a>Installation
 ### 1. Installing files
@@ -538,31 +540,29 @@ on wait(2.0) {
     // Output: 2,3...
 }
 ```
-### <a id="gotcha-subscribe-on"></a>Publish/Share/Subject and SubscribeOn
+### <a id="gotcha-subscribe-on"></a>Publish/Share and SubscribeOn
 ```javascript
 IObservable sharedObs := Observable.interval(1.0).share();
 
 ISubscription s1 := sharedObs.subscribe(Subscriber.create().onNext(printValue));    
 ISubscription s2 := sharedObs.subscribeOnNew(Subscriber.create().onNext(printValue));
 // Output on "Main Context": 0,1,2,3...
-// Output on "New Context": 0,0,1,1,2,2,3,3... What?!       
+// Output on "New Context": Nothing.... What?!       
 ```
 **Why?**
-Publish, Share, Subject all store a list of subscribers so that they know who to send their data to.
-When the first subscriber connects it is added to the list.
- When the second subscribeOn subscriber is connected it copies the entire chain (including the list of existing subscribers) to a new context.
-***Solution*** - `.async()`
+Publish and Share both store information about their current subscribers and upstream connections. When the entire chain is moved onto another context this information is copied and the operators no longer function correctly.
+***Solution*** - `.decouple()`
 ```javascript
 IObservable sharedObs := Observable.interval(1.0)
                                    .share();
 
 ISubscription s1 := sharedObs.subscribe(Subscriber.create().onNext(printValue));
-ISubscription  := sharedObs.async()
-                           .subscribeOnNew(Subscriber.create()
-                                                              .onNext(printValue));
+ISubscription s2 := sharedObs.decouple() // Note: observeOn may be a better solution
+                           .subscribeOnNew(Subscriber.create().onNext(printValue));
 // Output on "Main Context": 0,1,2,3...
 // Output on "New Context": 0,1,2,3...
 ```
+This helps by 'decoupling' the upstream and the downstream. When subscribeOn is called only the downstream is copied. This means that only part of the chain is running on a separate context. A better solution might be to use ObserveOn instead of subscribeOn.
 ## <a id="other"></a>Help and Other Resources
 **[ReactiveX Website](http://reactivex.io/)** - A Great place to get info about the background to the framework.
 **[Decision Tree Of Observables](http://reactivex.io/documentation/operators.html#tree)** - Don't know which operator to use? Follow this
