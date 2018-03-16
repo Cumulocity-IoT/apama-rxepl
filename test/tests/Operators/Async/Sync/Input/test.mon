@@ -9,40 +9,20 @@ using com.industry.rx_epl.Subscriber;
 monitor TestObservable {
 	Test test := Test("TestResult");
 
-	integer teardownCount := 0;
+	boolean isAsync := false;
 	
-	integer mainContextId := context.current().getId();
-
 	action onload() {
 	    any discard := TestObservables.createSync().take(5)
-			.do(Subscriber.create().onNext(checkContextMainNext).onComplete(checkContextMain))
 			.async()
-			.do(ExpectValues.create([<any>0.0,1.0,2.0,3.0,4.0], checkContext, test.fail))
-	      	.subscribeOn(Subscriber.create().onNext(checkContextNext).onComplete(checkContextComplete), context("NewTestContext", false));
-	}
-
-	action checkContextMainNext(any next) {
-		checkContextMain();
+	      	.subscribe(ExpectValues.create([<any>0.0,1.0,2.0,3.0,4.0], checkAsync, test.fail));
+	    isAsync := true;
 	}
 	
-	action checkContextMain() {
-		if context.current().getId() != mainContextId {
-			test.fail("Running on wrong context");
-		}
-	}
-	
-	action checkContextNext(any value) {
-		checkContext();
-	}
-
-	action checkContextComplete() {
-		checkContext();
-		test.complete();
-	}
-
-	action checkContext() {
-		if context.current().getName() != "NewTestContext" {
-			test.fail("Running on wrong context");
+	action checkAsync() {
+		if isAsync {
+			test.complete();
+		} else {
+			test.fail("Test ran synchronously!!!");
 		}
 	}
 }
