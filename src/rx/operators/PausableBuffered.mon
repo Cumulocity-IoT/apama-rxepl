@@ -1,0 +1,13 @@
+package com.industry.rx_epl.operators;
+
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.ISubscription;
+
+using com.industry.rx_epl.operators.internals.PipePausableBufferedComplexPipe;
+
+event PausableBuffered {	
+	static action create(IObservable trigger) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return ComplexPipe.create(PipePausableBufferedComplexPipe.create(trigger));
+	}
+}

@@ -1,0 +1,28 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Subject;
+using com.industry.rx_epl.ISubject;
+using com.industry.rx_epl.Observable;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	action onload() {
+		sequence<any> result := new sequence<any>;
+		
+		ISubject trigger := Subject.create(); 
+		
+	    any discard := Observable.fromValues([0,1,2,3,4]).take(5)
+			.pausableBuffered(trigger.asIObservable())
+	      	.subscribe(ExpectValues.create(result, test.complete, test.fail));
+	    
+    	result.append(0);
+    	result.append(1);
+    	result.append(2);
+    	result.append(3);
+    	result.append(4);
+    	trigger.next("hello");
+	}  
+}

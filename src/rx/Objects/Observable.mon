@@ -51,6 +51,7 @@ using com.industry.rx_epl.operators.MinFloat;
 using com.industry.rx_epl.operators.MinInteger;
 using com.industry.rx_epl.operators.Merge;
 using com.industry.rx_epl.operators.MergeAll;
+//using com.industry.rx_epl.operators.PausableBuffered;
 using com.industry.rx_epl.operators.Pairwise;
 using com.industry.rx_epl.operators.Pipe;
 using com.industry.rx_epl.operators.Pluck;
@@ -107,6 +108,7 @@ using com.industry.rx_epl.operators.internals.GroupByOnConnection;
 using com.industry.rx_epl.operators.internals.IntervalOnConnection;
 using com.industry.rx_epl.operators.internals.JustOnConnection;
 using com.industry.rx_epl.operators.internals.ObserveOnHandler;
+using com.industry.rx_epl.operators.internals.PausableBufferedComplexPipe;
 using com.industry.rx_epl.operators.internals.PipeOnOnConnection;
 using com.industry.rx_epl.operators.internals.PluckMapper;
 using com.industry.rx_epl.operators.internals.PublishHandler;
@@ -1022,6 +1024,11 @@ event Observable {
 		return o.asIObservable();
 	}
 	
+	action pausableBuffered(IObservable trigger) returns IObservable {
+		// Can't use operators.pausableBuffered it would cause a circular loop
+		return complexPipe(PausableBufferedComplexPipe.create(never, trigger));
+	}
+	
 	static action invalidConnect() returns IDisposable {
 		throw Exception("Can only connect a published Observable", "UnsupportedOperation");
 	}
@@ -1036,6 +1043,6 @@ event Observable {
 		
 	action asIObservable() returns IObservable {
 		return IObservable(self, 
-		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial, toStream, catchError, retry, observeOn, groupBy, observeToChannel, observeOnNew, every, contains, takeWhile, skipWhile, concatFromInstance, startWith, defaultIfEmpty, ignoreElements, count, sum, sumInteger, sumFloat, sumDecimal, concatString, max, maxInteger, maxFloat, maxDecimal, min, minInteger, minFloat, minDecimal, average, averageDecimal, sequenceEqualFromInstance, ambFromInstance, timestamp, updateTimestamp, timeout, getSync, getSyncOr, timeInterval, distinctUntilChanged, distinctByUntilChanged, switchMap, debounce, windowTime, throttleFirst, throttleLast, sampleTime, buffer, bufferTime, bufferCount, bufferTimeOrCount, combineLatestToSequenceFromInstance, withLatestFromToSequence, zipToSequenceFromInstance, groupByWindow, windowCount, windowTimeOrCount, sample, sampleCount, sampleTimeOrCount, bufferCountSkip, pipe, pluck, mergeAll, pipeOn, pipeOnNew, subscribeOn, subscribeOnNew, pairwise, let, groupByField, complexPipe, complexPipeOn, complexPipeOnNew, decouple, distinctByField, distinctByFieldUntilChanged);
+		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial, toStream, catchError, retry, observeOn, groupBy, observeToChannel, observeOnNew, every, contains, takeWhile, skipWhile, concatFromInstance, startWith, defaultIfEmpty, ignoreElements, count, sum, sumInteger, sumFloat, sumDecimal, concatString, max, maxInteger, maxFloat, maxDecimal, min, minInteger, minFloat, minDecimal, average, averageDecimal, sequenceEqualFromInstance, ambFromInstance, timestamp, updateTimestamp, timeout, getSync, getSyncOr, timeInterval, distinctUntilChanged, distinctByUntilChanged, switchMap, debounce, windowTime, throttleFirst, throttleLast, sampleTime, buffer, bufferTime, bufferCount, bufferTimeOrCount, combineLatestToSequenceFromInstance, withLatestFromToSequence, zipToSequenceFromInstance, groupByWindow, windowCount, windowTimeOrCount, sample, sampleCount, sampleTimeOrCount, bufferCountSkip, pipe, pluck, mergeAll, pipeOn, pipeOnNew, subscribeOn, subscribeOnNew, pairwise, let, groupByField, complexPipe, complexPipeOn, complexPipeOnNew, decouple, distinctByField, distinctByFieldUntilChanged, pausableBuffered);
 	}
 }
