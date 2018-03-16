@@ -121,5 +121,6 @@ event ISubject {
 	action<> returns IObservable decouple;
 	action<string> returns IObservable distinctByField;
 	action<string> returns IObservable distinctByFieldUntilChanged;
+	action<IObservable> returns IObservable pausable;
 	action<IObservable> returns IObservable pausableBuffered;
 }

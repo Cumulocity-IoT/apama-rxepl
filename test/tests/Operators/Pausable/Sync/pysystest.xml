@@ -2,8 +2,8 @@
 <pysystest type="auto" state="runnable">
     
   <description> 
-    <title>PausableBuffered Sync</title>    
-    <purpose><![CDATA[PausableBuffered Sync]]></purpose>
+    <title>Pausable Sync</title>    
+    <purpose><![CDATA[Pausable Sync]]></purpose>
   </description>
 
   <classification>

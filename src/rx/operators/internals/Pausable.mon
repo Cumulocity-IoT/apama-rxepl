@@ -1,0 +1,31 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObservable;
+
+/** @private */
+event PausableComplexPipe {
+	IObservable trigger;
+	
+	static action create(IObservable trigger) returns action<IObservable> returns IObservable {
+		return PausableComplexPipe(trigger).pausable;
+	}
+	
+	action pausable(IObservable o) returns IObservable {
+		IObservable pauser := trigger.startWith([<any>false]).scanWithInitial(invertBool, false);
+		return o.withLatestFromToSequence([pauser]).filter(getSecondFromSeq).map(getFirstFromSeq);
+	}
+
+	static action invertBool(any bool, any ignore) returns any {
+		return not <boolean> bool;
+	}
+	
+	static action getSecondFromSeq(any seq) returns boolean {
+		return <boolean> ((<sequence<any> > seq)[1]);
+	}
+	
+	static action getFirstFromSeq(any seq) returns any {
+		return (<sequence<any> > seq)[0];
+	}
+}
