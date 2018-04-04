@@ -995,7 +995,7 @@ event Observable {
 	
 	action complexPipe(action<IObservable> returns IObservable complexPipe) returns IObservable {
 		// Can't use operators.complexPipe it would cause a circular loop
-		return complexPipe(self.asIObservable());
+		return pipe([ComplexPipe.create(_createAsIObservable, getSetOnConnection, complexPipe)]);
 	}
 	
 	action complexPipeOn(action<IObservable> returns IObservable complexPipe, context targetContext) returns IObservable {

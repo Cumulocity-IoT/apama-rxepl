@@ -21,6 +21,6 @@ event PipeComplexPipe {
 	action pipeable(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
 		Observable o := Observable._create();
 		o.onConnection := onConnection;
-		return complexPipe(o.asIObservable()).connectObserver;
+		return ComplexPipeOnConnection.create(o.asIObservable(), complexPipe);
 	}
 }

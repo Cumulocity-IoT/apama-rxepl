@@ -11,6 +11,20 @@ using com.industry.rx_epl.Subscriber;
 using com.industry.rx_epl.utils.Utils;
 
 /** @private */
+event ComplexPipeOnConnection {
+	IObservable parent;
+	action<IObservable> returns IObservable complexPipe;
+	
+	static action create(IObservable parent, action<IObservable> returns IObservable complexPipe) returns action<IObserver> returns ISubscription {
+		return ComplexPipeOnConnection(parent, complexPipe).onConnection;
+	}
+	
+	action onConnection(IObserver observer) returns ISubscription {
+		return complexPipe(parent).connectObserver(observer);
+	}
+}
+
+/** @private */
 event ComplexPipe {
 	action<> returns IObservable createObservable;
 	action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection;
@@ -23,6 +37,6 @@ event ComplexPipe {
 	action pipeable(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
 		IObservable o := createObservable();
 		getSetOnConnection(o)(onConnection);
-		return complexPipe(o).connectObserver;
+		return ComplexPipeOnConnection.create(o, complexPipe);
 	}
 }
