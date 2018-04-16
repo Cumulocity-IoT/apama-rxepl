@@ -51,9 +51,15 @@ event BufferCountSubscriber {
 	
 	action complete() {
 		while buffer.size() > 0 {
-			emitBuffer();
+			if subscriber.subscribed() {
+				emitBuffer();
+			} else {
+				break;
+			}
 		}
-		subscriber.complete();
+		if subscriber.subscribed() {
+			subscriber.complete();
+		}
 	}
 }
 

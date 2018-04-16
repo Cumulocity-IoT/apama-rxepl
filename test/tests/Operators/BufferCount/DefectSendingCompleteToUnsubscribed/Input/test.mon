@@ -1,0 +1,21 @@
+using com.industry.rx_epl.Observable;
+
+using utils.Test;
+using utils.TestObservables;
+using utils.ExpectValues;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	integer teardownCount := 0;
+	
+	integer completeCount := 0;
+	
+	action onload() {
+		any discard := Observable.just(1)
+			.zipToSequence([Observable.just(1)])
+			.bufferCount(3)
+			.take(1)
+      		.subscribe(ExpectValues.create([<any>[<any>[<any>1,1]]], test.complete, test.fail)); // This receives 2 completes (1 from the take and 1 from the bufferCount)
+	}
+}

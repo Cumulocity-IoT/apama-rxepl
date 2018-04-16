@@ -34,10 +34,14 @@ event BufferTimeOrCountSubscriberFactory {
 	action complete() {
 		// Don't emit empty bucket if we already emitted at this timestamp
 		if lastEmitTimestamp != currentTime or buffer.size() > 0 {
-			emitBuffer();
+			if subscriber.subscribed() {
+				emitBuffer();
+			}
 		}
 		timeListener.quit();
-		subscriber.complete();
+		if subscriber.subscribed() {
+			subscriber.complete();
+		}
 	}
 	
 	action emitBuffer() {

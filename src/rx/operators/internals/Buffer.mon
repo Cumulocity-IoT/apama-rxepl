@@ -50,9 +50,13 @@ event BufferSubscriberFactory {
 	action triggerComplete() {
 		// Don't emit empty bucket if we already emitted at this timestamp
 		if lastEmitTimestamp != currentTime or buffer.size() > 0 {
-			emitBuffer();
+			if subscriber.subscribed() {
+				emitBuffer();
+			}
 		}
-		subscriber.complete();
+		if subscriber.subscribed() {
+			subscriber.complete();
+		}
 	}
 	
 	action connectTrigger() {
