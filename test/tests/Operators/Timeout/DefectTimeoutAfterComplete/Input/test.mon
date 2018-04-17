@@ -1,0 +1,29 @@
+using utils.Test;
+
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.Subject;
+using com.industry.rx_epl.ISubject;
+using com.industry.rx_epl.TimestampedValue;
+using com.industry.rx_epl.Subscriber;
+
+
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	action onload() {
+		ISubject s := Subject.create();
+		
+		any discard := Observable.just(1)
+			.timeout(0.2)
+			.subscribe(Subscriber.create().onError(failOnError));
+		
+		on wait(0.4) {
+			test.complete();
+		}
+	}
+	
+	action failOnError(any value) {
+		test.fail("Error received after completion");
+	}
+}

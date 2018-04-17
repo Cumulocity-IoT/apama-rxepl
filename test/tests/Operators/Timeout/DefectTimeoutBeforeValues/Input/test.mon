@@ -1,0 +1,20 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.Subject;
+using com.industry.rx_epl.ISubject;
+using com.industry.rx_epl.TimestampedValue;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	action onload() {
+		ISubject s := Subject.create();
+		
+		any discard := s.timeout(0.2)
+			.catchError(Observable.just("done"))
+			.subscribe(ExpectValues.create([<any>"done"], test.complete, test.fail));
+	}
+}

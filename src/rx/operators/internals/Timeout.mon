@@ -17,17 +17,27 @@ event TimeoutSubscriber {
 	
 	static action create(IObserver subscriber, float timeout) returns IObserver {
 		TimeoutSubscriber m := TimeoutSubscriber(subscriber, timeout, new listener);
-		return IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).build();
+		subscriber.onUnsubscribe(m.quitTimeoutListener);
+		m.updateListener();
+		return IObserverBuilder.create(subscriber.createUpstream()).onComplete(m.quitTimeoutListener).onNext(m.next).build();
 	}
     
 	action next(any value) {
-		ifpresent timeoutListener {
-			timeoutListener.quit();
-		}
+		updateListener();
 		subscriber.next(value);
+	}
+	
+	action updateListener() {
+		quitTimeoutListener();
 		timeoutListener := on wait(timeout) {
 			subscriber.error(Exception("Timed out after " + timeout.toString() + " seconds", "TimeoutException"));
 		}
+	}
+	
+	action quitTimeoutListener() {
+		ifpresent timeoutListener {
+			timeoutListener.quit();
+		}		
 	}
 }
 
