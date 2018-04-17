@@ -1,12 +1,11 @@
 package com.industry.rx_epl.operators;
 
 using com.industry.rx_epl.IObservable;
-using com.industry.rx_epl.Observable;
 using com.industry.rx_epl.IObserver;
 using com.industry.rx_epl.ISubscription;
 
 event BufferTime {	
 	static action create(float time) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
-		return Buffer.create(Observable.interval(time));
+		return Buffer.create((<action<float> returns IObservable> any.newInstance("com.industry.rx_epl.Observable").getAction("interval"))(time));
 	}
 }

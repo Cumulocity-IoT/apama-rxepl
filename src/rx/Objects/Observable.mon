@@ -9,17 +9,19 @@ using com.industry.rx_epl.operators.AverageDecimal;
 using com.industry.rx_epl.operators.Buffer;
 using com.industry.rx_epl.operators.BufferCount;
 using com.industry.rx_epl.operators.BufferCountSkip;
-//using com.industry.rx_epl.operators.BufferTime;
+using com.industry.rx_epl.operators.BufferTime;
 using com.industry.rx_epl.operators.BufferTimeOrCount;
 using com.industry.rx_epl.operators.CatchError;
 using com.industry.rx_epl.operators.CombineLatest;
 using com.industry.rx_epl.operators.CombineLatestToSequence;
-//using com.industry.rx_epl.operators.ComplexPipe;
+using com.industry.rx_epl.operators.ComplexPipe;
+using com.industry.rx_epl.operators.ComplexPipeOn;
+using com.industry.rx_epl.operators.ComplexPipeOnNew;
 using com.industry.rx_epl.operators.Concat;
 using com.industry.rx_epl.operators.ConcatString;
 using com.industry.rx_epl.operators.Contains;
 using com.industry.rx_epl.operators.Count;
-//using com.industry.rx_epl.operators.Debounce;
+using com.industry.rx_epl.operators.Debounce;
 using com.industry.rx_epl.operators.DefaultIfEmpty;
 using com.industry.rx_epl.operators.Delay;
 using com.industry.rx_epl.operators.Distinct;
@@ -34,9 +36,9 @@ using com.industry.rx_epl.operators.Every;
 using com.industry.rx_epl.operators.Filter;
 using com.industry.rx_epl.operators.First;
 using com.industry.rx_epl.operators.FlatMap;
-//using com.industry.rx_epl.operators.GroupBy;
-//using com.industry.rx_epl.operators.GroupByField;
-//using com.industry.rx_epl.operators.GroupByWindow;
+using com.industry.rx_epl.operators.GroupBy;
+using com.industry.rx_epl.operators.GroupByField;
+using com.industry.rx_epl.operators.GroupByWindow;
 using com.industry.rx_epl.operators.IgnoreElements;
 using com.industry.rx_epl.operators.Last;
 using com.industry.rx_epl.operators.Let;
@@ -51,19 +53,21 @@ using com.industry.rx_epl.operators.MinFloat;
 using com.industry.rx_epl.operators.MinInteger;
 using com.industry.rx_epl.operators.Merge;
 using com.industry.rx_epl.operators.MergeAll;
-//using com.industry.rx_epl.operators.Pausable;
-//using com.industry.rx_epl.operators.PausableBuffered;
+using com.industry.rx_epl.operators.Pausable;
+using com.industry.rx_epl.operators.PausableBuffered;
 using com.industry.rx_epl.operators.Pairwise;
 using com.industry.rx_epl.operators.Pipe;
+using com.industry.rx_epl.operators.PipeOn;
+using com.industry.rx_epl.operators.PipeOnNew;
 using com.industry.rx_epl.operators.Pluck;
 using com.industry.rx_epl.operators.Reduce;
 using com.industry.rx_epl.operators.ReduceWithInitial;
 using com.industry.rx_epl.operators.Repeat;
 using com.industry.rx_epl.operators.Retry;
-//using com.industry.rx_epl.operators.Sample;
-//using com.industry.rx_epl.operators.SampleCount;
-//using com.industry.rx_epl.operators.SampleTime;
-//using com.industry.rx_epl.operators.SampleTimeOrCount;
+using com.industry.rx_epl.operators.Sample;
+using com.industry.rx_epl.operators.SampleCount;
+using com.industry.rx_epl.operators.SampleTime;
+using com.industry.rx_epl.operators.SampleTimeOrCount;
 using com.industry.rx_epl.operators.Scan;
 using com.industry.rx_epl.operators.ScanWithInitial;
 using com.industry.rx_epl.operators.SequenceEqual;
@@ -90,29 +94,22 @@ using com.industry.rx_epl.operators.Timestamp;
 using com.industry.rx_epl.operators.UpdateTimestamp;
 using com.industry.rx_epl.operators.WithLatestFrom;
 using com.industry.rx_epl.operators.WithLatestFromToSequence;
-//using com.industry.rx_epl.operators.WindowCount;
-//using com.industry.rx_epl.operators.WindowTime;
-//using com.industry.rx_epl.operators.WindowTimeOrCount;
+using com.industry.rx_epl.operators.WindowCount;
+using com.industry.rx_epl.operators.WindowTime;
+using com.industry.rx_epl.operators.WindowTimeOrCount;
 using com.industry.rx_epl.operators.Zip;
 using com.industry.rx_epl.operators.ZipToSequence;
 
-using com.industry.rx_epl.operators.internals.ComplexPipe;
 using com.industry.rx_epl.operators.internals.CreateOnConnection;
-using com.industry.rx_epl.operators.internals.DebounceHandler;
 using com.industry.rx_epl.operators.internals.EmptyNeverError;
 using com.industry.rx_epl.operators.internals.FromChannelOnConnection;
 using com.industry.rx_epl.operators.internals.FromIteratorOnConnection;
 using com.industry.rx_epl.operators.internals.FromStreamOnConnection;
 using com.industry.rx_epl.operators.internals.FromOnConnection;
 using com.industry.rx_epl.operators.internals.GetSyncHandler;
-using com.industry.rx_epl.operators.internals.GroupByOnConnection;
 using com.industry.rx_epl.operators.internals.IntervalOnConnection;
 using com.industry.rx_epl.operators.internals.JustOnConnection;
 using com.industry.rx_epl.operators.internals.ObserveOnHandler;
-using com.industry.rx_epl.operators.internals.PausableBufferedComplexPipe;
-using com.industry.rx_epl.operators.internals.PausableComplexPipe;
-using com.industry.rx_epl.operators.internals.PipeOnOnConnection;
-using com.industry.rx_epl.operators.internals.PluckMapper;
 using com.industry.rx_epl.operators.internals.PublishHandler;
 using com.industry.rx_epl.operators.internals.PublishReplayHandler;
 using com.industry.rx_epl.operators.internals.ObserveToHandler;
@@ -120,14 +117,10 @@ using com.industry.rx_epl.operators.internals.RangeOnConnection;
 using com.industry.rx_epl.operators.internals.ObserveFromDispose;
 using com.industry.rx_epl.operators.internals.ObserveFromOnConnection;
 using com.industry.rx_epl.operators.internals.RefCountOnConnection;
-using com.industry.rx_epl.operators.internals.SampleMapper;
 using com.industry.rx_epl.operators.internals.StartOnConnection;
 using com.industry.rx_epl.operators.internals.SubscribeOnConnection;
 using com.industry.rx_epl.operators.internals.SubscribeOn;
 using com.industry.rx_epl.operators.internals.ToStream;
-using com.industry.rx_epl.operators.internals.WindowCountOnConnection;
-using com.industry.rx_epl.operators.internals.WindowOnConnection;
-using com.industry.rx_epl.operators.internals.WindowTimeOrCountOnConnection;
 
 event Observable {	
 	action<IObserver> returns ISubscription onConnection;
@@ -583,9 +576,8 @@ event Observable {
 	 */
 	action groupBy(action<any> returns any groupBy) returns IObservable {
 		Observable o := _create();
-		// Can't use GroupBy.create because internally it uses Subject which would cause a circular loop
-		o.onConnection := GroupByOnConnection.create(_createAsIObservable, getSetOnConnection, onConnection, groupBy);
-		return o.asIObservable();		
+		o.onConnection := GroupBy.create(groupBy)(onConnection);
+		return o.asIObservable();
 	}
 	
 	/**
@@ -825,19 +817,19 @@ event Observable {
 	action switchMap(action<any> returns IObservable mapper) returns IObservable {
 		Observable o := _create();
 		o.onConnection := SwitchMap.create(mapper)(onConnection);
-		return o.asIObservable();	
+		return o.asIObservable();
 	}
 	
 	action debounce(float duration) returns IObservable {
-		// Can't use operators.Debounce because there'd be a circular dependency on Observable.just
-		return switchMap(DebounceHandler.create(duration, just));
+		Observable o := _create();
+		o.onConnection := Debounce.create(duration)(onConnection);
+		return o.asIObservable();
 	}
 	
 	action groupByWindow(IObservable trigger) returns IObservable {
 		Observable o := _create();
-		// Can't use operators.GroupByWindow because there'd be a circular dependency on Observable
-		o.onConnection := WindowOnConnection.create(_createAsIObservable, getSetOnConnection, onConnection, trigger);
-		return o.asIObservable();	
+		o.onConnection := GroupByWindow.create(trigger)(onConnection);
+		return o.asIObservable();
 	}
 	
 	action throttleFirst(float throttleDuration) returns IObservable {
@@ -853,8 +845,9 @@ event Observable {
 	}
 	
 	action sample(IObservable trigger) returns IObservable {
-		// Can't use operators.sample as there would be a circular dependency on Observable
-		return groupByWindow(trigger).switchMap(SampleMapper.switchMapSample);
+		Observable o := _create();
+		o.onConnection := Sample.create(trigger)(onConnection);
+		return o.asIObservable();
 	}
 	
 	action buffer(IObservable trigger) returns IObservable {
@@ -864,8 +857,9 @@ event Observable {
 	}
 	
 	action bufferTime(float duration) returns IObservable {
-		// Can't use operators.BufferTime as there would be a circular dependency on Observable
-		return buffer(interval(duration));
+		Observable o := _create();
+		o.onConnection := BufferTime.create(duration)(onConnection);
+		return o.asIObservable();
 	}
 	
 	action bufferCount(integer count) returns IObservable {
@@ -899,37 +893,39 @@ event Observable {
 	}
 	
 	action windowTime(float time) returns IObservable {
-		return groupByWindow(interval(time));
+		Observable o := _create();
+		o.onConnection := WindowTime.create(time)(onConnection);
+		return o.asIObservable();
 	}
 	
 	action windowCount(integer count) returns IObservable {
-		// Can't use operators.BufferTime as there would be a circular dependency on Observable
 		Observable o := _create();
-		o.onConnection := WindowCountOnConnection.create(_createAsIObservable, getSetOnConnection, onConnection, count);
-		return o.asIObservable();	
-
+		o.onConnection := WindowCount.create(count)(onConnection);
+		return o.asIObservable();
 	}
 	
 	action windowTimeOrCount(float time, integer count) returns IObservable {
-		// Can't use operators.BufferTime as there would be a circular dependency on Observable
 		Observable o := _create();
-		o.onConnection := WindowTimeOrCountOnConnection.create(_createAsIObservable, getSetOnConnection, onConnection, time, count);
-		return o.asIObservable();	
+		o.onConnection := WindowTimeOrCount.create(time, count)(onConnection);
+		return o.asIObservable();
 	}
 	
 	action sampleTime(float time) returns IObservable {
-		// Can't use operators.BufferTime as there would be a circular dependency on Observable
-		return windowTime(time).switchMap(SampleMapper.switchMapSample);
+		Observable o := _create();
+		o.onConnection := SampleTime.create(time)(onConnection);
+		return o.asIObservable();
 	}
 	
 	action sampleCount(integer count) returns IObservable {
-		// Can't use operators.BufferTime as there would be a circular dependency on Observable
-		return windowCount(count).switchMap(SampleMapper.switchMapSample);
+		Observable o := _create();
+		o.onConnection := SampleCount.create(count)(onConnection);
+		return o.asIObservable();
 	}
 	
 	action sampleTimeOrCount(float time, integer count) returns IObservable {
-		// Can't use operators.BufferTime as there would be a circular dependency on Observable
-		return windowTimeOrCount(time, count).switchMap(SampleMapper.switchMapSample);
+		Observable o := _create();
+		o.onConnection := SampleTimeOrCount.create(time, count)(onConnection);
+		return o.asIObservable();
 	}
 
 	action bufferCountSkip(integer count, integer skip) returns IObservable {
@@ -958,13 +954,13 @@ event Observable {
 	
 	action pipeOn(sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> pipeModifiers, context targetContext) returns IObservable {
 		Observable o := _create();
-		o.onConnection := PipeOnOnConnection.create(observeFromChannel, onConnection, targetContext, pipeModifiers);
+		o.onConnection := PipeOn.create(pipeModifiers, targetContext)(onConnection);
 		return o.asIObservable();
 	}
 	
 	action pipeOnNew(sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> pipeModifiers) returns IObservable {
 		Observable o := _create();
-		o.onConnection := PipeOnOnConnection.create(observeFromChannel, onConnection, context("PipeOnContext" + integer.getUnique().toString(), false), pipeModifiers);
+		o.onConnection := PipeOnNew.create(pipeModifiers)(onConnection);
 		return o.asIObservable();
 	}
 	
@@ -989,23 +985,27 @@ event Observable {
 	}
 	
 	action groupByField(any fieldName) returns IObservable {
-		// Can't use operators.GroupByField it would cause a circular loop
-		return groupBy(PluckMapper.create(fieldName));
+		Observable o := _create();
+		o.onConnection := GroupByField.create(fieldName)(onConnection);
+		return o.asIObservable();
 	}
 	
 	action complexPipe(action<IObservable> returns IObservable complexPipe) returns IObservable {
-		// Can't use operators.complexPipe it would cause a circular loop
-		return pipe([ComplexPipe.create(_createAsIObservable, getSetOnConnection, complexPipe)]);
+		Observable o := _create();
+		o.onConnection := ComplexPipe.create(complexPipe)(onConnection);
+		return o.asIObservable();
 	}
 	
 	action complexPipeOn(action<IObservable> returns IObservable complexPipe, context targetContext) returns IObservable {
-		// Can't use operators.complexPipeOn it would cause a circular loop
-		return pipeOn([ComplexPipe.create(_createAsIObservable, getSetOnConnection, complexPipe)], targetContext);
+		Observable o := _create();
+		o.onConnection := ComplexPipeOn.create(complexPipe, targetContext)(onConnection);
+		return o.asIObservable();
 	}
 	
 	action complexPipeOnNew(action<IObservable> returns IObservable complexPipe) returns IObservable {
-		// Can't use operators.complexPipeOn it would cause a circular loop
-		return pipeOnNew([ComplexPipe.create(_createAsIObservable, getSetOnConnection, complexPipe)]);
+		Observable o := _create();
+		o.onConnection := ComplexPipeOnNew.create(complexPipe)(onConnection);
+		return o.asIObservable();
 	}
 	
 	action decouple() returns IObservable {
@@ -1027,13 +1027,15 @@ event Observable {
 	}
 	
 	action pausable(IObservable pauser) returns IObservable {
-		// Can't use operators.pausable it would cause a circular loop
-		return complexPipe(PausableComplexPipe.create(pauser));
+		Observable o := _create();
+		o.onConnection := Pausable.create(pauser)(onConnection);
+		return o.asIObservable();
 	}
 	
 	action pausableBuffered(IObservable trigger) returns IObservable {
-		// Can't use operators.pausableBuffered it would cause a circular loop
-		return complexPipe(PausableBufferedComplexPipe.create(never, trigger));
+		Observable o := _create();
+		o.onConnection := PausableBuffered.create(trigger)(onConnection);
+		return o.asIObservable();
 	}
 	
 	static action invalidConnect() returns IDisposable {

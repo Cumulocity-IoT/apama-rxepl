@@ -21,16 +21,15 @@ event PipeOnOnConnection {
 	string upstreamChannel;
 	string downstreamChannel;
 	context downstreamContext;
-	action<string> returns IObservable observeFromChannel;
 	sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> pipeModifiers;
 	optional<IDisposable> upstream;
 	boolean downstreamCreated;
 	boolean downstreamBeingCreated;
 	integer subscriberCount;
 	
-	static action create(action<string> returns IObservable observeFromChannel, action<IObserver> returns ISubscription parentOnConnection, context downstreamContext, sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> pipeModifiers) returns action<IObserver> returns ISubscription {
+	static action create(action<IObserver> returns ISubscription parentOnConnection, context downstreamContext, sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> pipeModifiers) returns action<IObserver> returns ISubscription {
 		string uniqueId := integer.getUnique().toString();
-		PipeOnOnConnection o := PipeOnOnConnection(parentOnConnection, "PipeOnUpstreamChannel" + uniqueId, "PipeOnDownstreamChannel" + uniqueId, downstreamContext, observeFromChannel, pipeModifiers, new optional<IDisposable>, false, false, 0);
+		PipeOnOnConnection o := PipeOnOnConnection(parentOnConnection, "PipeOnUpstreamChannel" + uniqueId, "PipeOnDownstreamChannel" + uniqueId, downstreamContext, pipeModifiers, new optional<IDisposable>, false, false, 0);
 		return o.onConnection;
 	}
 	
@@ -46,7 +45,6 @@ event PipeOnOnConnection {
 		
 		if not downstreamCreated and not downstreamBeingCreated {
 			downstreamBeingCreated := true;
-			// TODO: start buffer to be sent downstream to synchronously connecting observables - Note to self - this isn't possible without knowing if observable is hot
 			spawnToContext(downstreamChannel);
 		}
 		if downstreamBeingCreated {
@@ -54,12 +52,10 @@ event PipeOnOnConnection {
 			on Spawned(channel = downstreamChannel) {
 				downstreamBeingCreated := false;
 				downstreamCreated := true;
-				ISubscription s := observeFromChannel(downstreamChannel).connectObserver(subscriber);
-				// TODO: emit buffer to anyone that has just connected (they connected synchronously but missed some data)
+				ISubscription s := (<action<string> returns IObservable> any.newInstance("com.industry.rx_epl.Observable").getAction("observeFromChannel"))(downstreamChannel).connectObserver(subscriber);
 			}
 		} else {
-			ISubscription s := observeFromChannel(downstreamChannel).connectObserver(subscriber);
-			// No need to emit buffer here
+			ISubscription s := (<action<string> returns IObservable> any.newInstance("com.industry.rx_epl.Observable").getAction("observeFromChannel"))(downstreamChannel).connectObserver(subscriber);
 		}
 		
 		return Subscription.create(subscriber).asISubscription();
@@ -95,7 +91,9 @@ event PipeOnOnConnection {
 	}
 	
 	action runOnOtherContext(string downstreamChannel) {
-		IDisposable disposable := observeFromChannel(upstreamChannel).pipe(pipeModifiers).observeToChannel(downstreamChannel);
+		IDisposable disposable := (<action<string> returns IObservable> any.newInstance("com.industry.rx_epl.Observable").getAction("observeFromChannel"))(upstreamChannel)
+			.pipe(pipeModifiers)
+			.observeToChannel(downstreamChannel);
 		send Spawned(downstreamChannel) to downstreamChannel;
 	}
 }

@@ -8,20 +8,15 @@ using com.industry.rx_epl.IObservable;
 using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.ISubject;
 using com.industry.rx_epl.Subscription;
-using com.industry.rx_epl.Subscriber;
-using com.industry.rx_epl.internals.BaseRepeatToFirstSubject;
-using com.industry.rx_epl.utils.Utils;
 
 /** @private */
 event GroupBySubscriber {
-	action<> returns IObservable createObservable;
-	action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection;
 	IObserver subscriber;
 	action<any> returns any groupBy;
 	dictionary<any, ISubject> subjectByGroup;
 	
-	static action create(action<> returns IObservable createObservable, action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection, IObserver subscriber, action<any> returns any groupBy) returns IObserver {
-		GroupBySubscriber m := GroupBySubscriber(createObservable, getSetOnConnection, subscriber, groupBy, new dictionary<any, ISubject>);
+	static action create(IObserver subscriber, action<any> returns any groupBy) returns IObserver {
+		GroupBySubscriber m := GroupBySubscriber(subscriber, groupBy, new dictionary<any, ISubject>);
 		subscriber.onUnsubscribe(m.unsubscribe);
 		return IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).onComplete(m.complete).build();
 	}
@@ -33,8 +28,7 @@ event GroupBySubscriber {
 			if subjectByGroup.hasKey(group) {
 				subject := subjectByGroup[group];
 			} else {
-				IObservable o := createObservable();
-				subject := BaseRepeatToFirstSubject.create(o, getSetOnConnection(o));
+				subject := (<action<> returns ISubject> any.newInstance("com.industry.rx_epl.RepeatToFirstSubject").getAction("create"))();
 				subjectByGroup.add(group, subject);
 				subscriber.next(subject.asIObservable());
 			}
@@ -58,16 +52,14 @@ event GroupBySubscriber {
 
 /** @private */
 event GroupByOnConnection {
-	action<> returns IObservable createObservable;
-	action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection;
 	action<IObserver> returns ISubscription parentOnConnection;
 	action<any> returns any groupBy;
 	
-	static action create(action<> returns IObservable createObservable, action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection, action<IObserver> returns ISubscription parentOnConnection, action<any> returns any groupBy) returns action<IObserver> returns ISubscription {
-		return GroupByOnConnection(createObservable, getSetOnConnection, parentOnConnection, groupBy).onConnection;
+	static action create(action<IObserver> returns ISubscription parentOnConnection, action<any> returns any groupBy) returns action<IObserver> returns ISubscription {
+		return GroupByOnConnection(parentOnConnection, groupBy).onConnection;
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {
-		return parentOnConnection(GroupBySubscriber.create(createObservable, getSetOnConnection, subscriber, groupBy));
+		return parentOnConnection(GroupBySubscriber.create(subscriber, groupBy));
 	}
 }

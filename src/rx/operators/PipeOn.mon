@@ -4,7 +4,7 @@ using com.industry.rx_epl.IObservable;
 using com.industry.rx_epl.IObserver;
 using com.industry.rx_epl.ISubscription;
 
-using com.industry.rx_epl.operators.internals.PipePipeOnOnConnection;
+using com.industry.rx_epl.operators.internals.PipeOnOnConnection;
 
 event PipeOn {
 	sequence<action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription> pipeModifiers;
@@ -15,7 +15,7 @@ event PipeOn {
 	}
 
 	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {		
-		return PipePipeOnOnConnection.create(onConnection,targetContext, pipeModifiers);
+		return PipeOnOnConnection.create(onConnection,targetContext, pipeModifiers);
 	}
 }
 

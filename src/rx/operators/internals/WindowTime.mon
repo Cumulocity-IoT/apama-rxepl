@@ -9,19 +9,16 @@ using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 using com.industry.rx_epl.ISubject;
-using com.industry.rx_epl.BaseSubject;
 
 /** @private */
-event TimeWindowSubscriber {
-	action<> returns IObservable createObservable;
-	action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection;
+event WindowTimeSubscriber {
 	IObserver subscriber;
 	ISubject currentSubject;
 	listener windowCreationListener;
 	float windowDuration;
 	
-	static action create(action<> returns IObservable createObservable, action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection, IObserver subscriber, float windowDuration) returns IObserver {
-		TimeWindowSubscriber m := TimeWindowSubscriber(createObservable, getSetOnConnection, subscriber, new ISubject, new listener, windowDuration);
+	static action create(IObserver subscriber, float windowDuration) returns IObserver {
+		WindowTimeSubscriber m := WindowTimeSubscriber(subscriber, new ISubject, new listener, windowDuration);
 		subscriber.onUnsubscribe(m.unsubscribe);
 		m.startTimeWindowCreationListener();
 		return IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).build();
@@ -32,8 +29,7 @@ event TimeWindowSubscriber {
 	}
 	
 	action createNextSubject() {
-		IObservable o := createObservable();
-		currentSubject := BaseSubject.create(o, getSetOnConnection(o));
+		currentSubject := (<action<> returns ISubject> any.newInstance("com.industry.rx_epl.Subject").getAction("create"))();
 		subscriber.next(currentSubject.asIObservable());
 	}
 	
@@ -53,17 +49,15 @@ event TimeWindowSubscriber {
 }
 
 /** @private */
-event TimeWindowOnConnection {
-	action<> returns IObservable createObservable;
-	action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection;
+event WindowTimeOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
 	float windowDuration;
 	
-	static action create(action<> returns IObservable createObservable, action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection, action<IObserver> returns ISubscription parentOnConnection, float windowDuration) returns action<IObserver> returns ISubscription {
-		return TimeWindowOnConnection(createObservable, getSetOnConnection, parentOnConnection, windowDuration).onConnection;
+	static action create(action<IObserver> returns ISubscription parentOnConnection, float windowDuration) returns action<IObserver> returns ISubscription {
+		return WindowTimeOnConnection(parentOnConnection, windowDuration).onConnection;
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {
-		return parentOnConnection(TimeWindowSubscriber.create(createObservable, getSetOnConnection, subscriber, windowDuration));
+		return parentOnConnection(WindowTimeSubscriber.create(subscriber, windowDuration));
 	}
 }

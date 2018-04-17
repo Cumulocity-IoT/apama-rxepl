@@ -9,20 +9,17 @@ using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 using com.industry.rx_epl.ISubject;
-using com.industry.rx_epl.BaseSubject;
 
 /** @private */
 event WindowCountSubscriber {
-	action<> returns IObservable createObservable;
-	action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection;
 	IObserver subscriber;
 	IObserver upstream;
 	integer count;
 	integer currentCount;
 	optional<ISubject> currentSubject;
 	
-	static action create(action<> returns IObservable createObservable, action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection, IObserver subscriber, integer count) returns IObserver {
-		WindowCountSubscriber w := WindowCountSubscriber(createObservable, getSetOnConnection, subscriber, new IObserver, count, 0, new optional<ISubject>);
+	static action create(IObserver subscriber, integer count) returns IObserver {
+		WindowCountSubscriber w := WindowCountSubscriber(subscriber, new IObserver, count, 0, new optional<ISubject>);
 		w.createNextSubject();
 		return IObserverBuilder.create(subscriber.createUpstream()).onNext(w.next).onComplete(w.complete).build();
 	}
@@ -45,24 +42,21 @@ event WindowCountSubscriber {
 		ifpresent currentSubject {
 			currentSubject.complete();
 		}
-		IObservable o := createObservable();
-		currentSubject := BaseSubject.create(o, getSetOnConnection(o));
+		currentSubject := (<action<> returns ISubject> any.newInstance("com.industry.rx_epl.Subject").getAction("create"))();
 		subscriber.next(currentSubject.getOrThrow().asIObservable());
 	}
 }
 
 /** @private */
 event WindowCountOnConnection {
-	action<> returns IObservable createObservable;
-	action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection;
 	action<IObserver> returns ISubscription parentOnConnection;
 	integer count;
 	
-	static action create(action<> returns IObservable createObservable, action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection, action<IObserver> returns ISubscription parentOnConnection, integer count) returns action<IObserver> returns ISubscription {
-		return WindowCountOnConnection(createObservable, getSetOnConnection, parentOnConnection, count).onConnection;
+	static action create(action<IObserver> returns ISubscription parentOnConnection, integer count) returns action<IObserver> returns ISubscription {
+		return WindowCountOnConnection(parentOnConnection, count).onConnection;
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {
-		return parentOnConnection(WindowCountSubscriber.create(createObservable, getSetOnConnection, subscriber, count));
+		return parentOnConnection(WindowCountSubscriber.create(subscriber, count));
 	}
 }

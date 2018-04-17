@@ -4,10 +4,10 @@ using com.industry.rx_epl.IObservable;
 using com.industry.rx_epl.IObserver;
 using com.industry.rx_epl.ISubscription;
 
-using com.industry.rx_epl.operators.internals.PipeWindowOnConnection;
-using com.industry.rx_epl.operators.internals.PipeWindowCountOnConnection;
-using com.industry.rx_epl.operators.internals.PipeWindowTimeOnConnection;
-using com.industry.rx_epl.operators.internals.PipeWindowTimeOrCountOnConnection;
+using com.industry.rx_epl.operators.internals.WindowOnConnection;
+using com.industry.rx_epl.operators.internals.WindowCountOnConnection;
+using com.industry.rx_epl.operators.internals.WindowTimeOnConnection;
+using com.industry.rx_epl.operators.internals.WindowTimeOrCountOnConnection;
 
 event GroupByWindow {
 	IObservable trigger;
@@ -17,7 +17,7 @@ event GroupByWindow {
 	}
 
 	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
-		return PipeWindowOnConnection.create(onConnection, trigger);
+		return WindowOnConnection.create(onConnection, trigger);
 	}
 }
 
@@ -29,7 +29,7 @@ event WindowCount {
 	}
 
 	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
-		return PipeWindowCountOnConnection.create(onConnection, count);
+		return WindowCountOnConnection.create(onConnection, count);
 	}
 }
 
@@ -41,7 +41,7 @@ event WindowTime {
 	}
 
 	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
-		return PipeWindowTimeOnConnection.create(onConnection, time);
+		return WindowTimeOnConnection.create(onConnection, time);
 	}
 }
 
@@ -54,6 +54,6 @@ event WindowTimeOrCount {
 	}
 
 	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
-		return PipeWindowTimeOrCountOnConnection.create(onConnection, time, count);
+		return WindowTimeOrCountOnConnection.create(onConnection, time, count);
 	}
 }

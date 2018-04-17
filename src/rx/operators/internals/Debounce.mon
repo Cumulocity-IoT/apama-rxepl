@@ -13,13 +13,13 @@ using com.industry.rx_epl.utils.Utils;
 /** @private */
 event DebounceHandler {
 	float duration;
-	action<any> returns IObservable just;
 	
-	static action create(float duration, action<any> returns IObservable just) returns action<any> returns IObservable {
-		return DebounceHandler(duration, just).switchToDelayed;
+	static action create(float duration) returns action<any> returns IObservable {
+		return DebounceHandler(duration).switchToDelayed;
 	}
 	
 	action switchToDelayed(any value) returns IObservable {
-		return just(value).delay(duration);
+		return (<action<any> returns IObservable> any.newInstance("com.industry.rx_epl.Observable").getAction("just"))(value)
+			.delay(duration);
 	}
 }

@@ -4,7 +4,7 @@ using com.industry.rx_epl.IObservable;
 using com.industry.rx_epl.IObserver;
 using com.industry.rx_epl.ISubscription;
 
-using com.industry.rx_epl.operators.internals.PipeGroupByOnConnection;
+using com.industry.rx_epl.operators.internals.GroupByOnConnection;
 using com.industry.rx_epl.operators.internals.PluckMapper;
 
 event GroupBy {
@@ -15,7 +15,7 @@ event GroupBy {
 	}
 
 	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
-		return PipeGroupByOnConnection.create(onConnection, by);
+		return GroupByOnConnection.create(onConnection, by);
 	}
 }
 

@@ -38,5 +38,5 @@ class PySysTest(BaseTest):
 		self.assertGrep('TestResult.evt', expr='TestFailed', contains=False)
 		
 		# Check that the timeWindow creation listener was killed
-		self.assertLineCount('correlator.log', expr='Interval wait listener killed', condition='==1')
+		self.assertLineCount('correlator.log', expr='TimeWindow listener killed', condition='==1')
 		

@@ -9,19 +9,16 @@ using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 using com.industry.rx_epl.ISubject;
-using com.industry.rx_epl.BaseSubject;
 
 /** @private */
 event WindowSubscriberFactory {
-	action<> returns IObservable createObservable;
-	action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection;
 	IObserver subscriber;
 	IObserver upstream;
 	IObservable triggeringSource;
 	optional<ISubject> currentSubject;
 	
-	static action create(action<> returns IObservable createObservable, action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection, IObserver subscriber, IObservable observable) returns WindowSubscriberFactory {
-		WindowSubscriberFactory w := WindowSubscriberFactory(createObservable, getSetOnConnection, subscriber, new IObserver, observable, new optional<ISubject>);
+	static action create(IObserver subscriber, IObservable observable) returns WindowSubscriberFactory {
+		WindowSubscriberFactory w := WindowSubscriberFactory(subscriber, new IObserver, observable, new optional<ISubject>);
 		w.createNextSubject();
 		return w;
 	}
@@ -39,8 +36,7 @@ event WindowSubscriberFactory {
 		ifpresent currentSubject {
 			currentSubject.complete();
 		}
-		IObservable o := createObservable();
-		currentSubject := BaseSubject.create(o, getSetOnConnection(o));
+		currentSubject := (<action<> returns ISubject> any.newInstance("com.industry.rx_epl.Subject").getAction("create"))();
 		subscriber.next(currentSubject.getOrThrow().asIObservable());
 	}
 	
@@ -59,17 +55,15 @@ event WindowSubscriberFactory {
 
 /** @private */
 event WindowOnConnection {
-	action<> returns IObservable createObservable;
-	action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection;
 	action<IObserver> returns ISubscription parentOnConnection;
 	IObservable observable;
 	
-	static action create(action<> returns IObservable createObservable, action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection, action<IObserver> returns ISubscription parentOnConnection, IObservable observable) returns action<IObserver> returns ISubscription {
-		return WindowOnConnection(createObservable, getSetOnConnection, parentOnConnection, observable).onConnection;
+	static action create(action<IObserver> returns ISubscription parentOnConnection, IObservable observable) returns action<IObserver> returns ISubscription {
+		return WindowOnConnection(parentOnConnection, observable).onConnection;
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {
-		WindowSubscriberFactory factory := WindowSubscriberFactory.create(createObservable, getSetOnConnection, subscriber, observable);
+		WindowSubscriberFactory factory := WindowSubscriberFactory.create(subscriber, observable);
 		ISubscription s := parentOnConnection(factory.getUpstream());
 		if subscriber.subscribed() {
 			factory.connectTrigger();

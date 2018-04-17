@@ -23,20 +23,3 @@ event ComplexPipeOnConnection {
 		return complexPipe(parent).connectObserver(observer);
 	}
 }
-
-/** @private */
-event ComplexPipe {
-	action<> returns IObservable createObservable;
-	action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection;
-	action<IObservable> returns IObservable complexPipe;
-	
-	static action create(action<> returns IObservable createObservable, action<IObservable> returns action<action<IObserver> returns ISubscription> getSetOnConnection, action<IObservable> returns IObservable complexPipe) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
-		return ComplexPipe(createObservable, getSetOnConnection, complexPipe).pipeable;
-	}
-	
-	action pipeable(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
-		IObservable o := createObservable();
-		getSetOnConnection(o)(onConnection);
-		return ComplexPipeOnConnection.create(o, complexPipe);
-	}
-}

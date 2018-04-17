@@ -12,16 +12,15 @@ using com.industry.rx_epl.utils.Utils;
 
 /** @private */
 event SwitchIfPaused {
-	action<> returns IObservable never;
 	IObservable source;
 	
-	static action create(action<> returns IObservable never, IObservable source) returns action<any> returns IObservable {
-		return SwitchIfPaused(never, source).switchIfPaused;
+	static action create(IObservable source) returns action<any> returns IObservable {
+		return SwitchIfPaused(source).switchIfPaused;
 	}
 	
 	action switchIfPaused(any paused) returns IObservable {
 		if <boolean> paused {
-			return never();
+			return (<action<> returns IObservable> any.newInstance("com.industry.rx_epl.Observable").getAction("never"))();
 		} else {
 			return source;
 		}
@@ -30,17 +29,16 @@ event SwitchIfPaused {
 
 /** @private */
 event PausableBufferedComplexPipe {
-	action<> returns IObservable never;
 	IObservable trigger;
 	
-	static action create(action<> returns IObservable never, IObservable trigger) returns action<IObservable> returns IObservable {
-		return PausableBufferedComplexPipe(never, trigger).pausableBuffered;
+	static action create(IObservable trigger) returns action<IObservable> returns IObservable {
+		return PausableBufferedComplexPipe(trigger).pausableBuffered;
 	}
 	
 	action pausableBuffered(IObservable o) returns IObservable {
 		IObservable pauser := trigger
 			.scanWithInitial(invertBool, true)
-			.switchMap(SwitchIfPaused.create(never, o));
+			.switchMap(SwitchIfPaused.create(o));
 	
 		return o.buffer(pauser).mergeAll();
 	}
