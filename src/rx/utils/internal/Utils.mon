@@ -14,3 +14,16 @@ event WrappedInteger {
 		value := value + 1;
 	}
 }
+
+/** @private */
+event WrapGeneric {
+	action<sequence<any> > returns any genericAction;
+	
+	static action create(action<sequence<any> > returns any genericAction) returns action<any> {
+		return WrapGeneric(genericAction).call;
+	}
+	
+	action call(any value) {
+		any discard := genericAction([value]);
+	}
+}

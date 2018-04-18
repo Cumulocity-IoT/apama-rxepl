@@ -1,5 +1,7 @@
 package com.industry.rx_epl.utils;
 
+using com.industry.rx_epl.utils.internal.WrapGeneric;
+
 using com.apama.exceptions.Exception;
 
 event Utils {
@@ -94,7 +96,7 @@ event Actions {
 	}
 	
 	static action checkAction(any actionAny, integer args, integer optionalArgs, string returnType) {		
-		if actionAny.getTypeName().find("action") != 0 {
+		if actionAny.getTypeName().find("action<") != 0 {
 			throw Exception("Did not provide an action, was: " + actionAny.getTypeName(), "IllegalArgumentException");
 		}
 		
