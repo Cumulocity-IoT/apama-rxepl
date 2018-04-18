@@ -7,9 +7,9 @@ using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.operators.internals.ScanOnConnection;
 
 event Scan {
-	action<any, any> returns any scanner;
+	any scanner;
 	
-	static action create(action<any, any> returns any scanner) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+	static action create(any scanner) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
 		return Scan(scanner).pipeModifier;
 	}
 
@@ -19,10 +19,10 @@ event Scan {
 }
 
 event ScanWithInitial {
-	action<any, any> returns any scanner;
+	any scanner;
 	any initial;
 	
-	static action create(action<any, any> returns any scanner, any initial) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+	static action create(any scanner, any initial) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
 		return ScanWithInitial(scanner, initial).pipeModifier;
 	}
 

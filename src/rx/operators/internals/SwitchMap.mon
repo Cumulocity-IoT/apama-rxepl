@@ -8,15 +8,16 @@ using com.industry.rx_epl.IObservable;
 using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
+using com.industry.rx_epl.utils.Actions;
 
 /** @private */
 event SwitchMapSubscriber {
 	IObserver downstreamSubscriber;
 	IObserver upstreamSubscriber;
-	action<any> returns IObservable mapper;
+	action<sequence<any> > returns any mapper;
 	optional<Subscriber> mappedValueSubscriber;
 	
-	static action create(IObserver subscriber, action<any> returns IObservable mapper) returns IObserver {
+	static action create(IObserver subscriber, action<sequence<any> > returns any mapper) returns IObserver {
 		SwitchMapSubscriber m := SwitchMapSubscriber(subscriber, new IObserver, mapper, new optional<Subscriber>);
 		subscriber.onUnsubscribe(m.unsubscribeMappedValue);
 		m.upstreamSubscriber := Subscriber.create().onNext(m.next).onError(subscriber.error).onComplete(m.completeMain).asIObserver();
@@ -26,7 +27,7 @@ event SwitchMapSubscriber {
 	
 	action next(any value) {
 		try {
-			connectToMappedObservable(mapper(value));
+			connectToMappedObservable(<IObservable> mapper([value]));
 		} catch(Exception e) {
 			downstreamSubscriber.error(e);
 		}
@@ -63,10 +64,11 @@ event SwitchMapSubscriber {
 /** @private */
 event SwitchMapOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
-	action<any> returns IObservable mapper;
+	action<sequence<any> > returns any mapper;
 	
-	static action create(action<IObserver> returns ISubscription parentOnConnection, action<any> returns IObservable mapper) returns action<IObserver> returns ISubscription {
-		return SwitchMapOnConnection(parentOnConnection, mapper).onConnection;
+	static action create(action<IObserver> returns ISubscription parentOnConnection, any mapper) returns action<IObserver> returns ISubscription {
+		Actions.checkAction(mapper, 1, 0, IObservable.getName());
+		return SwitchMapOnConnection(parentOnConnection, Actions.getCoercingGenericAction(mapper)).onConnection;
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {

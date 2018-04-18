@@ -7,9 +7,9 @@ using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.operators.internals.FlatMapOnConnection;
 
 event FlatMap {
-	action<any> returns any mapper;
+	any mapper;
 	
-	static action create(action<any> returns any mapper) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+	static action create(any mapper) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
 		return FlatMap(mapper).pipeModifier;
 	}
 

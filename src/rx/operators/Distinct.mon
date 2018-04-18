@@ -9,9 +9,9 @@ using com.industry.rx_epl.operators.internals.DistinctByUntilChangedOnConnection
 using com.industry.rx_epl.operators.internals.PluckMapper;
 
 event DistinctBy {
-	action<any> returns any by;
+	any by;
 	
-	static action create(action<any> returns any by) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+	static action create(any by) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
 		return DistinctBy(by).pipeModifier;
 	}
 
@@ -33,9 +33,9 @@ event DistinctByField {
 }
 
 event DistinctByUntilChanged {
-	action<any> returns any by;
+	any by;
 	
-	static action create(action<any> returns any by) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+	static action create(any by) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
 		return DistinctByUntilChanged(by).pipeModifier;
 	}
 

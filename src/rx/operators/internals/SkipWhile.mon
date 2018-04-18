@@ -8,14 +8,15 @@ using com.industry.rx_epl.IObservable;
 using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
+using com.industry.rx_epl.utils.Actions;
 
 /** @private */
 event SkipWhileSubscriber {
 	IObserver subscriber;
-	action<any> returns boolean predicate;
+	action<sequence<any> > returns any predicate;
 	boolean whileDone;
 	
-	static action create(IObserver subscriber, action<any> returns boolean predicate) returns IObserver {
+	static action create(IObserver subscriber, action<sequence<any> > returns any predicate) returns IObserver {
 		SkipWhileSubscriber s := SkipWhileSubscriber(subscriber, predicate, false);
 		return IObserverBuilder.create(subscriber.createUpstream()).onNext(s.next).build();
 	}
@@ -25,7 +26,7 @@ event SkipWhileSubscriber {
 			subscriber.next(value);
 		} else {
 			try {
-				if not predicate(value) { 
+				if not <boolean> predicate([value]) { 
 					whileDone := true;
 					subscriber.next(value);
 				}
@@ -39,10 +40,11 @@ event SkipWhileSubscriber {
 /** @private */
 event SkipWhileOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
-	action<any> returns boolean predicate;
+	action<sequence<any> > returns any predicate;
 	
-	static action create(action<IObserver> returns ISubscription parentOnConnection, action<any> returns boolean predicate) returns action<IObserver> returns ISubscription {
-		return SkipWhileOnConnection(parentOnConnection, predicate).onConnection;
+	static action create(action<IObserver> returns ISubscription parentOnConnection, any predicate) returns action<IObserver> returns ISubscription {
+		Actions.checkAction(predicate, 1, 0, "boolean");
+		return SkipWhileOnConnection(parentOnConnection, Actions.getCoercingGenericAction(predicate)).onConnection;
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {

@@ -8,9 +8,9 @@ using com.industry.rx_epl.operators.internals.GroupByOnConnection;
 using com.industry.rx_epl.operators.internals.PluckMapper;
 
 event GroupBy {
-	action<any> returns any by;
+	any by;
 	
-	static action create(action<any> returns any by) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+	static action create(any by) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
 		return GroupBy(by).pipeModifier;
 	}
 

@@ -336,7 +336,7 @@ event Observable {
 		return o.onConnection(observer);
 	}
 	
-	action map(action<any> returns any mapper) returns IObservable {
+	action map(any mapper) returns IObservable {
 		Observable o := _create();		
 		o.onConnection := Map.create(mapper)(onConnection);
 		return o.asIObservable();
@@ -401,19 +401,19 @@ event Observable {
 		return o.asIObservable();			
 	}
 	
-	action filter(action<any> returns boolean predicate) returns IObservable {
+	action filter(any predicate) returns IObservable {
 		Observable o := _create();
 		o.onConnection := Filter.create(predicate)(onConnection);
 		return o.asIObservable();			
 	}
 
-	action scan(action<any, any> returns any scanner) returns IObservable {
+	action scan(any scanner) returns IObservable {
 		Observable o := _create();
 		o.onConnection := Scan.create(scanner)(onConnection);
 		return o.asIObservable();		
 	}
 	
-	action scanWithInitial(action<any, any> returns any scanner, any initialValue) returns IObservable {
+	action scanWithInitial(any scanner, any initialValue) returns IObservable {
 		Observable o := _create();
 		o.onConnection := ScanWithInitial.create(scanner, initialValue)(onConnection);
 		return o.asIObservable();		
@@ -425,7 +425,7 @@ event Observable {
 		return o.asIObservable();		
 	}
 	
-	action distinctBy(action<any> returns any by) returns IObservable {
+	action distinctBy(any by) returns IObservable {
 		Observable o := _create();
 		o.onConnection := DistinctBy.create(by)(onConnection);
 		return o.asIObservable();			
@@ -496,7 +496,7 @@ event Observable {
 		return o.asIObservable();
 	}
 	
-	action flatMap(action<any> returns any mapper) returns IObservable {
+	action flatMap(any mapper) returns IObservable {
 		Observable o := _create();
 		o.onConnection := FlatMap.create(mapper)(onConnection);
 		return o.asIObservable();
@@ -532,13 +532,13 @@ event Observable {
 		return o.asIObservable();
 	}
 	
-	action reduce(action<any, any> returns any reducer) returns IObservable {
+	action reduce(any reducer) returns IObservable {
 		Observable o := _create();
 		o.onConnection := Reduce.create(reducer)(onConnection);
 		return o.asIObservable();
 	}
 	
-	action reduceWithInitial(action<any, any> returns any reducer, any initialValue) returns IObservable {
+	action reduceWithInitial(any reducer, any initialValue) returns IObservable {
 		Observable o := _create();
 		o.onConnection := ReduceWithInitial.create(reducer, initialValue)(onConnection);
 		return o.asIObservable();
@@ -574,7 +574,7 @@ event Observable {
 	/**
 	 * Note: The resulting observables are hot so if you don't want to miss any then they should each be publishReplay(n).connect()'ed
 	 */
-	action groupBy(action<any> returns any groupBy) returns IObservable {
+	action groupBy(any groupBy) returns IObservable {
 		Observable o := _create();
 		o.onConnection := GroupBy.create(groupBy)(onConnection);
 		return o.asIObservable();
@@ -591,25 +591,25 @@ event Observable {
 		return ObserveOnHandler.create(observeToChannel, observeFromChannel, context("ObserveOnNew" + integer.getUnique().toString(), false), observableConstructorAndDisposer);
 	}
 	
-	action every(action<any> returns boolean predicate) returns IObservable {
+	action every(any predicate) returns IObservable {
 		Observable o := _create();
 		o.onConnection := Every.create(predicate)(onConnection);
 		return o.asIObservable();	
 	}
 
-	action contains(action<any> returns boolean predicate) returns IObservable {
+	action contains(any predicate) returns IObservable {
 		Observable o := _create();
 		o.onConnection := Contains.create(predicate)(onConnection);
 		return o.asIObservable();	
 	}
 	
-	action takeWhile(action<any> returns boolean predicate) returns IObservable {
+	action takeWhile(any predicate) returns IObservable {
 		Observable o := _create();
 		o.onConnection := TakeWhile.create(predicate)(onConnection);
 		return o.asIObservable();	
 	}
 
-	action skipWhile(action<any> returns boolean predicate) returns IObservable {
+	action skipWhile(any predicate) returns IObservable {
 		Observable o := _create();
 		o.onConnection := SkipWhile.create(predicate)(onConnection);
 		return o.asIObservable();	
@@ -808,13 +808,13 @@ event Observable {
 		return o.asIObservable();	
 	}
 	
-	action distinctByUntilChanged(action<any> returns any by) returns IObservable {
+	action distinctByUntilChanged(any by) returns IObservable {
 		Observable o := _create();
 		o.onConnection := DistinctByUntilChanged.create(by)(onConnection);
 		return o.asIObservable();	
 	}
 	
-	action switchMap(action<any> returns IObservable mapper) returns IObservable {
+	action switchMap(any mapper) returns IObservable {
 		Observable o := _create();
 		o.onConnection := SwitchMap.create(mapper)(onConnection);
 		return o.asIObservable();

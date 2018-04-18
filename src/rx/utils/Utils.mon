@@ -76,4 +76,128 @@ event Utils {
 		float endTime := currentTime + waitTime;
 		return waitTime - (endTime - endTime.nextafter(0.0));
 	}
+	
+}
+
+event Actions {
+	action<sequence<any> > returns any genericAction;
+	sequence<string> types;
+	dictionary<string, action<any> returns any> coercingfunctions;
+	
+	static action getCoercingGenericAction(any actionAny) returns action<sequence<any> > returns any {
+		return Actions(actionAny.getGenericAction(), getActionParamTypes(actionAny), {
+			"string": coerceToString,
+			"integer": coerceToInteger,
+			"float": coerceToFloat,
+			"decimal": coerceToDecimal
+		}).coerceAndCall;
+	}
+	
+	static action checkAction(any actionAny, integer args, integer optionalArgs, string returnType) {		
+		if actionAny.getTypeName().find("action") != 0 {
+			throw Exception("Did not provide an action, was: " + actionAny.getTypeName(), "IllegalArgumentException");
+		}
+		
+		integer argCount := actionAny.getActionParameterNames().size();
+		if argCount < args or argCount > args + optionalArgs {
+			throw Exception("Incorrect action, provided action needed " + args.toString() + " Args and optionally " + optionalArgs.toString() + " Optional Args, actually had: " + argCount.toString(), "IllegalArgumentException");
+		}
+		
+		string actualReturnType := actionAny.getActionReturnTypeName();
+		if (returnType = "any" and actualReturnType = "") or (actualReturnType != returnType and returnType != "" and returnType != "any") {
+			throw Exception("Incorrect action, must have a return value of type " + returnType + " was " + actualReturnType, "IllegalArgumentException");
+		}
+	}
+	
+	static action getActionParamTypes(any someAction) returns sequence<string> {
+		sequence<string> result := new sequence<string>;
+		dictionary<string, string> typeNamesByParamName := someAction.getActionParameters();
+		string name;
+		for name in someAction.getActionParameterNames() {
+			result.append(typeNamesByParamName[name]);
+		}
+		return result;
+	}
+	
+	action coerceAndCall(sequence<any> args) returns any {
+		sequence<any> coercedValues := new sequence<any>;
+		integer i := 0;
+		while i < types.size() {
+			string type := types[i];
+			any value := args[i];
+			if coercingfunctions.hasKey(type) {
+				value := coercingfunctions[type](value);
+			}
+			coercedValues.append(args[i]);
+			i := i + 1;
+		}
+		return genericAction(coercedValues);
+	}
+
+	static action coerceToString(any value) returns any {
+		switch(value) {
+			case string: {
+				return value;
+			}
+			default: {
+				return value.valueToString();
+			}
+		}
+	}
+	static action coerceToInteger(any value) returns any {
+		switch(value) {
+			case integer: {
+				return value;
+			}
+			case float: {
+				if value > 0.0 {
+					return value.floor(); 
+				} else {
+					return value.ceil();
+				}
+			}
+			case decimal: {
+				if value > 0.0d {
+					return value.floor(); 
+				} else {
+					return value.ceil();
+				}
+			}
+			default: {
+				throw Exception("Unable to coerce " + value.toString() + " to integer", "IllegalArgumentException");
+			}
+		}
+	}
+	static action coerceToFloat(any value) returns any {
+		switch(value) {
+			case integer: {
+				return value.toFloat();
+			}
+			case float: {
+				return value;
+			}
+			case decimal: {
+				return value.toFloat();
+			}
+			default: {
+				throw Exception("Unable to coerce " + value.toString() + " to float", "IllegalArgumentException");
+			}
+		}
+	}
+	static action coerceToDecimal(any value) returns any {
+		switch(value) {
+			case integer: {
+				return value.toDecimal();
+			}
+			case float: {
+				return value.toDecimal();
+			}
+			case decimal: {
+				return value;
+			}
+			default: {
+				throw Exception("Unable to coerce " + value.toString() + " to decimal", "IllegalArgumentException");
+			}
+		}
+	}
 }

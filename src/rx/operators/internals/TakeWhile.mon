@@ -8,14 +8,15 @@ using com.industry.rx_epl.IObservable;
 using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
+using com.industry.rx_epl.utils.Actions;
 
 /** @private */
 event TakeWhileSubscriber {
 	IObserver subscriber;
-	action<any> returns boolean predicate;
+	action<sequence<any> > returns any predicate;
 	boolean whileDone;
 	
-	static action create(IObserver subscriber, action<any> returns boolean predicate) returns IObserver {
+	static action create(IObserver subscriber, action<sequence<any> > returns any predicate) returns IObserver {
 		TakeWhileSubscriber m := TakeWhileSubscriber(subscriber, predicate, false);
 		return IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).build();
 	}
@@ -26,7 +27,7 @@ event TakeWhileSubscriber {
 			log "Operator 'TakeWhile' received unexpected extra value, observable should have unsubscribed" at ERROR;
 		}
 		try {
-			if predicate(value) {
+			if <boolean> predicate([value]) {
 				subscriber.next(value);
 			} else {
 				whileDone := true;
@@ -41,10 +42,11 @@ event TakeWhileSubscriber {
 /** @private */
 event TakeWhileOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
-	action<any> returns boolean predicate;
+	action<sequence<any> > returns any predicate;
 	
-	static action create(action<IObserver> returns ISubscription parentOnConnection, action<any> returns boolean predicate) returns action<IObserver> returns ISubscription {
-		return TakeWhileOnConnection(parentOnConnection, predicate).onConnection;
+	static action create(action<IObserver> returns ISubscription parentOnConnection, any predicate) returns action<IObserver> returns ISubscription {
+		Actions.checkAction(predicate, 1, 0, "boolean");
+		return TakeWhileOnConnection(parentOnConnection, Actions.getCoercingGenericAction(predicate)).onConnection;
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {

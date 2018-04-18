@@ -7,9 +7,9 @@ using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.operators.internals.FilterOnConnection;
 
 event Filter {
-	action<any> returns boolean predicate;
+	any predicate;
 	
-	static action create(action<any> returns boolean predicate) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+	static action create(any predicate) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
 		return Filter(predicate).pipeModifier;
 	}
 

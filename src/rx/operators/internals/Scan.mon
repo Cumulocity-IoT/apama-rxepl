@@ -8,15 +8,16 @@ using com.industry.rx_epl.IObservable;
 using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
+using com.industry.rx_epl.utils.Actions;
 
 /** @private */
 event ScanSubscriber {
 	IObserver subscriber;
-	action<any, any> returns any scanner;
+	action<sequence<any> > returns any scanner;
 	any accumulator;
 	boolean scanValue;
 	
-	static action create(IObserver subscriber, action<any, any> returns any scanner, any initialValue, boolean scanFirstValue) returns IObserver {
+	static action create(IObserver subscriber, action<sequence<any> > returns any scanner, any initialValue, boolean scanFirstValue) returns IObserver {
 		ScanSubscriber m := ScanSubscriber(subscriber, scanner, initialValue, scanFirstValue);
 		return IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).build();
 	}
@@ -24,7 +25,7 @@ event ScanSubscriber {
 	action next(any value) {
 		if scanValue {
 			try {
-				accumulator := scanner(accumulator, value);
+				accumulator := scanner([accumulator, value]);
 				subscriber.next(accumulator);
 			} catch(Exception e) {
 				subscriber.error(e);
@@ -40,12 +41,13 @@ event ScanSubscriber {
 /** @private */
 event ScanOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
-	action<any, any> returns any scanner;
+	action<sequence<any> > returns any scanner;
 	any initialValue;
 	boolean hasInitialValue;
 	
-	static action create(action<IObserver> returns ISubscription parentOnConnection, action<any, any> returns any scanner, any initialValue, boolean hasInitialValue) returns action<IObserver> returns ISubscription {
-		return ScanOnConnection(parentOnConnection, scanner, initialValue, hasInitialValue).onConnection;
+	static action create(action<IObserver> returns ISubscription parentOnConnection, any scanner, any initialValue, boolean hasInitialValue) returns action<IObserver> returns ISubscription {
+		Actions.checkAction(scanner, 2, 0, "any");
+		return ScanOnConnection(parentOnConnection, Actions.getCoercingGenericAction(scanner), initialValue, hasInitialValue).onConnection;
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {

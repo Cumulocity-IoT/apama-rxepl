@@ -8,15 +8,15 @@ using com.industry.rx_epl.IObservable;
 using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
-using com.industry.rx_epl.utils.Utils;
+using com.industry.rx_epl.utils.Actions;
 
 /** @private */
 event DistinctBySubscriber {
 	IObserver subscriber;
-	action<any> returns any distinctBy;
+	action<sequence<any> > returns any distinctBy;
 	dictionary<any, boolean> valuesSeen;
 	
-	static action create(IObserver subscriber, action<any> returns any distinctBy) returns IObserver {
+	static action create(IObserver subscriber, action<sequence<any> > returns any distinctBy) returns IObserver {
 		DistinctBySubscriber m := DistinctBySubscriber(subscriber, distinctBy, new dictionary<any, boolean>);
 		return IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).build();
 	}
@@ -25,7 +25,7 @@ event DistinctBySubscriber {
 		try {
 			any key := value;
 			ifpresent distinctBy {
-				key := distinctBy(value);
+				key := distinctBy([value]);
 			}
 			if not valuesSeen.hasKey(key) {
 				valuesSeen.add(key, true);
@@ -40,14 +40,21 @@ event DistinctBySubscriber {
 /** @private */
 event DistinctByOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
-	action<any> returns any mapper;
+	action<sequence<any> > returns any distinctBy;
 	
-	static action create(action<IObserver> returns ISubscription parentOnConnection, action<any> returns any distinctBy) returns action<IObserver> returns ISubscription {
-		return DistinctByOnConnection(parentOnConnection, distinctBy).onConnection;
+	static action create(action<IObserver> returns ISubscription parentOnConnection, any distinctBy) returns action<IObserver> returns ISubscription {
+		action<sequence<any> > returns any genericAction;
+		ifpresent distinctBy {
+			Actions.checkAction(distinctBy, 1, 0, "any");
+			genericAction := Actions.getCoercingGenericAction(distinctBy);
+		} else {
+			genericAction := new action<sequence<any> > returns any;
+		}
+		return DistinctByOnConnection(parentOnConnection, genericAction).onConnection;
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {
-		IObserver mapSubscriber := DistinctBySubscriber.create(subscriber, mapper);
+		IObserver mapSubscriber := DistinctBySubscriber.create(subscriber, distinctBy);
 		return parentOnConnection(mapSubscriber);
 	}
 }

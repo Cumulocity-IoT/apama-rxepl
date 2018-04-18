@@ -10,16 +10,17 @@ using com.industry.rx_epl.ISubject;
 using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 using com.industry.rx_epl.utils.Utils;
+using com.industry.rx_epl.utils.Actions;
 
 /** @private */
 event FlatMapSubscriber {
 	IObserver downstreamSubscriber;
 	IObserver upstreamSubscriber;
-	action<any> returns any mapper;
+	action<sequence<any> > returns any mapper;
 	dictionary<integer, Subscriber> mappedValueSubscribersById;
 	integer id;
 	
-	static action create(IObserver subscriber, action<any> returns any mapper) returns IObserver {
+	static action create(IObserver subscriber, action<sequence<any> > returns any mapper) returns IObserver {
 		FlatMapSubscriber m := FlatMapSubscriber(subscriber, new IObserver, mapper, new dictionary<integer, Subscriber>, 0);
 		m.upstreamSubscriber := Subscriber.create().onNext(m.next).onError(subscriber.error).onComplete(m.mainComplete).asIObserver();
 		subscriber.subscribe();
@@ -29,7 +30,7 @@ event FlatMapSubscriber {
 	
 	action next(any value) {
 		try {
-			switch (mapper(value) as values) {
+			switch (mapper([value]) as values) {
 				case IObservable: {
 					connectToMappedObservable(values);
 				}
@@ -84,10 +85,11 @@ event FlatMapSubscriber {
 /** @private */
 event FlatMapOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
-	action<any> returns any mapper;
+	action<sequence<any> > returns any mapper;
 	
-	static action create(action<IObserver> returns ISubscription parentOnConnection, action<any> returns any mapper) returns action<IObserver> returns ISubscription {
-		return FlatMapOnConnection(parentOnConnection, mapper).onConnection;
+	static action create(action<IObserver> returns ISubscription parentOnConnection, any mapper) returns action<IObserver> returns ISubscription {
+		Actions.checkAction(mapper, 1, 0, "any");
+		return FlatMapOnConnection(parentOnConnection, Actions.getCoercingGenericAction(mapper)).onConnection;
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {

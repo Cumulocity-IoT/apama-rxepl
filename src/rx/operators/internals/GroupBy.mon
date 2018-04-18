@@ -8,14 +8,15 @@ using com.industry.rx_epl.IObservable;
 using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.ISubject;
 using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.utils.Actions;
 
 /** @private */
 event GroupBySubscriber {
 	IObserver subscriber;
-	action<any> returns any groupBy;
+	action<sequence<any> > returns any groupBy;
 	dictionary<any, ISubject> subjectByGroup;
 	
-	static action create(IObserver subscriber, action<any> returns any groupBy) returns IObserver {
+	static action create(IObserver subscriber, action<sequence<any> > returns any groupBy) returns IObserver {
 		GroupBySubscriber m := GroupBySubscriber(subscriber, groupBy, new dictionary<any, ISubject>);
 		subscriber.onUnsubscribe(m.unsubscribe);
 		return IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).onComplete(m.complete).build();
@@ -23,7 +24,7 @@ event GroupBySubscriber {
 	
 	action next(any value) {
 		try {
-			any group := groupBy(value);
+			any group := groupBy([value]);
 			ISubject subject;
 			if subjectByGroup.hasKey(group) {
 				subject := subjectByGroup[group];
@@ -53,10 +54,11 @@ event GroupBySubscriber {
 /** @private */
 event GroupByOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
-	action<any> returns any groupBy;
+	action<sequence<any> > returns any groupBy;
 	
-	static action create(action<IObserver> returns ISubscription parentOnConnection, action<any> returns any groupBy) returns action<IObserver> returns ISubscription {
-		return GroupByOnConnection(parentOnConnection, groupBy).onConnection;
+	static action create(action<IObserver> returns ISubscription parentOnConnection, any groupBy) returns action<IObserver> returns ISubscription {
+		Actions.checkAction(groupBy, 1, 0, "any");
+		return GroupByOnConnection(parentOnConnection, Actions.getCoercingGenericAction(groupBy)).onConnection;
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {

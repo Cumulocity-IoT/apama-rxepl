@@ -8,19 +8,20 @@ using com.industry.rx_epl.IObservable;
 using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
+using com.industry.rx_epl.utils.Actions;
 
 /** @private */
 event MapSubscriber {
 	IObserver subscriber;
-	action<any> returns any mapper;
-	static action create(IObserver subscriber, action<any> returns any mapper) returns IObserver {
+	action<sequence<any> > returns any mapper;
+	static action create(IObserver subscriber, action<sequence<any> > returns any mapper) returns IObserver {
 		MapSubscriber m := MapSubscriber(subscriber, mapper);
 		return IObserverBuilder.create(subscriber.createUpstream()).onNext(m.next).build();
 	}
 	
 	action next(any value) {
 		try {
-			subscriber.next(mapper(value));
+			subscriber.next(mapper([value]));
 		} catch(Exception e) {
 			subscriber.error(e);
 		}
@@ -30,10 +31,11 @@ event MapSubscriber {
 /** @private */
 event MapOnConnection {
 	action<IObserver> returns ISubscription parentOnConnection;
-	action<any> returns any mapper;
+	action<sequence<any> > returns any mapper;
 	
-	static action create(action<IObserver> returns ISubscription parentOnConnection, action<any> returns any mapper) returns action<IObserver> returns ISubscription {
-		return MapOnConnection(parentOnConnection, mapper).onConnection;
+	static action create(action<IObserver> returns ISubscription parentOnConnection, any mapper) returns action<IObserver> returns ISubscription {
+		Actions.checkAction(mapper, 1, 0, "any");
+		return MapOnConnection(parentOnConnection, Actions.getCoercingGenericAction(mapper)).onConnection;
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {
