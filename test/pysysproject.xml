@@ -26,7 +26,7 @@
 	<property name="APAMA_COMMON_JRE"        value="${env.APAMA_JRE}"/> 
 
 	<!-- Specify a property for the location of the application being tested. -->
-	<property name="TEST_SUBJECT_DIR"        value="${root}/../output/CopyContentsToApamaInstallDir/monitors/RxEPL"/>
+	<property name="TEST_SUBJECT_DIR"        value="${root}/../output/RxEPL/cdp"/>
   
 	<!-- Specify a property for the location of the application being tested. -->
 	<property name="UTILS_DIR"        value="${root}/utils"/>

@@ -1,0 +1,9 @@
+#  This is the RxEPL home installation
+
+VARIABLE; RX_EPL_HOME; <%RX_EPL_HOME%>; R
+
+STRING_SUBSTITUTION; RX_EPL_HOME; <%RX_EPL_HOME%>; This is contributed by RxEPL; R
+
+BUNDLE_CATALOG; RX_EPL_HOME/bundles
+
+VERSION; 1.0
