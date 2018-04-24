@@ -1,7 +1,9 @@
 param (
-   [string]$sagInstallDir = (& "$PSScriptRoot\getSagInstallDir"),
-   [string]$output = "$PSScriptRoot\output\RxEPL"
+   [string]$sagInstallDir = (& "$(Split-Path $MyInvocation.MyCommand.Path -Parent)\getSagInstallDir"),
+   [string]$output = "$(Split-Path $MyInvocation.MyCommand.Path -Parent)\output\RxEPL"
 )
+
+if(!$PSScriptRoot){ $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent }
 
 $temp = Read-Host "Where is your SoftwareAG install folder? (blank=$sagInstallDir)"
 

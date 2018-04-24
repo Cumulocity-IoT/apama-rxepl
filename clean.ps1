@@ -1,6 +1,6 @@
 param (
    [string]$sagInstallDir = (.\misc\getSagInstallDir),
-   [string]$output = "$PSScriptRoot\output"
+   [string]$output = "$(Split-Path $MyInvocation.MyCommand.Path -Parent)\output"
 )
 
 $apamaInstallDir = "$sagInstallDir\Apama"

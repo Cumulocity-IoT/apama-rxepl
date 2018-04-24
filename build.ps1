@@ -1,7 +1,9 @@
 param (
    [string]$sagInstallDir = (.\misc\getSagInstallDir),
-   [string]$output = "$PSScriptRoot\output\RxEPL"
+   [string]$output = "$(Split-Path $MyInvocation.MyCommand.Path -Parent)\output\RxEPL"
 )
+
+if(!$PSScriptRoot){ $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent }
 
 $apamaInstallDir = "$sagInstallDir\Apama"
 if (-not (Test-Path $apamaInstallDir)) {
@@ -42,4 +44,8 @@ mv "$output\misc\deploy.bat" "$output\deploy.bat"
 [IO.File]::WriteAllLines("$output\version.txt", $version)
 
 # Zip
-Compress-Archive -Path $output -CompressionLevel Optimal -DestinationPath "$output-$version.zip"
+if (Get-Command Compress-Archive -errorAction SilentlyContinue) {
+	Compress-Archive -Path $output -CompressionLevel Optimal -DestinationPath "$output-$version.zip"
+} else {
+	& "C:\Program Files\7-Zip\7z.exe" a "$output-$version.zip" $output
+}

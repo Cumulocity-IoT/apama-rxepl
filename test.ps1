@@ -1,7 +1,9 @@
 param (
    [string]$sagInstallDir = (.\misc\getSagInstallDir),
-   [string]$output = "$PSScriptRoot\output\RxEPL"
+   [string]$output = "$(Split-Path $MyInvocation.MyCommand.Path -Parent)\output\RxEPL"
 )
+
+if(!$PSScriptRoot){ $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent }
 
 $apamaInstallDir = "$sagInstallDir\Apama"
 if (-not (Test-Path $apamaInstallDir)) {
