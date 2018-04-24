@@ -537,4 +537,5 @@ event IObservable {
 	action<string> returns IObservable distinctByFieldUntilChanged;
 	action<IObservable> returns IObservable pausable;
 	action<IObservable> returns IObservable pausableBuffered;
+	action<string> returns IDisposable toChannel;
 }

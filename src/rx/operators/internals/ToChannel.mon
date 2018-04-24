@@ -1,0 +1,43 @@
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.Subscriber;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IDisposable;
+using com.industry.rx_epl.WrappedAny;
+
+/** @private */
+event ToChannelSubscriber {
+	IObserver subscriber;
+	string channelName;
+	
+	static action create(string channelName) returns IObserver {
+		ToChannelSubscriber t := ToChannelSubscriber(new IObserver, channelName);
+		t.subscriber := Subscriber.create().onNext(t.next).onComplete(t.complete).asIObserver();
+		return t.subscriber;
+	}
+	
+	action next(any value) {
+		try {
+			send value to channelName;
+		} catch (Exception e) {
+			subscriber.error(Exception("Value must be a sendable type, was: " + value.toString() +"\nUsing .map() to wrap object inside " + WrappedAny.getName() + " may resolve the issue", "UnsendableValue"));
+		}
+	}
+	
+	action complete() {
+		subscriber.unsubscribe();
+	}
+}
+
+/** @private */
+event ToChannel {	
+	static action create(IObservable observable, string channelName) returns IDisposable {
+		IObserver subscriber := ToChannelSubscriber.create(channelName);
+		ISubscription s := observable.connectObserver(subscriber);
+		return IDisposable(subscriber.unsubscribe);
+	}
+}

@@ -1,0 +1,46 @@
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IDisposable;
+using com.industry.rx_epl.WrappedAny;
+
+using utils.Test;
+using utils.ExpectValues;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+
+	integer teardownCount := 0;
+	integer receivedValues := 0;
+	
+	
+	action onload() {
+		monitor.subscribe("output");
+		
+		IDisposable disposable := Observable.fromValues([<any>1,2,3,4])
+  			.do(ExpectValues.create([<any>1,2,3,4], countTeardowns, test.fail))
+			.map(toWrappedAny)
+		    .toChannel("output");
+		
+		on all WrappedAny() as w {
+			log "Received: " + w.value.valueToString();
+			receivedValues := receivedValues + 1;
+			if <integer>w.value != receivedValues {
+				test.fail("Received unexpected value: " + w.value.valueToString());
+			} else if <integer>w.value = 4 {
+				disposable.dispose();
+				countTeardowns();
+			}
+		}
+	}
+	
+	action countTeardowns() {
+		teardownCount := teardownCount + 1;
+		if teardownCount = 2 {
+			test.complete();
+		}
+	}
+	
+	action toWrappedAny(any value) returns any {
+		return WrappedAny(value);
+	}
+}

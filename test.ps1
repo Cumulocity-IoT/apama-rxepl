@@ -20,3 +20,5 @@ if (-not (Test-Path "$output\cdp\RxEPL.cdp")) {
 }
 
 cmd.exe /c "$apamaBin\apama_env.bat && cd test && pysys run -n8 -vCRIT"
+
+Read-Host "Finished! Press Return to Exit..."
