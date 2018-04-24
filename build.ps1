@@ -14,6 +14,8 @@ $apamaBin = "$apamaInstallDir\bin"
 
 .\clean -sagInstallDir $sagInstallDir
 
+$version = "$(cat .\version.txt)-$(git rev-parse --short HEAD)"
+
 md "$output" | out-null
 md "$output\cdp" | out-null
 & "$apamaBin\engine_deploy" --outputCDP "$output\cdp\RxEPL.cdp" src
@@ -27,8 +29,7 @@ $files = & "$apamaBin\engine_deploy" --outputList stdout src | %{$_ -replace ".*
 $bundleFileList = $files | %{$_ -replace "(.+)","`t`t`t<include name=`"`$1`"/>"} | Out-String
 $bundleResult = cat "$PSScriptRoot\bundles\BundleTemplate.bnd"
 $bundleResult = $bundleResult | %{$_ -replace "<%date%>", (Get-Date -UFormat "%Y-%m-%d")}
-$bundleResult = $bundleResult | %{$_ -replace "<%version%>", (cat .\version.txt)}
-$bundleResult = $bundleResult | %{$_ -replace "<%gitHash%>", (git rev-parse --short HEAD)}
+$bundleResult = $bundleResult | %{$_ -replace "<%version%>", $version}
 $bundleResult = $bundleResult | %{$_ -replace "<%fileList%>",$bundleFileList}
 md "$output\bundles" | out-null
 # Write out utf8 (no BOM)
@@ -36,3 +37,9 @@ md "$output\bundles" | out-null
 
 cp -r "$PSScriptRoot\misc" "$output\misc"
 mv "$output\misc\deploy.bat" "$output\deploy.bat"
+
+# Write out utf8 (no BOM)
+[IO.File]::WriteAllLines("$output\version.txt", $version)
+
+# Zip
+Compress-Archive -Path $output -CompressionLevel Optimal -DestinationPath "$output-$version.zip"

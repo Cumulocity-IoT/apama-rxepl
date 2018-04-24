@@ -1,6 +1,6 @@
 param (
    [string]$sagInstallDir = (.\misc\getSagInstallDir),
-   [string]$output = "$PSScriptRoot\output\RxEPL"
+   [string]$output = "$PSScriptRoot\output"
 )
 
 $apamaInstallDir = "$sagInstallDir\Apama"
