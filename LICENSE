@@ -1,3 +1,7 @@
+<<<<<<< 876faceb304b7eaaf0459f677cea80ab08932750
+=======
+
+>>>>>>> Adding license info
                                  Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
@@ -173,6 +177,7 @@
       incurred by, or claims asserted against, such Contributor by reason
       of your accepting any such warranty or additional liability.
 
+<<<<<<< 876faceb304b7eaaf0459f677cea80ab08932750
    END OF TERMS AND CONDITIONS
 
    APPENDIX: How to apply the Apache License to your work.
@@ -199,3 +204,6 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+=======
+   END OF TERMS AND CONDITIONS
+>>>>>>> Adding license info
