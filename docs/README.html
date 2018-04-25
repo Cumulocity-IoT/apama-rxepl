@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RxEpl</title>
+  <title>RxEPL</title>
   <link rel="stylesheet" href="https://stackedit.io/style.css" />
 </head>
 
@@ -17,6 +17,7 @@
 <ul>
 <li><a href="#contents">Contents</a></li>
 <li><a href="#a-idinstallainstallation">Installation</a></li>
+<li><a href="#a-idquickaquickstart">Quickstart</a></li>
 <li><a href="#a-idintroareactivex-an-introduction">ReactiveX: an Introduction</a></li>
 <li><a href="#a-idpackagesapackage-structure">Package Structure</a></li>
 <li><a href="#a-idexamplesaexamples">Examples</a></li>
@@ -43,6 +44,7 @@
 <h2 id="contents">Contents</h2>
 <ul>
 <li><a href="#install">Installation</a></li>
+<li><a href="#quick">Quickstart</a></li>
 <li><a href="#intro">Introduction to ReactiveX and Observables</a></li>
 <li>Main
 <ul>
@@ -78,24 +80,84 @@
 </li>
 <li><a href="#gotchas">Gotchas</a>
 <ul>
-<li><a href="#gotcha-subscribe-on">Publish/Share/Subject with SubscribeOn</a></li>
+<li><a href="#gotcha-multiple-subscribers">Multiple Subscribers</a></li>
+<li><a href="#gotcha-subscribe-on">Publish/Share with SubscribeOn</a></li>
 </ul>
 </li>
 <li><a href="#other">Help and Other Resources</a></li>
 </ul>
 <h2 id="a-idinstallainstallation"><a id="install"></a>Installation</h2>
-<h3 id="installing-files">1. Installing files</h3>
-<p>Copy the folders contained inside <code>CopyContentsToApamaInstallDir</code> into the Apama install directory (Usually <code>C:\SoftwareAG\Apama</code> on Windows or <code>/opt/softwareag/apama</code> on Unix), merging them with what is already there.</p>
-<h3 id="adding-to-designer">2. Adding to Designer</h3>
+<p>The deployment script provides a way to make ReactiveX for EPL (RxEPL) globally available to all SoftwareAG Designer workspaces.</p>
+<h3 id="installing-into-designer">1. Installing into Designer</h3>
 <ol>
-<li>From designer right click on your project in <code>Project Explorer</code></li>
+<li>Place the RxEPL folder somewhere safe (somewhere not likely to be moved or deleted)</li>
+<li>Run the deploy.bat</li>
+<li>Follow the instructions</li>
+<li>Restart any running instances of SoftwareAG Designer</li>
+</ol>
+<h3 id="adding-to-a-project">2. Adding to a Project</h3>
+<ol>
+<li>From SoftwareAG Designer right click on your project in <code>Project Explorer</code></li>
 <li>Select <code>Apama</code> from the drop down menu;</li>
 <li>Select <code>Add Bundle</code></li>
 <li>Scroll down to <code>Standard bundles</code> and select <code>RxEpl</code></li>
 <li>Click <code>Ok</code></li>
 </ol>
+<p>When run via Designer, it will automatically inject all of the dependencies.</p>
+<h3 id="packaging-a-project-for-use-outside-designer">3. Packaging a project (For use outside Designer)</h3>
+<p>The Apama tool <code>engine_deploy</code> packages a project so that it can be run outside of designer.</p>
+<ol>
+<li>Start an Apama Command Prompt (Start menu, Software AG, Tools, Apama, Apama Command Prompt)</li>
+<li><code>cd</code> to your project directory</li>
+<li>Run <code>engine_deploy --outputDeployDir output.zip . &lt;rx_epl_install_dir&gt;/rxepl.properties</code>.<br>
+You’ll end up with a zip of your entire project.</li>
+<li>Unzip it on whichever machine you’d like to use the project.</li>
+<li>Run <code>correlator --config initialization.yaml --config initialization.properties</code> from within the unzipped directory to run the project.</li>
+</ol>
+<h2 id="a-idquickaquickstart"><a id="quick"></a>Quickstart</h2>
+<p>Aimed at those who are too <s>lazy</s> busy  to read the rest of the Docs.</p>
+<ol>
+<li>First check out the <a href="#install">Installation Instructions</a>, steps 1 &amp; 2.</li>
+<li>Grab the ‘Lambdas for Epl’ package and install that too.</li>
+<li>Start Software AG Designer.</li>
+<li>Copy the following code into a new file: “main.mon”</li>
+</ol>
+<pre class=" language-javascript"><code class="prism  language-javascript">using com<span class="token punctuation">.</span>industry<span class="token punctuation">.</span>lambdas<span class="token punctuation">.</span>Lambda<span class="token punctuation">;</span>
+
+using com<span class="token punctuation">.</span>industry<span class="token punctuation">.</span>rx_epl<span class="token punctuation">.</span>Observable<span class="token punctuation">;</span>
+using com<span class="token punctuation">.</span>industry<span class="token punctuation">.</span>rx_epl<span class="token punctuation">.</span>IObservable<span class="token punctuation">;</span>
+using com<span class="token punctuation">.</span>industry<span class="token punctuation">.</span>rx_epl<span class="token punctuation">.</span>Subscriber<span class="token punctuation">;</span>
+using com<span class="token punctuation">.</span>industry<span class="token punctuation">.</span>rx_epl<span class="token punctuation">.</span>ISubscription<span class="token punctuation">;</span>
+using com<span class="token punctuation">.</span>industry<span class="token punctuation">.</span>rx_epl<span class="token punctuation">.</span>IDisposable<span class="token punctuation">;</span>
+using com<span class="token punctuation">.</span>industry<span class="token punctuation">.</span>rx_epl<span class="token punctuation">.</span>WrappedAny<span class="token punctuation">;</span>
+
+monitor Main <span class="token punctuation">{</span>
+	action <span class="token function">onload</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		<span class="token comment">// Some example observables sources</span>
+		IObservable someValues <span class="token punctuation">:</span><span class="token operator">=</span> Observable<span class="token punctuation">.</span><span class="token function">fromValues</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		IObservable someValuesFromAChannel <span class="token punctuation">:</span><span class="token operator">=</span> Observable<span class="token punctuation">.</span><span class="token function">fromChannel</span><span class="token punctuation">(</span><span class="token string">"inputChannel"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+		
+		<span class="token comment">// Some observable operators</span>
+		IObservable someModifiedValues <span class="token punctuation">:</span><span class="token operator">=</span> someValues
+			<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span>Lambda<span class="token punctuation">.</span><span class="token function">function1</span><span class="token punctuation">(</span><span class="token string">"x =&gt; x * 10"</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+			<span class="token punctuation">.</span><span class="token function">scan</span><span class="token punctuation">(</span>Lambda<span class="token punctuation">.</span><span class="token function">function2</span><span class="token punctuation">(</span><span class="token string">"sum, x =&gt; sum + x"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+		<span class="token comment">// Some output</span>
+		ISubscription s <span class="token punctuation">:</span><span class="token operator">=</span> someModifiedValues
+			<span class="token punctuation">.</span><span class="token function">subscribe</span><span class="token punctuation">(</span>Subscriber<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">onNext</span><span class="token punctuation">(</span>logValue<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+	
+	action <span class="token function">logValue</span><span class="token punctuation">(</span>any value<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+		log value<span class="token punctuation">.</span><span class="token function">valueToString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+	<span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<ol start="4">
+<li>Run the project.</li>
+<li>(Optional) Read the rest of the instructions to learn how to use the library.</li>
+</ol>
 <h2 id="a-idintroareactivex-an-introduction"><a id="intro"></a>ReactiveX: an Introduction</h2>
-<p>ReactiveX is a framework designed to handle streams of data like water through pipes. It has libraries which implement the framework in a <a href="http://reactivex.io/languages.html">most</a> major programming languages.</p>
+<p>ReactiveX is a framework designed to handle streams of data like water through pipes. It has libraries which implement the framework in <a href="http://reactivex.io/languages.html">most</a> major programming languages.</p>
 <pre class=" language-javascript"><code class="prism  language-javascript">IObservable temperatureBreaches <span class="token punctuation">:</span><span class="token operator">=</span> 
     Observable<span class="token punctuation">.</span><span class="token function">fromChannel</span><span class="token punctuation">(</span><span class="token string">"TemperatureSensor"</span><span class="token punctuation">)</span> <span class="token comment">// Get all of the events being sent to this channel</span>
               <span class="token punctuation">.</span><span class="token function">pluck</span><span class="token punctuation">(</span><span class="token string">"temperature"</span><span class="token punctuation">)</span>             <span class="token comment">// Get the temperature value</span>
@@ -543,31 +605,29 @@ on <span class="token function">wait</span><span class="token punctuation">(</sp
     <span class="token comment">// Output: 2,3...</span>
 <span class="token punctuation">}</span>
 </code></pre>
-<h3 id="a-idgotcha-subscribe-onapublishsharesubject-and-subscribeon"><a id="gotcha-subscribe-on"></a>Publish/Share/Subject and SubscribeOn</h3>
+<h3 id="a-idgotcha-subscribe-onapublishshare-and-subscribeon"><a id="gotcha-subscribe-on"></a>Publish/Share and SubscribeOn</h3>
 <pre class=" language-javascript"><code class="prism  language-javascript">IObservable sharedObs <span class="token punctuation">:</span><span class="token operator">=</span> Observable<span class="token punctuation">.</span><span class="token function">interval</span><span class="token punctuation">(</span><span class="token number">1.0</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">share</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
 ISubscription s1 <span class="token punctuation">:</span><span class="token operator">=</span> sharedObs<span class="token punctuation">.</span><span class="token function">subscribe</span><span class="token punctuation">(</span>Subscriber<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">onNext</span><span class="token punctuation">(</span>printValue<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>    
 ISubscription s2 <span class="token punctuation">:</span><span class="token operator">=</span> sharedObs<span class="token punctuation">.</span><span class="token function">subscribeOnNew</span><span class="token punctuation">(</span>Subscriber<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">onNext</span><span class="token punctuation">(</span>printValue<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token comment">// Output on "Main Context": 0,1,2,3...</span>
-<span class="token comment">// Output on "New Context": 0,0,1,1,2,2,3,3... What?!       </span>
+<span class="token comment">// Output on "New Context": Nothing.... What?!       </span>
 </code></pre>
 <p><strong>Why?</strong><br>
-Publish, Share, Subject all store a list of subscribers so that they know who to send their data to.<br>
-When the first subscriber connects it is added to the list.<br>
-When the second subscribeOn subscriber is connected it copies the entire chain (including the list of existing subscribers) to a new context.<br>
-<em><strong>Solution</strong></em> - <code>.async()</code></p>
+Publish and Share both store information about their current subscribers and upstream connections. When the entire chain is moved onto another context this information is copied and the operators no longer function correctly.<br>
+<em><strong>Solution</strong></em> - <code>.decouple()</code></p>
 <pre class=" language-javascript"><code class="prism  language-javascript">IObservable sharedObs <span class="token punctuation">:</span><span class="token operator">=</span> Observable<span class="token punctuation">.</span><span class="token function">interval</span><span class="token punctuation">(</span><span class="token number">1.0</span><span class="token punctuation">)</span>
                                    <span class="token punctuation">.</span><span class="token function">share</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
 ISubscription s1 <span class="token punctuation">:</span><span class="token operator">=</span> sharedObs<span class="token punctuation">.</span><span class="token function">subscribe</span><span class="token punctuation">(</span>Subscriber<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">onNext</span><span class="token punctuation">(</span>printValue<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-ISubscription  <span class="token punctuation">:</span><span class="token operator">=</span> sharedObs<span class="token punctuation">.</span><span class="token keyword">async</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
-                           <span class="token punctuation">.</span><span class="token function">subscribeOnNew</span><span class="token punctuation">(</span>Subscriber<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
-                                                              <span class="token punctuation">.</span><span class="token function">onNext</span><span class="token punctuation">(</span>printValue<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+ISubscription s2 <span class="token punctuation">:</span><span class="token operator">=</span> sharedObs<span class="token punctuation">.</span><span class="token function">decouple</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token comment">// Note: observeOn may be a better solution</span>
+                           <span class="token punctuation">.</span><span class="token function">subscribeOnNew</span><span class="token punctuation">(</span>Subscriber<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">onNext</span><span class="token punctuation">(</span>printValue<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token comment">// Output on "Main Context": 0,1,2,3...</span>
 <span class="token comment">// Output on "New Context": 0,1,2,3...</span>
 </code></pre>
+<p>This helps by ‘decoupling’ the upstream and the downstream. When subscribeOn is called only the downstream is copied. This means that only part of the chain is running on a separate context. A better solution might be to use ObserveOn instead of subscribeOn.</p>
 <h2 id="a-idotherahelp-and-other-resources"><a id="other"></a>Help and Other Resources</h2>
-<p><strong><a href="http://reactivex.io/">ReactiveX Website</a></strong> - A Great place to get info about the background to the framework.<br>
+<p><strong><a href="http://reactivex.io/">ReactiveX Website</a></strong> - A great place to get info about the background to the framework.<br>
 <strong><a href="http://reactivex.io/documentation/operators.html#tree">Decision Tree Of Observables</a></strong> - Don’t know which operator to use? Follow this<br>
 <strong><a href="http://rxmarbles.com/">RxMarbles</a></strong> - An interactive tool to play with observable operators</p>
 

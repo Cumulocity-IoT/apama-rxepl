@@ -17,6 +17,7 @@ limitations under the License.
 # RxEPL - Observables in EPL
 ## Contents
 * [Installation](#install)
+* [Quickstart](#quick)
 * [Introduction to ReactiveX and Observables](#intro) 
 * Main
     * [Package Structure](#packages)
@@ -43,17 +44,74 @@ limitations under the License.
     * [Publish/Share with SubscribeOn](#gotcha-subscribe-on)
 * [Help and Other Resources](#other)
 ## <a id="install"></a>Installation
-### 1. Installing files
-Copy the folders contained inside `CopyContentsToApamaInstallDir` into the Apama install directory (Usually `C:\SoftwareAG\Apama` on Windows or `/opt/softwareag/apama` on Unix), merging them with what is already there.
-### 2. Adding to Designer
-1. From designer right click on your project in `Project Explorer`
+The deployment script provides a way to make ReactiveX for EPL (RxEPL) globally available to all SoftwareAG Designer workspaces.
+### 1. Installing into Designer
+1. Place the RxEPL folder somewhere safe (somewhere not likely to be moved or deleted)
+2. Run the deploy.bat
+3. Follow the instructions
+4. Restart any running instances of SoftwareAG Designer
+
+### 2. Adding to a Project
+1. From SoftwareAG Designer right click on your project in `Project Explorer`
 2. Select `Apama` from the drop down menu;
 3. Select `Add Bundle`
 4. Scroll down to `Standard bundles` and select `RxEpl`
 5. Click `Ok`
 
+When run via Designer, it will automatically inject all of the dependencies.
+
+### 3. Packaging a project (For use outside Designer)
+The Apama tool `engine_deploy` packages a project so that it can be run outside of designer.
+1. Start an Apama Command Prompt (Start menu, Software AG, Tools, Apama, Apama Command Prompt)
+2. `cd` to your project directory
+3. Run `engine_deploy --outputDeployDir output.zip . <rx_epl_install_dir>/rxepl.properties`.
+You'll end up with a zip of your entire project.
+4. Unzip it on whichever machine you'd like to use the project.
+5. Run `correlator --config initialization.yaml --config initialization.properties` from within the unzipped directory to run the project.
+
+## <a id="quick"></a>Quickstart
+Aimed at those who are too ~~lazy~~ busy  to read the rest of the Docs. 
+
+1. First check out the [Installation Instructions](#install), steps 1 & 2.
+2. Grab the 'Lambdas for Epl' package and install that too.
+3. Start Software AG Designer.
+4. Copy the following code into a new file: "main.mon"
+```javascript
+using com.industry.lambdas.Lambda;
+
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.Subscriber;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.IDisposable;
+using com.industry.rx_epl.WrappedAny;
+
+monitor Main {
+	action onload() {
+		// Some example observables sources
+		IObservable someValues := Observable.fromValues([1, 2, 3]);
+		IObservable someValuesFromAChannel := Observable.fromChannel("inputChannel");
+		
+		// Some observable operators
+		IObservable someModifiedValues := someValues
+			.map(Lambda.function1("x => x * 10"))
+			.scan(Lambda.function2("sum, x => sum + x"));
+
+		// Some output
+		ISubscription s := someModifiedValues
+			.subscribe(Subscriber.create().onNext(logValue));
+	}
+	
+	action logValue(any value) {
+		log value.valueToString();
+	}
+}
+```
+4. Run the project.
+5. (Optional) Read the rest of the instructions to learn how to use the library.
+
 ## <a id="intro"></a>ReactiveX: an Introduction
-ReactiveX is a framework designed to handle streams of data like water through pipes. It has libraries which implement the framework in a [most](http://reactivex.io/languages.html) major programming languages.
+ReactiveX is a framework designed to handle streams of data like water through pipes. It has libraries which implement the framework in [most](http://reactivex.io/languages.html) major programming languages.
 ```javascript
 IObservable temperatureBreaches := 
     Observable.fromChannel("TemperatureSensor") // Get all of the events being sent to this channel
@@ -577,6 +635,6 @@ ISubscription s2 := sharedObs.decouple() // Note: observeOn may be a better solu
 ```
 This helps by 'decoupling' the upstream and the downstream. When subscribeOn is called only the downstream is copied. This means that only part of the chain is running on a separate context. A better solution might be to use ObserveOn instead of subscribeOn.
 ## <a id="other"></a>Help and Other Resources
-**[ReactiveX Website](http://reactivex.io/)** - A Great place to get info about the background to the framework.
+**[ReactiveX Website](http://reactivex.io/)** - A great place to get info about the background to the framework.
 **[Decision Tree Of Observables](http://reactivex.io/documentation/operators.html#tree)** - Don't know which operator to use? Follow this
 **[RxMarbles](http://rxmarbles.com/)** - An interactive tool to play with observable operators
