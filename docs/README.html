@@ -31,6 +31,7 @@
 <li><a href="#a-iddebuggingadebugging">Debugging</a></li>
 <li><a href="#a-idreusabilityareusability-build-your-own-observable-operator">Reusability: Build your own Observable Operator</a></li>
 <li><a href="#a-idgotchasagotchas">Gotchas</a></li>
+<li><a href="#a-idlambdasaepl-lambdas">EPL Lambdas</a></li>
 <li><a href="#a-idotherahelp-and-other-resources">Help and Other Resources</a></li>
 </ul>
 </li>
@@ -118,7 +119,7 @@ You’ll end up with a zip of your entire project.</li>
 <p>Aimed at those who are too <s>lazy</s> busy  to read the rest of the Docs.</p>
 <ol>
 <li>First check out the <a href="#install">Installation Instructions</a>, steps 1 &amp; 2.</li>
-<li>Grab the ‘Lambdas for Epl’ package and install that too.</li>
+<li>We highly recommend installing <a href="#lambdas">Lambdas for Epl</a> package too.</li>
 <li>Start Software AG Designer.</li>
 <li>Copy the following code into a new file: “main.mon”</li>
 </ol>
@@ -160,8 +161,8 @@ monitor Main <span class="token punctuation">{</span>
 <p>ReactiveX is a framework designed to handle streams of data like water through pipes. It has libraries which implement the framework in <a href="http://reactivex.io/languages.html">most</a> major programming languages.</p>
 <pre class=" language-javascript"><code class="prism  language-javascript">IObservable temperatureBreaches <span class="token punctuation">:</span><span class="token operator">=</span> 
     Observable<span class="token punctuation">.</span><span class="token function">fromChannel</span><span class="token punctuation">(</span><span class="token string">"TemperatureSensor"</span><span class="token punctuation">)</span> <span class="token comment">// Get all of the events being sent to this channel</span>
-              <span class="token punctuation">.</span><span class="token function">pluck</span><span class="token punctuation">(</span><span class="token string">"temperature"</span><span class="token punctuation">)</span>             <span class="token comment">// Get the temperature value</span>
-              <span class="token punctuation">.</span><span class="token function">filter</span><span class="token punctuation">(</span>aboveThreshold<span class="token punctuation">)</span><span class="token punctuation">;</span>          <span class="token comment">// Filter to only the temperatures we want</span>
+       <span class="token punctuation">.</span><span class="token function">pluck</span><span class="token punctuation">(</span><span class="token string">"temperature"</span><span class="token punctuation">)</span>                    <span class="token comment">// Get the temperature value</span>
+       <span class="token punctuation">.</span><span class="token function">filter</span><span class="token punctuation">(</span>Lambda<span class="token punctuation">.</span><span class="token function">predicate</span><span class="token punctuation">(</span><span class="token string">"T =&gt; temp &gt; 30"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>  <span class="token comment">// Filter to only the temperatures we want</span>
               
 <span class="token comment">// Generate an alert</span>
 ISubscription generateAlerts <span class="token punctuation">:</span><span class="token operator">=</span> temperatureBreaches<span class="token punctuation">.</span><span class="token function">subscribe</span><span class="token punctuation">(</span>Subscriber<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">onNext</span><span class="token punctuation">(</span>generateAlert<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span> 
@@ -241,7 +242,7 @@ action <span class="token function">printError</span><span class="token punctuat
 <pre class=" language-javascript"><code class="prism  language-javascript">IObservable o <span class="token punctuation">:</span><span class="token operator">=</span> Observable<span class="token punctuation">.</span><span class="token function">range</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span><span class="token number">20</span><span class="token punctuation">)</span>
                            <span class="token punctuation">.</span><span class="token function">skip</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>
                            <span class="token punctuation">.</span><span class="token function">take</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span>
-                           <span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span>multiplyBy10<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                           <span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span>Lambda<span class="token punctuation">.</span><span class="token function">function1</span><span class="token punctuation">(</span><span class="token string">"x =&gt; x * 10"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
                             
 ISubscription s <span class="token punctuation">:</span><span class="token operator">=</span> o<span class="token punctuation">.</span><span class="token function">subscribe</span><span class="token punctuation">(</span>Subscriber<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">onNext</span><span class="token punctuation">(</span>printValue<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">onComplete</span><span class="token punctuation">(</span>printDone<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token comment">// Output: 1, 2, 3, Done</span>
@@ -251,7 +252,7 @@ ISubscription s <span class="token punctuation">:</span><span class="token opera
                            <span class="token punctuation">.</span><span class="token keyword">let</span><span class="token punctuation">(</span>Skip<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span>  <span class="token comment">// Use a single operator</span>
                            <span class="token punctuation">.</span><span class="token function">pipe</span><span class="token punctuation">(</span><span class="token punctuation">[</span>                 <span class="token comment">// Chain multiple operators</span>
                                 Take<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
-                                Map<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span>multiplyBy10<span class="token punctuation">)</span><span class="token punctuation">,</span>
+                                Map<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span>Lambda<span class="token punctuation">.</span><span class="token function">function1</span><span class="token punctuation">(</span><span class="token string">"x =&gt; x * 10"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
                                 MyCustomOperator<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span><span class="token number">123.4</span><span class="token punctuation">)</span>
                             <span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
                             
@@ -329,7 +330,7 @@ ISubscription s <span class="token punctuation">:</span><span class="token opera
 <span class="token comment">// Output: 0, 1, 2, 3</span>
 </code></pre>
 <h2 id="a-idinteropainteroperability"><a id="interop"></a>Interoperability</h2>
-<h3 id="a-idstreamsastreams"><a id="streams"></a>Streams</h3>
+<h3 id="a-idstreamsaapama-streams"><a id="streams"></a>Apama Streams</h3>
 <p><strong>Receiving from a stream</strong></p>
 <pre class=" language-javascript"><code class="prism  language-javascript"><span class="token comment">// Receiving events </span>
 IObservable o <span class="token punctuation">:</span><span class="token operator">=</span> Observable<span class="token punctuation">.</span><span class="token function">fromStream</span><span class="token punctuation">(</span><span class="token keyword">from</span> e <span class="token keyword">in</span> all <span class="token function">MyEventType</span><span class="token punctuation">(</span><span class="token punctuation">)</span> select <span class="token operator">&lt;</span>any<span class="token operator">&gt;</span> e<span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -344,7 +345,7 @@ IObservable o <span class="token punctuation">:</span><span class="token operato
 DisposableStream strm <span class="token punctuation">:</span><span class="token operator">=</span> o<span class="token punctuation">.</span><span class="token function">toStream</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
 <span class="token keyword">from</span> value <span class="token keyword">in</span> strm<span class="token punctuation">.</span><span class="token function">getStream</span><span class="token punctuation">(</span><span class="token punctuation">)</span> select value <span class="token punctuation">{</span>
-    log value<span class="token punctuation">;</span>
+    log value<span class="token punctuation">.</span><span class="token function">valueToString</span><span class="token punctuation">(</span><span class="token punctuation">)</span> at INFO<span class="token punctuation">;</span>
 <span class="token punctuation">}</span>
 
 <span class="token comment">// When done, the stream should be disposed</span>
@@ -364,11 +365,7 @@ send <span class="token function">WrappedAny</span><span class="token punctuatio
 <p><strong>Output to a channel</strong></p>
 <pre class=" language-javascript"><code class="prism  language-javascript">IObservable o <span class="token punctuation">:</span><span class="token operator">=</span> Observable<span class="token punctuation">.</span><span class="token function">interval</span><span class="token punctuation">(</span><span class="token number">1.0</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-Subscription s <span class="token punctuation">:</span><span class="token operator">=</span> o<span class="token punctuation">.</span><span class="token function">subscribe</span><span class="token punctuation">(</span>Subscriber<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">onNext</span><span class="token punctuation">(</span>sendToChannel<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-action <span class="token function">sendToChannel</span><span class="token punctuation">(</span>any value<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-    send value to <span class="token string">"myChannel"</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span>
+IDisposable d <span class="token punctuation">:</span><span class="token operator">=</span> o<span class="token punctuation">.</span><span class="token function">toChannel</span><span class="token punctuation">(</span><span class="token string">"myChannel"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 </code></pre>
 <h2 id="multithreading">Multithreading</h2>
 <p>Multithreading allows complex or slow processing to be handled asynchronously on a different context.</p>
@@ -419,7 +416,7 @@ action <span class="token function">doSomething</span><span class="token punctua
 <span class="token comment">// Output: 0, 10, 20, 30...</span>
 </code></pre>
 <h3 id="subscribeon">subscribeOn</h3>
-<p>SubscribeOn will move an entire chain (from source to subscription) onto another context. There are a couple of <a href="#gotchas">Gotchas</a> with this when used with publishing and sharing.</p>
+<p>SubscribeOn will move an entire chain (from source to subscription) onto another context. There are a couple of <a href="#gotchas">Gotchas</a> with this when used with publishing and sharing. Generally it is recommend to manually spawn a new context manually rather than rely on this.</p>
 <pre class=" language-javascript"><code class="prism  language-javascript">ISubscription s <span class="token punctuation">:</span><span class="token operator">=</span> Observable<span class="token punctuation">.</span><span class="token function">interval</span><span class="token punctuation">(</span><span class="token number">1.0</span><span class="token punctuation">)</span>
                              <span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span>multiplyBy10<span class="token punctuation">)</span>
                              <span class="token comment">// Move all processing to a different context </span>
@@ -626,6 +623,27 @@ ISubscription s2 <span class="token punctuation">:</span><span class="token oper
 <span class="token comment">// Output on "New Context": 0,1,2,3...</span>
 </code></pre>
 <p>This helps by ‘decoupling’ the upstream and the downstream. When subscribeOn is called only the downstream is copied. This means that only part of the chain is running on a separate context. A better solution might be to use ObserveOn instead of subscribeOn.</p>
+<h2 id="a-idlambdasaepl-lambdas"><a id="lambdas"></a>EPL Lambdas</h2>
+<p>Although this library can be used as a standalone library, we highly recommend that it is used in conjunction with the Lambdas for Apama EPL library.</p>
+<p>It allows you to turn this:</p>
+<pre class=" language-javascript"><code class="prism  language-javascript">IObservable o <span class="token punctuation">:</span><span class="token operator">=</span> Observable<span class="token punctuation">.</span><span class="token function">fromValues</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+	<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span>multiplyBy10<span class="token punctuation">)</span>
+	<span class="token punctuation">.</span><span class="token function">reduce</span><span class="token punctuation">(</span>sum<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+action <span class="token function">multiplyBy10</span><span class="token punctuation">(</span>any value<span class="token punctuation">)</span> returns any <span class="token punctuation">{</span> <span class="token comment">// Will only work on integers</span>
+	<span class="token keyword">return</span> <span class="token operator">&lt;</span>integer<span class="token operator">&gt;</span> value <span class="token operator">*</span> <span class="token number">10</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+action <span class="token function">sum</span><span class="token punctuation">(</span>any currentSum<span class="token punctuation">,</span> any value<span class="token punctuation">)</span> returns any <span class="token punctuation">{</span> <span class="token comment">// Will only work on integers</span>
+	<span class="token keyword">return</span> <span class="token operator">&lt;</span>integer<span class="token operator">&gt;</span> currentSum <span class="token operator">+</span> <span class="token operator">&lt;</span>integer<span class="token operator">&gt;</span> value<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>Into this:</p>
+<pre class=" language-javascript"><code class="prism  language-javascript">IObservable o <span class="token punctuation">:</span><span class="token operator">=</span> Observable<span class="token punctuation">.</span><span class="token function">fromValues</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+	<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span>Lambda<span class="token punctuation">.</span><span class="token function">function1</span><span class="token punctuation">(</span><span class="token string">"x =&gt; x * 10"</span><span class="token punctuation">)</span><span class="token punctuation">)</span>           <span class="token comment">// Will work on any numeric type</span>
+	<span class="token punctuation">.</span><span class="token function">reduce</span><span class="token punctuation">(</span>Lambda<span class="token punctuation">.</span><span class="token function">function2</span><span class="token punctuation">(</span><span class="token string">"sum, x =&gt; sum + x"</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// Will work on any numeric type</span>
+</code></pre>
+<p>There are many added benefits to using Lambdas, one of the main advantages being automatic type coercion. You’ll never have to cast a numeric value - they’re automatically converted to an appropriate type.</p>
 <h2 id="a-idotherahelp-and-other-resources"><a id="other"></a>Help and Other Resources</h2>
 <p><strong><a href="http://reactivex.io/">ReactiveX Website</a></strong> - A great place to get info about the background to the framework.<br>
 <strong><a href="http://reactivex.io/documentation/operators.html#tree">Decision Tree Of Observables</a></strong> - Don’t know which operator to use? Follow this<br>

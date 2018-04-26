@@ -73,7 +73,7 @@ You'll end up with a zip of your entire project.
 Aimed at those who are too ~~lazy~~ busy  to read the rest of the Docs. 
 
 1. First check out the [Installation Instructions](#install), steps 1 & 2.
-2. Grab the 'Lambdas for Epl' package and install that too.
+2. We highly recommend installing [Lambdas for Epl](#lambdas) package too.
 3. Start Software AG Designer.
 4. Copy the following code into a new file: "main.mon"
 ```javascript
@@ -115,8 +115,8 @@ ReactiveX is a framework designed to handle streams of data like water through p
 ```javascript
 IObservable temperatureBreaches := 
     Observable.fromChannel("TemperatureSensor") // Get all of the events being sent to this channel
-              .pluck("temperature")             // Get the temperature value
-              .filter(aboveThreshold);          // Filter to only the temperatures we want
+       .pluck("temperature")                    // Get the temperature value
+       .filter(Lambda.predicate("T => temp > 30"));  // Filter to only the temperatures we want
               
 // Generate an alert
 ISubscription generateAlerts := temperatureBreaches.subscribe(Subscriber.create().onNext(generateAlert)); 
@@ -144,6 +144,7 @@ For a comprehensive introduction to ReactiveX and Observables see the [ReactiveX
 
 **Operators:**
 `com.industry.rx_epl.operators.*` - All pipeable operators (See [Operators](#operators). The ApamaDoc contains a full list)
+
 ## <a id="examples"></a>Examples
 There are several examples that ship with the source code. These are located in the `Examples` folder.
 ## <a id="observable"></a>Observable
@@ -204,7 +205,7 @@ All of the built-in operators are accessible directly from the IObservable inter
 IObservable o := Observable.range(0,20)
                            .skip(1)
                            .take(3)
-                           .map(multiplyBy10);
+                           .map(Lambda.function1("x => x * 10"));
                             
 ISubscription s := o.subscribe(Subscriber.create().onNext(printValue).onComplete(printDone));
 // Output: 1, 2, 3, Done
@@ -215,7 +216,7 @@ IObservable o := Observable.range(0,20)
                            .let(Skip.create(1))  // Use a single operator
                            .pipe([                 // Chain multiple operators
                                 Take.create(3),
-                                Map.create(multiplyBy10),
+                                Map.create(Lambda.function1("x => x * 10")),
                                 MyCustomOperator.create(123.4)
                             ]);
                             
@@ -303,7 +304,7 @@ ISubscription s := hotObservable
 // Output: 0, 1, 2, 3
 ```
 ## <a id="interop"></a>Interoperability
-### <a id="streams"></a>Streams
+### <a id="streams"></a>Apama Streams
 **Receiving from a stream**
 ```javascript
 // Receiving events 
@@ -320,7 +321,7 @@ IObservable o := Observable.interval(1.0);
 DisposableStream strm := o.toStream();
 
 from value in strm.getStream() select value {
-    log value;
+    log value.valueToString() at INFO;
 }
 
 // When done, the stream should be disposed
@@ -342,11 +343,7 @@ send WrappedAny("abc") to "myChannel";
 ```javascript
 IObservable o := Observable.interval(1.0);
 
-Subscription s := o.subscribe(Subscriber.create().onNext(sendToChannel));
-
-action sendToChannel(any value) {
-    send value to "myChannel";
-}
+IDisposable d := o.toChannel("myChannel");
 ```
 ## Multithreading
 Multithreading allows complex or slow processing to be handled asynchronously on a different context.
@@ -401,7 +398,7 @@ action doSomething(IObservable o) returns IObservable {
 // Output: 0, 10, 20, 30...
 ```
 ### subscribeOn
-SubscribeOn will move an entire chain (from source to subscription) onto another context. There are a couple of [Gotchas](#gotchas) with this when used with publishing and sharing.
+SubscribeOn will move an entire chain (from source to subscription) onto another context. There are a couple of [Gotchas](#gotchas) with this when used with publishing and sharing. Generally it is recommend to manually spawn a new context manually rather than rely on this.
 ```javascript
 ISubscription s := Observable.interval(1.0)
                              .map(multiplyBy10)
@@ -634,6 +631,32 @@ ISubscription s2 := sharedObs.decouple() // Note: observeOn may be a better solu
 // Output on "New Context": 0,1,2,3...
 ```
 This helps by 'decoupling' the upstream and the downstream. When subscribeOn is called only the downstream is copied. This means that only part of the chain is running on a separate context. A better solution might be to use ObserveOn instead of subscribeOn.
+
+## <a id="lambdas"></a>EPL Lambdas
+Although this library can be used as a standalone library, we highly recommend that it is used in conjunction with the Lambdas for Apama EPL library.
+
+It allows you to turn this:
+```javascript
+IObservable o := Observable.fromValues([1,2,3,4])
+	.map(multiplyBy10)
+	.reduce(sum);
+
+action multiplyBy10(any value) returns any { // Will only work on integers
+	return <integer> value * 10;
+}
+
+action sum(any currentSum, any value) returns any { // Will only work on integers
+	return <integer> currentSum + <integer> value;
+}
+```
+Into this:
+```javascript
+IObservable o := Observable.fromValues([1,2,3,4])
+	.map(Lambda.function1("x => x * 10"))           // Will work on any numeric type
+	.reduce(Lambda.function2("sum, x => sum + x")); // Will work on any numeric type
+```
+There are many added benefits to using Lambdas, one of the main advantages being automatic type coercion. You'll never have to cast a numeric value - they're automatically converted to an appropriate type.
+
 ## <a id="other"></a>Help and Other Resources
 **[ReactiveX Website](http://reactivex.io/)** - A great place to get info about the background to the framework.
 **[Decision Tree Of Observables](http://reactivex.io/documentation/operators.html#tree)** - Don't know which operator to use? Follow this
