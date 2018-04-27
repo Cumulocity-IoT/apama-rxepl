@@ -1,0 +1,369 @@
+﻿<xml xmlns="http://www.w3.org/1999/xhtml">
+  <variables>
+    <variable type="" id="NYdnGm;3K2q~}EvbSH,w">rawData</variable>
+    <variable type="" id="Ek_Urudf/GjP!0B6}@n~">dataInCelsius</variable>
+    <variable type="" id="XB:%:78jGw6g~hM]1H3A">result</variable>
+    <variable type="" id="`1zD]O#,m}7l#u/P}%y=">averages</variable>
+    <variable type="" id="J+U)ln(hMC$wX1E;%y{-">gradients</variable>
+    <variable type="" id="igw9/exJmVnBc#}jw)Wt">thresholdAlerts</variable>
+  </variables>
+  <block type="set_var" id="N+B[z.G7G-qTFeLb%8S!" x="-479" y="-1086">
+    <field name="Variable" id="NYdnGm;3K2q~}EvbSH,w" variabletype="">rawData</field>
+    <comment pinned="true" h="80" w="160" dx="-216" dy="-32">Calculate various metrics base on the incoming raw data</comment>
+    <value name="Observable">
+      <block type="from_channel" id="ibx5XR^xHU_}im[T+#Nm">
+        <field name="CHANNEL_NAME">SimulatedData</field>
+        <comment pinned="false" h="80" w="160" dx="0" dy="0">Get the data from the input channel</comment>
+      </block>
+    </value>
+    <next>
+      <block type="set_var" id="Qcjjn@$:zscyywA5Ms!2">
+        <field name="Variable" id="Ek_Urudf/GjP!0B6}@n~" variabletype="">dataInCelsius</field>
+        <value name="Observable">
+          <block type="operators" id="@#.E~dRCEnBpETw?d{p=">
+            <value name="SourceObservable">
+              <block type="get_var" id="Q__`-xR`dLb_9]3D:[8T">
+                <field name="Variable" id="NYdnGm;3K2q~}EvbSH,w" variabletype="">rawData</field>
+              </block>
+            </value>
+            <statement name="Operators">
+              <shadow type="map" id="TPyC/;*jVutNu6zbqeiZ">
+                <value name="Action">
+                  <shadow type="lambda" id="8g_s:J|AI,%DSQI_)q.-">
+                    <field name="Arg">x</field>
+                    <field name="Expression">x</field>
+                  </shadow>
+                </value>
+              </shadow>
+              <block type="map" id="q+F/.2vX--CE;ceRPm{/">
+                <comment pinned="false" h="37" w="195" dx="0" dy="0">Convert to Fahrenheit</comment>
+                <value name="Action">
+                  <shadow type="lambda" id="G23pW$KHIyTvPY7f$,Ox">
+                    <field name="Arg">x</field>
+                    <field name="Expression">x * 10</field>
+                  </shadow>
+                  <block type="lambda" id="7cB1GVX:Qq[B)H]c}6qC">
+                    <field name="Arg">data</field>
+                    <field name="Expression">com.industry.rxepl.sample.Data(data.sourceId, (data.dValue - 32) * 5 / 9)</field>
+                  </block>
+                </value>
+              </block>
+            </statement>
+          </block>
+        </value>
+        <next>
+          <block type="set_var" id="}9PnvANos%A,J7fiCLt|">
+            <field name="Variable" id="`1zD]O#,m}7l#u/P}%y=" variabletype="">averages</field>
+            <value name="Observable">
+              <block type="operators" id="~+aDG(=A|VQYucE--I+3">
+                <value name="SourceObservable">
+                  <block type="get_var" id="5v0$CC[_PD?|+bY.xk=|">
+                    <field name="Variable" id="Ek_Urudf/GjP!0B6}@n~" variabletype="">dataInCelsius</field>
+                  </block>
+                </value>
+                <statement name="Operators">
+                  <shadow type="map" id="4)TSWC|e~Nd7gu5l3wi2">
+                    <value name="Action">
+                      <shadow type="lambda" id=";IngCT~+GIo2bE+jzL)r">
+                        <field name="Arg">x</field>
+                        <field name="Expression">x</field>
+                      </shadow>
+                    </value>
+                  </shadow>
+                  <block type="group_by_for_each" id="aj?#wzWx]G%d*:LKS!;/">
+                    <comment pinned="false" h="95" w="207" dx="0" dy="0">Each unique sourceId represents a different sensor, so we group by that value</comment>
+                    <value name="Action">
+                      <shadow type="lambda" id="d{Gae~[)s0ld8oq=17%5">
+                        <field name="Arg">order</field>
+                        <field name="Expression">order.productId</field>
+                      </shadow>
+                      <block type="lambda" id="NlA?0$ny=5h$rzK[i-5[">
+                        <field name="Arg">data</field>
+                        <field name="Expression">data.sourceId</field>
+                      </block>
+                    </value>
+                    <statement name="Operators">
+                      <block type="custom_operator" id=".,Y[l?#,8k=c}B_lXpwI">
+                        <mutation operator-name="movingAvgWithSourceId"></mutation>
+                      </block>
+                    </statement>
+                  </block>
+                </statement>
+              </block>
+            </value>
+            <next>
+              <block type="set_var" id="QR:M:=#:!0{5lM=_{5Rt">
+                <field name="Variable" id="J+U)ln(hMC$wX1E;%y{-" variabletype="">gradients</field>
+                <value name="Observable">
+                  <block type="operators" id="Dk9Wi.Lb5}]B4=j5kL:K">
+                    <value name="SourceObservable">
+                      <block type="get_var" id="}8n9)KQK/%59+,pJIEG7">
+                        <field name="Variable" id="Ek_Urudf/GjP!0B6}@n~" variabletype="">dataInCelsius</field>
+                      </block>
+                    </value>
+                    <statement name="Operators">
+                      <shadow type="map" id="4)TSWC|e~Nd7gu5l3wi2">
+                        <value name="Action">
+                          <shadow type="lambda" id=";IngCT~+GIo2bE+jzL)r">
+                            <field name="Arg">x</field>
+                            <field name="Expression">x</field>
+                          </shadow>
+                        </value>
+                      </shadow>
+                      <block type="group_by_for_each" id="MR,Llnt0?74!L{~F]8OG">
+                        <comment pinned="false" h="95" w="207" dx="0" dy="0">Each unique sourceId represents a different sensor, so we group by that value</comment>
+                        <value name="Action">
+                          <shadow type="lambda" id="d{Gae~[)s0ld8oq=17%5">
+                            <field name="Arg">order</field>
+                            <field name="Expression">order.productId</field>
+                          </shadow>
+                          <block type="lambda" id="CCZ+Dk=phD.s/b}|+cA$">
+                            <field name="Arg">data</field>
+                            <field name="Expression">data.sourceId</field>
+                          </block>
+                        </value>
+                        <statement name="Operators">
+                          <block type="custom_operator" id="d:0Kx]s0^3C,(AmiZC(L">
+                            <mutation operator-name="movingGradientWithSourceId"></mutation>
+                          </block>
+                        </statement>
+                      </block>
+                    </statement>
+                  </block>
+                </value>
+                <next>
+                  <block type="set_var" id="%}Cdj+1Y5Ma994Cwm~Ci">
+                    <field name="Variable" id="igw9/exJmVnBc#}jw)Wt" variabletype="">thresholdAlerts</field>
+                    <value name="Observable">
+                      <block type="operators" id="1lhee+DirC1ya8zep!,r">
+                        <value name="SourceObservable">
+                          <block type="get_var" id="@F4dS5`$;JPX^z`4BmR[">
+                            <field name="Variable" id="Ek_Urudf/GjP!0B6}@n~" variabletype="">dataInCelsius</field>
+                          </block>
+                        </value>
+                        <statement name="Operators">
+                          <shadow type="map" id="5=Qma!A@:^%z.i,~5{ys">
+                            <value name="Action">
+                              <shadow type="lambda" id="YDE5pFaPI8f]Ix-BL2%7">
+                                <field name="Arg">x</field>
+                                <field name="Expression">x</field>
+                              </shadow>
+                            </value>
+                          </shadow>
+                          <block type="map" id="8yi#16]jDsQeJdtoPNJ$">
+                            <comment pinned="false" h="37" w="195" dx="0" dy="0">Convert to Fahrenheit</comment>
+                            <value name="Action">
+                              <shadow type="lambda" id="G23pW$KHIyTvPY7f$,Ox">
+                                <field name="Arg">x</field>
+                                <field name="Expression">x * 10</field>
+                              </shadow>
+                              <block type="lambda" id=";~fHmJU]:oz17:S,a!9;">
+                                <field name="Arg">data</field>
+                                <field name="Expression">com.industry.rxepl.sample.Data(data.sourceId, data.dValue &gt; 38 ? 1 : 0)</field>
+                              </block>
+                            </value>
+                          </block>
+                        </statement>
+                      </block>
+                    </value>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+  <block type="to_channel" id="ZjSm-kxK!pLfO@GO9Uy?" x="-479" y="-635">
+    <field name="ChannelName">RawData</field>
+    <comment pinned="true" h="80" w="160" dx="-225" dy="-32">Send the Calculated values to a channel</comment>
+    <value name="SourceObservable">
+      <block type="get_var" id="w#dpF=IMH:4AT#RAlr!s">
+        <field name="Variable" id="NYdnGm;3K2q~}EvbSH,w" variabletype="">rawData</field>
+      </block>
+    </value>
+    <next>
+      <block type="to_channel" id="b|2*(|4TqS{X,!F.uk1@">
+        <field name="ChannelName">ConvertedToCelsius</field>
+        <value name="SourceObservable">
+          <block type="get_var" id="J+dho2Tq9%tFhdu}sFB$">
+            <field name="Variable" id="Ek_Urudf/GjP!0B6}@n~" variabletype="">dataInCelsius</field>
+          </block>
+        </value>
+        <next>
+          <block type="to_channel" id="i]o+Ld=GYv{@ml`qgLvx">
+            <field name="ChannelName">Averages</field>
+            <value name="SourceObservable">
+              <block type="get_var" id="%R@[)VG?O-~d6RRt*=|8">
+                <field name="Variable" id="`1zD]O#,m}7l#u/P}%y=" variabletype="">averages</field>
+              </block>
+            </value>
+            <next>
+              <block type="to_channel" id="oF9`h3cgzYB,S!PpM?18">
+                <field name="ChannelName">Gradients</field>
+                <value name="SourceObservable">
+                  <block type="get_var" id="/-@8uVe^Ded6U7mfj-v|">
+                    <field name="Variable" id="J+U)ln(hMC$wX1E;%y{-" variabletype="">gradients</field>
+                  </block>
+                </value>
+                <next>
+                  <block type="to_channel" id="*tkHf;AS7.u85[%vdUk%">
+                    <field name="ChannelName">ThresholdAlerts</field>
+                    <value name="SourceObservable">
+                      <block type="get_var" id="jua)*7,zxjTY|lH6l$94">
+                        <field name="Variable" id="igw9/exJmVnBc#}jw)Wt" variabletype="">thresholdAlerts</field>
+                      </block>
+                    </value>
+                  </block>
+                </next>
+              </block>
+            </next>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+  <block type="complex_custom_operator_definition" id="mUjM9JRoh)]:BWw%f~P}" x="-480" y="-448">
+    <field name="OperatorName">movingAvgWithSourceId</field>
+    <comment pinned="true" h="112" w="159" dx="-235" dy="-36">We want to keep the sourceId for each average so we implement a custom operator</comment>
+    <value name="Arg">
+      <block type="custom_operator_arg" id="TV]0-fOT$)(M};Yq)hk9"></block>
+    </value>
+    <statement name="Code">
+      <block type="set_var" id="qulFFrz;D)f2}x*}~qsd">
+        <field name="Variable" id="XB:%:78jGw6g~hM]1H3A" variabletype="">result</field>
+        <value name="Observable">
+          <block type="operators" id="ynxM@gMbf5rKEBo%;*py">
+            <value name="SourceObservable">
+              <block type="custom_operator_arg" id="hLr]CS0D[VWu0+uFkzlQ"></block>
+            </value>
+            <statement name="Operators">
+              <shadow type="map" id="Sap2N[?)M-,I{VumHPD;">
+                <value name="Action">
+                  <shadow type="lambda" id="@*qGUg~@;URVY,d.PF|N">
+                    <field name="Arg">x</field>
+                    <field name="Expression">x</field>
+                  </shadow>
+                </value>
+              </shadow>
+              <block type="map" id="24qP~N*.)dA]OwJ]:$Gu">
+                <comment pinned="false" h="69" w="222" dx="0" dy="0">We want to calculate the average of the dValue so we select that</comment>
+                <value name="Action">
+                  <shadow type="lambda" id="jDDy!Z*#uD~4wd3(}x-5">
+                    <field name="Arg">x</field>
+                    <field name="Expression">x * 10</field>
+                  </shadow>
+                  <block type="lambda" id="TY):0TB-(;oCVhBi31p3">
+                    <field name="Arg">data</field>
+                    <field name="Expression">data.dValue</field>
+                  </block>
+                </value>
+                <next>
+                  <block type="moving_average" id="IZOc{*c^/blQ4ykGU[W(">
+                    <field name="Count">5</field>
+                    <next>
+                      <block type="with_latest_from" id="Ptt?D|jV]wa~fS#oOMJl">
+                        <comment pinned="false" h="83" w="240" dx="0" dy="0">Re-add the sourceId, it is the same for all values so we can just use the sourceId of the latest value</comment>
+                        <value name="OtherObservable">
+                          <block type="custom_operator_arg" id="=r`eg,?2cFa5Tr}/;Px^"></block>
+                        </value>
+                        <value name="Combiner">
+                          <shadow type="lambda" id="ezq-B*)%/Pu{cSt?%*Q-">
+                            <field name="Arg">main, merged</field>
+                            <field name="Expression">[main, merged]</field>
+                          </shadow>
+                          <block type="lambda" id="|uyOM;8^g*$zv78#2O54">
+                            <field name="Arg">avg, latestValue</field>
+                            <field name="Expression">com.industry.rxepl.sample.Data(latestValue.sourceId, avg)</field>
+                          </block>
+                        </value>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </statement>
+          </block>
+        </value>
+      </block>
+    </statement>
+    <value name="Return">
+      <shadow type="custom_operator_arg" id="`9f0*u*`l~$cIJ}Vl#Ey"></shadow>
+      <block type="get_var" id="eje~8SqvsO7d!)KR:o_K">
+        <field name="Variable" id="XB:%:78jGw6g~hM]1H3A" variabletype="">result</field>
+      </block>
+    </value>
+  </block>
+  <block type="complex_custom_operator_definition" id="{7YP!{S,+_GkpH=2:SE7" x="-479" y="-195">
+    <field name="OperatorName">movingGradientWithSourceId</field>
+    <comment pinned="true" h="112" w="159" dx="-235" dy="-36">We want to keep the sourceId for each gradient so we implement a custom operator</comment>
+    <value name="Arg">
+      <block type="custom_operator_arg" id="$;VWYE:FM*bbbs~/Di25"></block>
+    </value>
+    <statement name="Code">
+      <block type="set_var" id="XsV0jR!cy#0:4RiAkrz{">
+        <field name="Variable" id="XB:%:78jGw6g~hM]1H3A" variabletype="">result</field>
+        <value name="Observable">
+          <block type="operators" id="/]H)H;c~VtkVIaAyTvhO">
+            <value name="SourceObservable">
+              <block type="custom_operator_arg" id="3T{ik-3_80k;r2+B7ti["></block>
+            </value>
+            <statement name="Operators">
+              <shadow type="map" id="Sap2N[?)M-,I{VumHPD;">
+                <value name="Action">
+                  <shadow type="lambda" id="@*qGUg~@;URVY,d.PF|N">
+                    <field name="Arg">x</field>
+                    <field name="Expression">x</field>
+                  </shadow>
+                </value>
+              </shadow>
+              <block type="map" id="6DPE/-=mNm#vHV68{Go_">
+                <comment pinned="false" h="69" w="222" dx="0" dy="0">We want to calculate the average of the dValue so we select that</comment>
+                <value name="Action">
+                  <shadow type="lambda" id="jDDy!Z*#uD~4wd3(}x-5">
+                    <field name="Arg">x</field>
+                    <field name="Expression">x * 10</field>
+                  </shadow>
+                  <block type="lambda" id="3Wm,WEOW.]Inp8XFGyU0">
+                    <field name="Arg">data</field>
+                    <field name="Expression">data.dValue</field>
+                  </block>
+                </value>
+                <next>
+                  <block type="moving_gradient" id="(`z:T)quTJ7)YmzlP$w5">
+                    <field name="Count">5</field>
+                    <next>
+                      <block type="with_latest_from" id="+ju(*o5(yv*8`pMvw[=y">
+                        <comment pinned="false" h="83" w="240" dx="0" dy="0">Re-add the sourceId, it is the same for all values so we can just use the sourceId of the latest value</comment>
+                        <value name="OtherObservable">
+                          <block type="custom_operator_arg" id="j$JJTdd=JH{Zl}sa_-AB"></block>
+                        </value>
+                        <value name="Combiner">
+                          <shadow type="lambda" id="ezq-B*)%/Pu{cSt?%*Q-">
+                            <field name="Arg">main, merged</field>
+                            <field name="Expression">[main, merged]</field>
+                          </shadow>
+                          <block type="lambda" id="AC^?D2eg[t~^]@=N+7Fo">
+                            <field name="Arg">grad, latestValue</field>
+                            <field name="Expression">com.industry.rxepl.sample.Data(latestValue.sourceId, grad)</field>
+                          </block>
+                        </value>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </statement>
+          </block>
+        </value>
+      </block>
+    </statement>
+    <value name="Return">
+      <shadow type="custom_operator_arg" id="`9f0*u*`l~$cIJ}Vl#Ey"></shadow>
+      <block type="get_var" id="Bl0$[k!l]wRsD2z+E$X9">
+        <field name="Variable" id="XB:%:78jGw6g~hM]1H3A" variabletype="">result</field>
+      </block>
+    </value>
+  </block>
+</xml>

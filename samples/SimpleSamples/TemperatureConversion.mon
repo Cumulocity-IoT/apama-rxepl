@@ -1,0 +1,16 @@
+﻿using com.industry.lambdas.Lambda;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.Subscriber;
+
+monitor Main {
+	action onload() {
+		ISubscription s := Observable.fromChannel("TemperatureSensorReading")
+			.map(Lambda.function1("reading => (reading.tempF - 32) * 5 / 9 + \"°C\""))
+			.subscribe(Subscriber.create().onNext(logAtINFO));
+	}
+
+	action logAtINFO(any value) {
+		log value.valueToString() at INFO;
+	}
+}

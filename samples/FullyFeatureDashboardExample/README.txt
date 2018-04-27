@@ -19,3 +19,8 @@ To run the code:
 Examining the code
 ------------------
 The main RxEPL code is in monitors/RxCode.mon
+
+There is an equivalent RxEPL builder file, which replicates the functionality of the RxCode.mon.
+This is located in: monitors/RxCode.rxblocks
+Note: Some of the performance optimisations are not available in the RxEPL Builder and so have been omitted.
+
