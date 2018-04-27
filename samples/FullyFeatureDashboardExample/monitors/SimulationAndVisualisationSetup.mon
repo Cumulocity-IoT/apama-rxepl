@@ -1,0 +1,65 @@
+//*****************************************************************************
+// Title:         Basic ReactiveX for EPL Sample
+// Description:   This sample demonstrates how some of the features of the 
+//                ReactiveX for EPL are used.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//*****************************************************************************
+
+package com.industry.rxepl.sample;
+
+/** This monitor is responsible for ...  */
+monitor BasicSample {
+	DVHelper      dvHelper;
+	DataSimulator simulator;
+	
+	
+	action onload() {
+		log "Loaded monitor BasicSample" at INFO;
+		
+		// Starts the Data Simulator with 120 sources
+		simulator.start( "SimulatedData", 200 );
+		
+		// Create dataviews for the dashboards to display 
+		createDataViewHandler( "RawData",            "RawData" );
+		createDataViewHandler( "ConvertedToCelsius", "ConvertedToCelsius" );
+		createDataViewHandler( "Averages",           "Averages" );
+		createDataViewHandler( "Gradients",          "Gradients" );
+		createDataViewHandler( "ThresholdAlert",     "ThresholdAlerts" );
+	}
+	
+	
+	action createDataViewHandler( string dvName, string dataChannel ) {
+		// Spawn the DataView handler to a new context
+		// to publish the results to the dashboard
+		spawn dataViewHandler( dvName, dataChannel ) to context( dvName+"_context", false);
+	}
+	
+	action dataViewHandler( string dvName, string dataChannel ) {
+		// Subscribe to the channel were data is being 
+		// sent to for display
+		monitor.subscribe( dataChannel );
+		
+		// Create the DataView for the dashboards
+		dvHelper.addDataViewDefinition( dvName, 
+		                                [ "sourceId", "dValue" ], 
+		                                [ DVConstants.INTEGER, DVConstants.DECIMAL ],
+		                                [ "sourceId" ] );
+		
+		// Listen for data events
+		on all Data() as dataIn {
+			// Add the value to the dataview
+			dvHelper.dvAddOrUpdate( [ dataIn.sourceId.toString(), dataIn.dValue.toString() ] );
+		}
+	}
+}

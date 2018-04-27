@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<comment>Created : Thu Apr 26 14:47:36 BST 2018</comment>
+<entry key="apama.rtv.usePanel">false</entry>
+<entry key="apama.rtv.main">MainPanel.rtv</entry>
+<entry key="apama.rtv.name">Basic RxEPL Sample</entry>
+</properties>

@@ -1,0 +1,114 @@
+//*****************************************************************************
+// Title:         Basic ReactiveX for EPL Sample
+// Description:   This sample demonstrates how some of the features of the 
+//                ReactiveX for EPL are used.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//*****************************************************************************
+
+package com.industry.rxepl.sample;
+
+using com.industry.lambdas.Lambda;
+using com.industry.rx_epl.IDisposable;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.Observable;
+
+/**
+* Takes some simulated device data and runs various metrics:
+*
+* 1) Convert the data from Fahrenheit to Celsius
+* 2) Groups the converted data by sourceId
+* 3) Within each group calculate a moving average and moving gradient.
+* 4) Threshold the values where values above 38C are marked as hot (1), or cold (0) otherwise
+*/
+monitor Main {
+	// Compile these expressions once - we don't want to recompile them for every new batch of data
+	action<any> returns any gradientCalc := Lambda.function1("[prev, current] => (current.value - prev.value) / (current.timestamp - prev.timestamp)");	
+	action<sequence<any> > returns any addSourceId := Lambda.function("calcValue, latestValue => com.industry.rxepl.sample.Data(latestValue.sourceId, calcValue)");
+	
+	action onload() {
+		// Main source of data
+		IObservable rawData := Observable.fromChannel("SimulatedData");
+		
+		// Calculate some metrics
+		IObservable dataInCelsius := rawData
+			// Convert from Fahrenheit to Celsius
+			.map(Lambda.function1("data => com.industry.rxepl.sample.Data(data.sourceId, (data.dValue - 32) * 5 / 9)"));
+		IObservable groupedBySourceId := dataInCelsius
+			.groupByField("sourceId");            // Group the data by sourceId - The output of this observable is now: An observable for each sourceId, containing all of the temperatures for that sourceId
+		IObservable averages := groupedBySourceId
+			.flatMap(calcMovingAverageForGroup);  // For each group - calculate the moving average
+		IObservable gradients := groupedBySourceId
+			.flatMap(calcMovingGradientForGroup); // For each group - calculate the moving gradient
+		IObservable thresholdAlerts := dataInCelsius
+			// Check if the temperature in Celsius is above 38 - output a 1 if it is or a 0 otherwise
+			.map(Lambda.function1("data => com.industry.rxepl.sample.Data(data.sourceId, data.dValue > 38 ?  1 : 0)")); 
+
+		// Output the values to a channel
+		// Observables are "lazy" loaded so this causes the metrics to start calculating
+		IDisposable d := rawData
+			.toChannel("RawData");
+		IDisposable d2 := dataInCelsius
+			.toChannel("ConvertedToCelsius");
+		IDisposable d3 := averages
+			.toChannel("Averages");
+		IDisposable d4 := gradients
+			.toChannel("Gradients");
+		IDisposable d5 := thresholdAlerts
+			.toChannel("ThresholdAlerts");
+	}
+
+
+	action calcMovingAverageForGroup(any observableOfValues) returns any {
+		return (<IObservable> observableOfValues)
+			.complexPipe(movingAvgWithSourceId);
+	}
+
+	action calcMovingGradientForGroup(any observableOfValues) returns any {
+		return (<IObservable> observableOfValues)
+			.complexPipe(movingGradientWithSourceId);
+	}
+	
+	action movingAvgWithSourceId(IObservable o) returns IObservable {
+		IObservable result := o
+			.pluck("dValue")
+			.bufferCountSkip(5, 1)
+			.flatMap(calculateAverageFromLast5Values)
+			.withLatestFrom([o], addSourceId);
+		return result;
+	}
+
+	action movingGradientWithSourceId(IObservable o) returns IObservable {
+		IObservable result := o
+			.pluck("dValue")
+			.timestamp()
+			.bufferCountSkip(5, 1)
+			.flatMap(calculateGradientFromLast5TimestampedValues)
+			.withLatestFrom([o], addSourceId);
+		return result;
+	}
+
+	action calculateAverageFromLast5Values(any valuesInWindowSeq) returns any {
+		return Observable.fromValues(valuesInWindowSeq)
+			.average();
+	}
+
+	action calculateGradientFromLast5TimestampedValues(any valuesInWindowSeq) returns any {
+		return Observable.fromValues(valuesInWindowSeq)
+			.pairwise()
+			.map(gradientCalc) // Uses a precompiled lambda so that the lambda isn't recreated for every window of data
+			.average();
+	}
+
+}
+

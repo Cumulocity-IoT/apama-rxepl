@@ -54,6 +54,8 @@ md "$output\bundles" | out-null
 cp -r "$PSScriptRoot\misc" "$output\misc"
 mv "$output\misc\deploy.bat" "$output\deploy.bat"
 
+cp -r "$PSScriptRoot\samples" "$output\samples"
+
 # Write out utf8 (no BOM)
 [IO.File]::WriteAllLines("$output\version.txt", $version)
 

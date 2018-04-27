@@ -1,0 +1,92 @@
+//*****************************************************************************
+// Title:         Basic ReactiveX for EPL Sample
+// Description:   This sample demonstrates how some of the features of the 
+//                ReactiveX for EPL are used.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//*****************************************************************************
+
+package com.industry.rxepl.sample;
+
+// This event defines the set of DVConstants 
+// used to define the primitive data types in 
+// the data views
+event DVConstants {
+	constant string BOOLEAN := "boolean";
+	constant string DECIMAL := "decimal";
+	constant string FLOAT   := "float";
+	constant string INTEGER := "integer";
+	constant string STRING  := "string";
+}
+
+// This event defines a lightweight abstraction
+// of the DataView support.
+event DVHelper {
+	string dvName;
+	
+	action addDataViewDefinition( string name, 
+	                              sequence<string> fieldNames,
+	                              sequence<string> fieldTypes, 
+	                              sequence<string> keyFields ) {
+		// Iterate over the field types
+		integer index := 0;
+		while index < fieldTypes.size()	{
+			// Store any Decimals as Floats
+			if( fieldTypes[index] = DVConstants.DECIMAL )	then {
+				fieldTypes[index] := DVConstants.FLOAT;
+			}
+			index := index + 1;
+		}
+		// Cache the DataView name
+		dvName := name;
+		
+		// Add the DataView definition
+		com.apama.dataview.DataViewAddDefinition add := new com.apama.dataview.DataViewAddDefinition;
+		add.msgId         := integer.getUnique().toString();
+		add.dvName        := dvName;
+		add.dvDisplayName := name;
+		add.dvDescription := "";
+		add.fieldNames    := fieldNames;
+		add.fieldTypes    := fieldTypes;
+		add.keyFields     := keyFields;
+		
+		send add to "";
+	}
+
+	action dvAddOrUpdate( sequence<string> fieldValues ) {
+		com.apama.dataview.DataViewAddOrUpdateItem dvAddItem := new com.apama.dataview.DataViewAddOrUpdateItem;
+		dvAddItem.msgId       := integer.getUnique().toString();
+		dvAddItem.dvName      := dvName;
+		dvAddItem.owner       := "*";
+		dvAddItem.timeStamp   := currentTime;
+		dvAddItem.fieldValues := fieldValues;
+		send dvAddItem to "";
+	}
+
+	action dvDelete( sequence<string> keyFields ) {
+		com.apama.dataview.DataViewDeleteItem delete := new com.apama.dataview.DataViewDeleteItem;
+		delete.msgId     := integer.getUnique().toString();
+		delete.dvItemId  := -1;
+		delete.dvName    := dvName;
+		delete.keyFields := keyFields;
+		send delete to "";
+	}
+	
+	action dvDeleteAll() {
+		// delete all items from the dataview
+		com.apama.dataview.DataViewDeleteAllItems dvDeleteAllItems := new com.apama.dataview.DataViewDeleteAllItems;
+		dvDeleteAllItems.msgId  := integer.getUnique().toString();
+		dvDeleteAllItems.dvName := dvName;
+		send dvDeleteAllItems to "";
+	}
+}
