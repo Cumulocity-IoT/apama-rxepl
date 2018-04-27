@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<apama-project>
+	<dependency>
+		<dependencyentry path="" kind="src"/>
+	</dependency>
+	<catalogs>
+	</catalogs>
+	<bundles>
+		<bundle file="DataViewService.bnd" origin-path="" origin="PRODUCT_CATALOG">
+			<instance name=""/>
+			<config-files>
+			</config-files>
+			<bundle-instance-files>
+			</bundle-instance-files>
+			<static-files>
+			</static-files>
+			<dashboard-files>
+			</dashboard-files>
+			<evt-files>
+			</evt-files>
+		</bundle>
+		<bundle file="lambdas.bnd" origin-path="LAMBDAS_HOME/bundles" origin="VARIABLE">
+			<instance name=""/>
+			<config-files>
+			</config-files>
+			<bundle-instance-files>
+			</bundle-instance-files>
+			<static-files>
+			</static-files>
+			<dashboard-files>
+			</dashboard-files>
+			<evt-files>
+			</evt-files>
+		</bundle>
+		<bundle file="rxepl.bnd" origin-path="RX_EPL_HOME/bundles" origin="VARIABLE">
+			<instance name=""/>
+			<config-files>
+			</config-files>
+			<bundle-instance-files>
+			</bundle-instance-files>
+			<static-files>
+			</static-files>
+			<dashboard-files>
+			</dashboard-files>
+			<evt-files>
+			</evt-files>
+		</bundle>
+	</bundles>
+</apama-project>
