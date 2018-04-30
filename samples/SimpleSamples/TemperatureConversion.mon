@@ -3,11 +3,26 @@ using com.industry.rx_epl.ISubscription;
 using com.industry.rx_epl.Observable;
 using com.industry.rx_epl.Subscriber;
 
+event TemperatureReading {
+	float tempF; // The temperature in Fahrenheit
+}
+
+/**
+* This sample demonstrates the map operator and how it can be used to modify a value
+* In this case converting Fahrenheit to Celsius
+*/
 monitor Main {
 	action onload() {
+		// Take all of the values sent to the "TemperatureSensorReading" channel
 		ISubscription s := Observable.fromChannel("TemperatureSensorReading")
-			.map(Lambda.function1("reading => (reading.tempF - 32) * 5 / 9 + \"°C\""))
+			.map(Lambda.function1("reading => (reading.tempF - 32) * 5 / 9 + \"°C\"")) // Convert from Fahrenheit to Celsius
 			.subscribe(Subscriber.create().onNext(logAtINFO));
+			// The output looks like:
+			// "25°C"
+			
+		on wait(1.0) {
+			send TemperatureReading(77.0) to "Orders";
+		}
 	}
 
 	action logAtINFO(any value) {
