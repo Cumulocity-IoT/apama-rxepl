@@ -593,7 +593,7 @@ on wait(2.0) {
 }
 ```
 **Why?**
-Each subscriber creates it's own chain through to the source. In this case that means that each subscriber get it's own interval.
+Each subscriber creates its own chain through to the source. In this case that means that each subscriber get it's own interval.
 **Solution**
 Use [Share](#multicasting)
 ```javascript
