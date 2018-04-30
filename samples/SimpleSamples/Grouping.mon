@@ -1,0 +1,43 @@
+﻿using com.industry.lambdas.Lambda;
+
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.Subscriber;
+
+event Order {
+	string productId;
+	float quantity;
+}
+
+/**
+* This sample demonstrates the groupBy operator and how it can be used to aggregate
+* In this case updating the total quantity ordered for each product
+*/
+monitor Main {
+	action onload() {
+		ISubscription s := Observable.fromChannel("Orders")	// Listen for all orders
+			.groupBy(Lambda.function1("order => order.productId")) // Group by the product
+			.flatMap(calculateQtySumPerProduct) 				   // Calculate the qty sum
+			.subscribe(Subscriber.create().onNext(logAtINFO));	   // log the output at INFO level
+			// The output looks like:
+			// ["apples", 10], ["bananas": 5], ["apples": 15]
+			
+		on wait(1.0) {
+			send Order("apples", 10) to "Orders";
+			send Order("bananas", 5) to "Orders";
+			send Order("apples", 5) to "Orders";
+		}
+	}
+
+	action calculateQtySumPerProduct(IObservable ordersByProduct) returns any {
+		return ordersByProduct
+			.pluck("quantity") // Take just the quantity
+			.scanWithInitial(Lambda.function2("sum, qty => sum + qty"), 0.0) // Sum all of the quantities
+			// Create the output by combining the productId and the sum
+			.withLatestFrom([ordersByProduct], Lambda.function("sum, order => [order.productId, sum]"));
+	}
+
+	action logAtINFO(any value) {
+		log value.valueToString() at INFO;
+	}
+}

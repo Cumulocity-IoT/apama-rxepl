@@ -14,7 +14,7 @@
 
 $regEntry = Get-ItemProperty -Path "HKLM:SOFTWARE\WOW6432Node\Software AG\Installer\Preferences" -Name "Path1" -ErrorAction SilentlyContinue
 
-if (-not $regEntry) {
+if (-not $regEntry -or -not (Test-Path $regEntry.Path1)) {
 	if (Test-Path "C:\SoftwareAG") {
 		return "C:\SoftwareAG"
 	} else {

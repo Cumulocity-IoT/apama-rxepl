@@ -1,0 +1,99 @@
+﻿<xml xmlns="http://www.w3.org/1999/xhtml">
+  <variables></variables>
+  <block type="subscribe" id="@+$~.=[v7Q]}Z4X5B?i5" x="31" y="-173">
+    <value name="SourceObservable">
+      <block type="operators" id="q^nhN#yAb)poPNBppcBV">
+        <value name="SourceObservable">
+          <block type="from_channel" id=")[{}t.5ks,aUsyPp?3b[">
+            <field name="CHANNEL_NAME">Orders</field>
+            <comment pinned="true" h="60" w="201" dx="-3" dy="-158">1) Listen for all orders</comment>
+          </block>
+        </value>
+        <statement name="Operators">
+          <shadow type="map">
+            <value name="Action">
+              <shadow type="lambda">
+                <field name="Arg">x</field>
+                <field name="Expression">x</field>
+              </shadow>
+            </value>
+          </shadow>
+          <block type="group_by_for_each" id=")#_.+?O!$P#3pT.=qgt^">
+            <comment pinned="true" h="69" w="159" dx="-359" dy="-80">2) Group by the product</comment>
+            <value name="Action">
+              <shadow type="lambda" id="KTR8IoR:p*7#[t?7]Leo">
+                <field name="Arg">order</field>
+                <field name="Expression">order.productId</field>
+              </shadow>
+              <block type="lambda" id="hhg0|Wegh[Yy-+GeD}9:">
+                <field name="Arg">order</field>
+                <field name="Expression">order.productId</field>
+              </block>
+            </value>
+            <statement name="Operators">
+              <block type="map" id="4PC@l_FVs#f3Q6D#K8S*">
+                <comment pinned="true" h="65" w="158" dx="-377" dy="-30">3) Take just the quantity</comment>
+                <value name="Action">
+                  <shadow type="lambda">
+                    <field name="Arg">x</field>
+                    <field name="Expression">x * 10</field>
+                  </shadow>
+                  <block type="lambda" id="FtUf#GhZO~?1Dy42~(F]">
+                    <field name="Arg">order</field>
+                    <field name="Expression">order.quantity</field>
+                  </block>
+                </value>
+                <next>
+                  <block type="scan_with_initial" id="mxXBT}-J9b=)`IqMX^-:">
+                    <comment pinned="true" h="68" w="158" dx="-378" dy="14">4) Sum all of the quantities</comment>
+                    <value name="Action">
+                      <shadow type="lambda" id="U-JBzb:?V+DCtYIO!sSo">
+                        <field name="Arg">sum, value</field>
+                        <field name="Expression">sum + value</field>
+                      </shadow>
+                      <block type="lambda" id="L/Gow#H1A=*weQ7.@.lN">
+                        <field name="Arg">sum, qty</field>
+                        <field name="Expression">sum + qty</field>
+                      </block>
+                    </value>
+                    <value name="Initial">
+                      <block type="value" id="_64]`9rn[:b]$v$CA.x3" movable="false">
+                        <field name="value">0.0</field>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="with_latest_from" id="v}j60d2_8E#E8@E!$O[+">
+                        <comment pinned="true" h="85" w="184" dx="-382" dy="38">5) Create the output by combining the productId and the sum</comment>
+                        <value name="OtherObservable">
+                          <block type="from_channel" id="Aao@-o~b8o[Wb[,CHmb!">
+                            <field name="CHANNEL_NAME">Orders</field>
+                          </block>
+                        </value>
+                        <value name="Combiner">
+                          <shadow type="lambda" id="yeA?JV8RAc*zl_%Jo[Af">
+                            <field name="Arg">main, merged</field>
+                            <field name="Expression">[main, merged]</field>
+                          </shadow>
+                          <block type="lambda" id="xOhXtwpJ.:RYQIaMiei#">
+                            <field name="Arg">sum, order</field>
+                            <field name="Expression">[order.productId, sum]</field>
+                          </block>
+                        </value>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </statement>
+          </block>
+        </statement>
+      </block>
+    </value>
+    <value name="onNext">
+      <block type="log_value" id="=X)d/7-0WB`C1!,5Nw%R">
+        <field name="logLevel">INFO</field>
+        <comment pinned="true" h="45" w="271" dx="-85" dy="132">6) Log the output at INFO level</comment>
+      </block>
+    </value>
+  </block>
+</xml>

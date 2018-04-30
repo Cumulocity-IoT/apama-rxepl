@@ -55,7 +55,7 @@ The deployment script provides a way to make ReactiveX for EPL (RxEPL) globally 
 1. From SoftwareAG Designer right click on your project in `Project Explorer`
 2. Select `Apama` from the drop down menu;
 3. Select `Add Bundle`
-4. Scroll down to `Standard bundles` and select `RxEpl`
+4. Scroll down to `RX_EPL_HOME/bundles` and select `RxEpl`
 5. Click `Ok`
 
 When run via Designer, it will automatically inject all of the dependencies.
@@ -70,12 +70,12 @@ You'll end up with a zip of your entire project.
 5. Run `correlator --config initialization.yaml --config initialization.properties` from within the unzipped directory to run the project.
 
 ## <a id="quick"></a>Quickstart
-Aimed at those who are too ~~lazy~~ busy  to read the rest of the Docs. 
+
 
 1. First check out the [Installation Instructions](#install), steps 1 & 2.
 2. We highly recommend installing [Lambdas for Epl](#lambdas) package too.
 3. Start Software AG Designer.
-4. Copy the following code into a new file: "main.mon"
+4. Copy the following code into a new file: "Main.mon"
 ```javascript
 using com.industry.lambdas.Lambda;
 
@@ -83,8 +83,6 @@ using com.industry.rx_epl.Observable;
 using com.industry.rx_epl.IObservable;
 using com.industry.rx_epl.Subscriber;
 using com.industry.rx_epl.ISubscription;
-using com.industry.rx_epl.IDisposable;
-using com.industry.rx_epl.WrappedAny;
 
 monitor Main {
 	action onload() {
@@ -108,7 +106,6 @@ monitor Main {
 }
 ```
 4. Run the project.
-5. (Optional) Read the rest of the instructions to learn how to use the library.
 
 ## <a id="intro"></a>ReactiveX: an Introduction
 ReactiveX is a framework designed to handle streams of data like water through pipes. It has libraries which implement the framework in [most](http://reactivex.io/languages.html) major programming languages.

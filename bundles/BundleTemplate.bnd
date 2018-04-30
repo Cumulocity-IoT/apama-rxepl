@@ -10,7 +10,7 @@
 		ReactiveX for EPL
 	</description>
 	<monitors>
-		<fileset dir="${RX_EPL_HOME}/code/rx">
+		<fileset dir="${RX_EPL_HOME}">
 <%fileList%>
 		</fileset>
 	</monitors>

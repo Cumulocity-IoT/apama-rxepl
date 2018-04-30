@@ -41,15 +41,18 @@ rm "$output\code\initialization.yaml"
 cp -r "$PSScriptRoot\docs" "$output\docs"
 
 # Create the bundle
-$files = & "$apamaBin\engine_deploy" --outputList stdout src | %{$_ -replace ".*\\src\\rx\\",""} | %{$_ -replace "\\","/"}
+$files = & "$apamaBin\engine_deploy" --outputList stdout src | %{$_ -replace ".*\\src\\rx\\","code/rx/"} | %{$_ -replace "\\","/"}
 $bundleFileList = $files | %{$_ -replace "(.+)","`t`t`t<include name=`"`$1`"/>"} | Out-String
 $bundleResult = cat "$PSScriptRoot\bundles\BundleTemplate.bnd"
 $bundleResult = $bundleResult | %{$_ -replace "<%date%>", (Get-Date -UFormat "%Y-%m-%d")}
 $bundleResult = $bundleResult | %{$_ -replace "<%version%>", $version}
-$bundleResult = $bundleResult | %{$_ -replace "<%fileList%>",$bundleFileList}
+
+$cdpBundle = $bundleResult | %{$_ -replace "<%fileList%>","`t`t`t<include name=`"cdp/RxEPL.cdp`"/>"}
+$sourceBundle = $bundleResult | %{$_ -replace "<%fileList%>",$bundleFileList}
 md "$output\bundles" | out-null
 # Write out utf8 (no BOM)
-[IO.File]::WriteAllLines("$output\bundles\rxepl.bnd", $bundleResult)
+[IO.File]::WriteAllLines("$output\bundles\RxEPL.bnd", $sourceBundle)
+[IO.File]::WriteAllLines("$output\bundles\RxEPL-CDP.bnd", $cdpBundle)
 
 cp -r "$PSScriptRoot\misc" "$output\misc"
 mv "$output\misc\deploy.bat" "$output\deploy.bat"
