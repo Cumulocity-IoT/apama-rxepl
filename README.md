@@ -126,20 +126,20 @@ Features:
 
 For a comprehensive introduction to ReactiveX and Observables see the [ReactiveX Website](http://reactivex.io/intro.html).
 ## <a id="packages"></a>Package Structure
-**Interfaces:**
-`com.industry.rx_epl.IObservable` - The main observable interface, returned after calling an operator or constructor (See [Observable](#observable))
-`com.industry.rx_epl.ISubject` - The subject interface, returned from construction of a subject (see [Subject](#subject))
-`com.industry.rx_epl.ISubscription` - Returned by `.subscribe()` allows unsubscription
+**Interfaces:**\
+`com.industry.rx_epl.IObservable` - The main observable interface, returned after calling an operator or constructor (See [Observable](#observable))\
+`com.industry.rx_epl.ISubject` - The subject interface, returned from construction of a subject (see [Subject](#subject))\
+`com.industry.rx_epl.ISubscription` - Returned by `.subscribe()` allows unsubscription\
 `com.industry.rx_epl.IDisposable` - Sometimes a listener has to be created that this library doesn't know when to tear down, in that case it returns an `IDisposable` and should be torn down by the user if/when all subscribers are done (see [Multithreading](#multithreading))
 `com.industry.rx_epl.IResolver` - Similar to a subject has next, error, complete methods. Used in [Observable.create(...)](#observable-construction)
 
-**Constructors:**
-`com.industry.rx_epl.Observable` - The event from which to construct an IObservable (See [Observable](#observable))
-`com.industry.rx_epl.Subject` - A simple subject, allowing next, error, complete events to be sent  (see [Subject](#subject))
-`com.industry.rx_epl.BehaviourSubject` - A subject that always repeats the most recent value to a new subscriber (see [Subject](#subject))
+**Constructors:**\
+`com.industry.rx_epl.Observable` - The event from which to construct an IObservable (See [Observable](#observable))\
+`com.industry.rx_epl.Subject` - A simple subject, allowing next, error, complete events to be sent  (see [Subject](#subject))\
+`com.industry.rx_epl.BehaviourSubject` - A subject that always repeats the most recent value to a new subscriber (see [Subject](#subject))\
 `com.industry.rx_epl.Subscriber` - A subscriber. Defines handling for onNext, onError, onComplete (see [Subscribing](#subscribing))
 
-**Operators:**
+**Operators:**\
 `com.industry.rx_epl.operators.*` - All pipeable operators (See [Operators](#operators). The ApamaDoc contains a full list)
 
 ## <a id="examples"></a>Examples
@@ -655,6 +655,6 @@ IObservable o := Observable.fromValues([1,2,3,4])
 There are many added benefits to using Lambdas, one of the main advantages being automatic type coercion. You'll never have to cast a numeric value - they're automatically converted to an appropriate type.
 
 ## <a id="other"></a>Help and Other Resources
-**[ReactiveX Website](http://reactivex.io/)** - A great place to get info about the background to the framework.
-**[Decision Tree Of Observables](http://reactivex.io/documentation/operators.html#tree)** - Don't know which operator to use? Follow this
+**[ReactiveX Website](http://reactivex.io/)** - A great place to get info about the background to the framework.\
+**[Decision Tree Of Observables](http://reactivex.io/documentation/operators.html#tree)** - Don't know which operator to use? Follow this\
 **[RxMarbles](http://rxmarbles.com/)** - An interactive tool to play with observable operators
