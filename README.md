@@ -146,7 +146,7 @@ For a comprehensive introduction to ReactiveX and Observables see the [ReactiveX
 `com.industry.rx_epl.operators.*` - All pipeable operators (See [Operators](#operators). The ApamaDoc contains a full list)
 
 ## <a id="examples"></a>Examples
-There are several examples that ship with the source code. These are located in the `Examples` folder.
+There are several examples that ship with the source code. These are located in the `samples` folder.
 ## <a id="observable"></a>Observable
 ### <a id="observable-construction"></a>Constructing an Observable
 Creating an Observable is usually the starting point of an Observable chain (See also: [Subject](#subject))
