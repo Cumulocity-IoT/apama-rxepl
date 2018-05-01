@@ -47,8 +47,9 @@ $bundleResult = cat "$PSScriptRoot\bundles\BundleTemplate.bnd"
 $bundleResult = $bundleResult | %{$_ -replace "<%date%>", (Get-Date -UFormat "%Y-%m-%d")}
 $bundleResult = $bundleResult | %{$_ -replace "<%version%>", $version}
 
-$cdpBundle = $bundleResult | %{$_ -replace "<%fileList%>","`t`t`t<include name=`"cdp/RxEPL.cdp`"/>"}
-$sourceBundle = $bundleResult | %{$_ -replace "<%fileList%>",$bundleFileList}
+$cdpBundle = $bundleResult | %{$_ -replace "<%fileList%>","`t`t`t<include name=`"cdp/RxEPL.cdp`"/>"} | %{$_ -replace "<%displayName%>", "RxEPL CDP"}
+$sourceBundle = $bundleResult | %{$_ -replace "<%fileList%>",$bundleFileList} | %{$_ -replace "<%displayName%>", "RxEPL"}
+
 md "$output\bundles" | out-null
 # Write out utf8 (no BOM)
 [IO.File]::WriteAllLines("$output\bundles\RxEPL.bnd", $sourceBundle)
