@@ -13,20 +13,27 @@
 # limitations under the License.
 
 param (
-   [string]$sagInstallDir = (& "$(Split-Path $MyInvocation.MyCommand.Path -Parent)\getSagInstallDir")
+   [string]$sagInstallDir,
+   [switch]$notInteractive
 )
 
 if(!$PSScriptRoot){ $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent }
 
-$temp = Read-Host "Where is your SoftwareAG install folder? (blank=$sagInstallDir)"
+if (!$sagInstallDir) {
+	$sagInstallDir = (& "$(Split-Path $MyInvocation.MyCommand.Path -Parent)\getSagInstallDir")
+	
+	if (!$notInteractive) {
+		$temp = Read-Host "Where is your SoftwareAG install folder? (blank=$sagInstallDir)"
+	}
 
-if (-not $temp) {} else {
-	$sagInstallDir = $temp;
+	if (-not $temp) {} else {
+		$sagInstallDir = $temp;
+	}
 }
 
 $apamaInstallDir = "$sagInstallDir\Apama"
 if (-not (Test-Path $apamaInstallDir)) {
-	Throw "Could not find Apama Installation"
+	Throw "Could not find Apama Installation: $sagInstallDir\Apama"
 }
 
 $rxEplHome = (Resolve-Path "$PSScriptRoot\..") -replace "\\","/"
@@ -37,4 +44,8 @@ $steFile | Out-File -encoding utf8 "$sagInstallDir/Designer/extensions/rxepl.ste
 
 [IO.File]::WriteAllLines("$rxEplHome\rxepl.properties", "RX_EPL_HOME=$rxEplHome")
 
-Read-Host -Prompt "Done! Please restart designer. Press Return to exit..."
+if ($notInteractive) {
+	Write-Host "Done! Please restart designer."
+} else {
+	Read-Host -Prompt "Done! Please restart designer. Press Return to exit..."
+}
