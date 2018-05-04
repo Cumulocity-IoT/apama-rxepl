@@ -34,6 +34,11 @@ Features:
 
 For a comprehensive introduction to ReactiveX and Observables see the [ReactiveX Website](http://reactivex.io/intro.html).
 
+If you'd like to try RxEPL we highly recommend starting with the [web-based drag'n'drop tool](https://softwareag.github.io/apama-rxbuilder/) to allow you to create observables without ever touching the code:
+
+<a href="https://softwareag.github.io/apama-rxbuilder/"><img src="https://softwareag.github.io/apama-rxbuilder/images/editor.png" width="500"></a>
+
+
 ## Contents
 * [Installation](#install)
 * [Quickstart](#quick)
