@@ -98,7 +98,7 @@ You'll end up with a zip of your entire project.
 
 
 1. First check out the [Installation Instructions](#install), steps 1 & 2.
-2. We highly recommend installing [Lambdas for Epl](#lambdas) package too.
+2. We highly recommend installing [Lambdas for Epl](https://github.com/SoftwareAG/apama-lambdas) package too ([Here's why](#lambdas)).
 3. Start Software AG Designer.
 4. Copy the following code into a new file: "Main.mon"
 ```javascript
