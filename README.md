@@ -658,3 +658,7 @@ There are many added benefits to using Lambdas, one of the main advantages being
 **[ReactiveX Website](http://reactivex.io/)** - A great place to get info about the background to the framework.\
 **[Decision Tree Of Observables](http://reactivex.io/documentation/operators.html#tree)** - Don't know which operator to use? Follow this\
 **[RxMarbles](http://rxmarbles.com/)** - An interactive tool to play with observable operators
+
+------------------------------
+
+These tools are provided as-is and without warranty or support. They do not constitute part of the Software AG product suite. Users are free to use, fork and modify them, subject to the license agreement. While Software AG welcomes contributions, we cannot guarantee to include every contribution in the master project.
