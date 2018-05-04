@@ -637,7 +637,7 @@ ISubscription s2 := sharedObs.decouple() // Note: observeOn may be a better solu
 This helps by 'decoupling' the upstream and the downstream. When subscribeOn is called only the downstream is copied. This means that only part of the chain is running on a separate context. A better solution might be to use ObserveOn instead of subscribeOn.
 
 ## <a id="lambdas"></a>EPL Lambdas
-Although this library can be used as a standalone library, we highly recommend that it is used in conjunction with the Lambdas for Apama EPL library.
+Although this library can be used as a standalone library, we highly recommend that it is used in conjunction with the [Lambdas for Apama EPL](https://github.com/SoftwareAG/apama-lambdas) library.
 
 It allows you to turn this:
 ```javascript
