@@ -15,10 +15,28 @@ limitations under the License.
 --->
 
 # RxEPL - Observables in EPL
+
+ReactiveX is a framework designed to handle streams of data like water through pipes. RxEPL is a library that implements the framework, it is also available in [most](http://reactivex.io/languages.html) major programming languages.
+```javascript
+IObservable temperatureBreaches := 
+    Observable.fromChannel("TemperatureSensor") // Get all of the events being sent to this channel
+       .pluck("temperature")                    // Get the temperature value
+       .filter(Lambda.predicate("T => temp > 30"));  // Filter to only the temperatures we want
+              
+// Generate an alert
+ISubscription generateAlerts := temperatureBreaches.subscribe(Subscriber.create().onNext(generateAlert)); 
+```
+Features:
+* Functional Programming
+* [Chainable Operators](#operators) (without "callback hell"!)
+* [Error handling](#errors)
+* ["Easy" multithreading](#multithreading)
+
+For a comprehensive introduction to ReactiveX and Observables see the [ReactiveX Website](http://reactivex.io/intro.html).
+
 ## Contents
 * [Installation](#install)
 * [Quickstart](#quick)
-* [Introduction to ReactiveX and Observables](#intro) 
 * Main
     * [Package Structure](#packages)
     * [Examples](#examples)
@@ -107,24 +125,6 @@ monitor Main {
 ```
 4. Run the project.
 
-## <a id="intro"></a>ReactiveX: an Introduction
-ReactiveX is a framework designed to handle streams of data like water through pipes. It has libraries which implement the framework in [most](http://reactivex.io/languages.html) major programming languages.
-```javascript
-IObservable temperatureBreaches := 
-    Observable.fromChannel("TemperatureSensor") // Get all of the events being sent to this channel
-       .pluck("temperature")                    // Get the temperature value
-       .filter(Lambda.predicate("T => temp > 30"));  // Filter to only the temperatures we want
-              
-// Generate an alert
-ISubscription generateAlerts := temperatureBreaches.subscribe(Subscriber.create().onNext(generateAlert)); 
-```
-Features:
-* Functional Programming
-* [Chainable Operators](#operators) (without "callback hell"!)
-* [Error handling](#errors)
-* ["Easy" multithreading](#multithreading)
-
-For a comprehensive introduction to ReactiveX and Observables see the [ReactiveX Website](http://reactivex.io/intro.html).
 ## <a id="packages"></a>Package Structure
 **Interfaces:**\
 `com.industry.rx_epl.IObservable` - The main observable interface, returned after calling an operator or constructor (See [Observable](#observable))\
