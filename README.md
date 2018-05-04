@@ -16,7 +16,7 @@ limitations under the License.
 
 # RxEPL - Observables in EPL
 
-ReactiveX is a framework designed to handle streams of data like water through pipes. RxEPL is a library that implements the framework, it is also available in [most](http://reactivex.io/languages.html) major programming languages.
+ReactiveX is a framework designed to handle streams of data like water through pipes. RxEPL is a library that implements the framework in EPL ([Apama](http://www.apamacommunity.com/)'s programming language), it is also available in [most](http://reactivex.io/languages.html) major programming languages.
 ```javascript
 IObservable temperatureBreaches := 
     Observable.fromChannel("TemperatureSensor") // Get all of the events being sent to this channel
