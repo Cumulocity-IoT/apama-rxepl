@@ -62,7 +62,9 @@ For a comprehensive introduction to ReactiveX and Observables see the [ReactiveX
     * [Publish/Share with SubscribeOn](#gotcha-subscribe-on)
 * [Help and Other Resources](#other)
 ## <a id="install"></a>Installation
-The deployment script provides a way to make ReactiveX for EPL (RxEPL) globally available to all SoftwareAG Designer workspaces.
+First head over to the [Release Area](https://github.com/SoftwareAG/apama-rxepl/releases) and download the latest release.
+
+The deployment script (Inside the release) provides a way to make ReactiveX for EPL (RxEPL) globally available to all SoftwareAG Designer workspaces.
 ### 1. Installing into Designer
 1. Place the RxEPL folder somewhere safe (somewhere not likely to be moved or deleted)
 2. Run the deploy.bat
