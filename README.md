@@ -21,7 +21,7 @@ ReactiveX is a framework designed to handle streams of data like water through p
 IObservable temperatureBreaches := 
     Observable.fromChannel("TemperatureSensor") // Get all of the events being sent to this channel
        .pluck("temperature")                    // Get the temperature value
-       .filter(Lambda.predicate("T => temp > 30"));  // Filter to only the temperatures we want
+       .filter(Lambda.predicate("T => T > 30"));  // Filter to only the temperatures we want
               
 // Generate an alert
 ISubscription generateAlerts := temperatureBreaches.subscribe(Subscriber.create().onNext(generateAlert)); 
