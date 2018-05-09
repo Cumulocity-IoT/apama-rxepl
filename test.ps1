@@ -1,3 +1,5 @@
+#!/usr/bin/pwsh -f
+
 # Copyright 2018 Software AG
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,26 +15,30 @@
 # limitations under the License.
 
 param (
-   [string]$sagInstallDir = (.\misc\getSagInstallDir),
-   [string]$output = "$(Split-Path $MyInvocation.MyCommand.Path -Parent)\output\RxEPL"
+   [string]$sagInstallDir = (./misc/getSagInstallDir.ps1),
+   [string]$output = "$(Split-Path $MyInvocation.MyCommand.Path -Parent)/output/RxEPL"
 )
 
 if(!$PSScriptRoot){ $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent }
 
-$apamaInstallDir = "$sagInstallDir\Apama"
+$apamaInstallDir = "$sagInstallDir/Apama"
 if (-not (Test-Path $apamaInstallDir)) {
 	Throw "Could not find Apama Installation"
 }
 
 echo "Using Apama located in: $apamaInstallDir"
 
-$apamaBin = "$apamaInstallDir\bin"
+$apamaBin = "$apamaInstallDir/bin"
 
-if (-not (Test-Path "$output\cdp\RxEPL.cdp")) {
+if (-not (Test-Path "$output/code/initialization.yaml")) {
 	echo "Unable to find build, building..."
-	.\build
+	./build.ps1 -forTest -sagInstallDir $sagInstallDir -output $output
 }
 
-cmd.exe /c "$apamaBin\apama_env.bat && cd test && pysys run -n8 -vCRIT"
+if ($IsLinux) {
+	/bin/bash -c ". $apamaBin/apama_env; cd test; pysys run -n8 -vCRIT"
+} else {
+	cmd.exe /c "$apamaBin\apama_env.bat && cd test && pysys run -n8 -vCRIT"
+}
 
 Read-Host "Finished! Press Return to Exit..."
