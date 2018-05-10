@@ -1,5 +1,9 @@
 sudo: false
 
+cache:
+    directories:
+        - softwareag
+
 addons:
   apt: # install dependencies
     update: true
@@ -12,9 +16,7 @@ addons:
     - powershell
   
 install: # install apama
-  - wget https://downloads.apamacommunity.com/apama/10.2.0.1/apama_10.2.0.1_amd64_linux.zip  -O /tmp/apama.zip
-  - unzip /tmp/apama.zip -d /tmp/
-  - ./travis-scripts/install-apama-prompts
+  - ./travis-scripts/install-apama-if-not-exists
   
 before_script: # add various apama utils to the path (eg. engine_deploy)
   - source ./softwareag/Apama/bin/apama_env
