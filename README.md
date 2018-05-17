@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 --->
 
-# RxEPL - Observables in EPL [![Build Status](https://travis-ci.org/SoftwareAG/apama-rxepl.svg?branch=master)](https://travis-ci.org/SoftwareAG/apama-rxepl)
+# RxEPL - Observables in EPL [![Build Status](https://travis-ci.org/SoftwareAG/apama-rxepl.svg)](https://travis-ci.org/SoftwareAG/apama-rxepl) [![Coverage Status](https://coveralls.io/repos/github/SoftwareAG/apama-rxepl/badge.svg)](https://coveralls.io/github/SoftwareAG/apama-rxepl)
 
 ReactiveX is a framework designed to handle streams of data like water through pipes. RxEPL is a library that implements the framework in EPL ([Apama](http://www.apamacommunity.com/)'s programming language), it is also available in [most](http://reactivex.io/languages.html) major programming languages.
 ```javascript
