@@ -1,6 +1,6 @@
 #!/usr/bin/expect -f
 
-spawn /bin/bash -c {cd test; expect -c 'spawn pysys run -vCRIT; interact' | grep -v ":pysys:" && exit ${PIPESTATUS[0]}}
+spawn /bin/bash -c {cd test; expect -c 'spawn pysys run -vCRIT -X eplcoverage=true; interact' | grep -v ":pysys:" && exit ${PIPESTATUS[0]}}
 set timeout -1
 log_user 0
 expect " unsupported hash type sha512"
