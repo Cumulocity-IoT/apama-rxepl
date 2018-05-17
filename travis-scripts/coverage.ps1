@@ -64,7 +64,7 @@ $jsonCoverage = New-Object psobject -Property @{
 	service_name = "travis-ci"
 	source_files = $lineHitCount | Group-Object -Property File | %{
 		New-Object psobject -Property @{
-			name = Resolve-Path -Relative $_.Name | %{$_ -replace "\\","/"} | %{$_ -replace ".*/output/Lambdas/code","src"}
+			name = Resolve-Path -Relative $_.Name | %{$_ -replace "\\","/"} | %{$_ -replace ".*/output/.*/code","src"}
 			source_digest = (Get-FileHash $_.Name -Algorithm MD5).Hash
 			coverage = $(
 				$coverageArray = @()
