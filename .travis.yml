@@ -26,3 +26,6 @@ script:
   - ./build.ps1 -sagInstallDir ./softwareag -forTest
   # Test the project
   - ./travis-scripts/test-with-exitcode
+  
+after_script:
+  - ./travis-scripts/coverage.ps1 -travisJobId $TRAVIS_JOB_ID
