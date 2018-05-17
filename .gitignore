@@ -4,3 +4,4 @@
 config
 output
 **/*.pyc
+eplcoverage

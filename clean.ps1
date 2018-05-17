@@ -16,7 +16,7 @@
 
 param (
    [string]$sagInstallDir = (./misc/getSagInstallDir.ps1),
-   [string]$output = "$(Split-Path $MyInvocation.MyCommand.Path -Parent)\output"
+   [string]$output = "$(Split-Path $MyInvocation.MyCommand.Path -Parent)/output"
 )
 
 $apamaInstallDir = "$sagInstallDir/Apama"
