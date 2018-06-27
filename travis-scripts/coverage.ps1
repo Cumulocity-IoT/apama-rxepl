@@ -59,7 +59,7 @@ $blockHits = $blockHits | Sort-Object -Property File,Line,Block
 $jsonCoverage = New-Object psobject -Property @{
 	service_job_id = $travisJobId
 	service_name = "travis-ci"
-	source_files = $blockHits | Group-Object File | %{
+	source_files = @($blockHits | Group-Object File | %{
 		$fileName = $_.Name
 		New-Object psobject -Property @{
 			name = Resolve-Path -Relative $_.Name | %{$_ -replace "\\","/"} | %{$_ -replace ".*/output/.*/code","src"}
@@ -89,7 +89,7 @@ $jsonCoverage = New-Object psobject -Property @{
 				)
 			}
 		}
-	}
+	})
 } | ConvertTo-Json -Depth 10 -Compress
 
 Invoke-WebRequest -Uri https://coveralls.io/api/v1/jobs -Method POST -Body @{json=$jsonCoverage}
