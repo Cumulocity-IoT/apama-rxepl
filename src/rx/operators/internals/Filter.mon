@@ -55,7 +55,7 @@ event FilterOnConnection {
 	
 	static action create(action<IObserver> returns ISubscription parentOnConnection, any predicate) returns action<IObserver> returns ISubscription {
 		Actions.checkAction(predicate, 1, 0, "boolean");
-		return FilterOnConnection(parentOnConnection, Actions.getCoercingGenericAction(predicate)).onConnection;
+		return FilterOnConnection(parentOnConnection, Actions.getCoercingGenericAction(predicate, "boolean")).onConnection;
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {

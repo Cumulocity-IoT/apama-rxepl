@@ -52,7 +52,7 @@ event MapOnConnection {
 	
 	static action create(action<IObserver> returns ISubscription parentOnConnection, any mapper) returns action<IObserver> returns ISubscription {
 		Actions.checkAction(mapper, 1, 0, "any");
-		return MapOnConnection(parentOnConnection, Actions.getCoercingGenericAction(mapper)).onConnection;
+		return MapOnConnection(parentOnConnection, Actions.getCoercingGenericAction(mapper, "any")).onConnection;
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {

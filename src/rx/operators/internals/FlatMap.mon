@@ -107,7 +107,7 @@ event FlatMapOnConnection {
 	
 	static action create(action<IObserver> returns ISubscription parentOnConnection, any mapper) returns action<IObserver> returns ISubscription {
 		Actions.checkAction(mapper, 1, 0, "any");
-		return FlatMapOnConnection(parentOnConnection, Actions.getCoercingGenericAction(mapper)).onConnection;
+		return FlatMapOnConnection(parentOnConnection, Actions.getCoercingGenericAction(mapper, "any")).onConnection;
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {

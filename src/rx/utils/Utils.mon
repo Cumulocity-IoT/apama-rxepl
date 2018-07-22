@@ -102,14 +102,16 @@ event Utils {
 event Actions {
 	action<sequence<any> > returns any genericAction;
 	sequence<string> types;
+	string returnType;
 	dictionary<string, action<any> returns any> coercingfunctions;
 	
-	static action getCoercingGenericAction(any actionAny) returns action<sequence<any> > returns any {
-		return Actions(actionAny.getGenericAction(), getActionParamTypes(actionAny), {
+	static action getCoercingGenericAction(any actionAny, string returnType) returns action<sequence<any> > returns any {
+		return Actions(actionAny.getGenericAction(), getActionParamTypes(actionAny), returnType, {
 			"string": coerceToString,
 			"integer": coerceToInteger,
 			"float": coerceToFloat,
-			"decimal": coerceToDecimal
+			"decimal": coerceToDecimal,
+			"boolean": coerceToBoolean
 		}).coerceAndCall;
 	}
 	
@@ -124,9 +126,40 @@ event Actions {
 		}
 		
 		string actualReturnType := actionAny.getActionReturnTypeName();
-		if (returnType = "any" and actualReturnType = "") or (actualReturnType != returnType and returnType != "" and returnType != "any") {
+		if not canCoerceTo(actualReturnType, returnType) {
 			throw Exception("Incorrect action, must have a return value of type " + returnType + " was " + actualReturnType, "IllegalArgumentException");
 		}
+	}
+	
+	static action canCoerceTo(string actualType, string requiredType) returns boolean {
+		if actualType = requiredType {
+			return true;
+		}
+		if actualType = "any" {
+			return true;
+		}
+		if requiredType = "" or requiredType = "any" {
+			return true;
+		}
+		
+		if requiredType = "string" {
+			try {
+				string discard := any.newInstance(actualType).valueToString();
+				return true;
+			} catch(Exception e) {
+				return false;
+			}
+		}
+		
+		if requiredType = "integer" or requiredType = "float" or requiredType = "decimal" {
+			return actualType = "integer" or actualType = "float" or actualType = "decimal" or actualType = "string";
+		}
+		
+		if requiredType = "boolean" {
+			return actualType = "string";
+		}
+		
+		return false;
 	}
 	
 	static action getActionParamTypes(any someAction) returns sequence<string> {
@@ -151,18 +184,16 @@ event Actions {
 			coercedValues.append(args[i]);
 			i := i + 1;
 		}
-		return genericAction(coercedValues);
+		any result := genericAction(coercedValues);
+		if coercingfunctions.hasKey(returnType) {
+			return coercingfunctions[returnType](result);
+		} else {
+			return result;
+		}
 	}
 
 	static action coerceToString(any value) returns any {
-		switch(value) {
-			case string: {
-				return value;
-			}
-			default: {
-				return value.valueToString();
-			}
-		}
+		return value.valueToString();
 	}
 	static action coerceToInteger(any value) returns any {
 		switch(value) {
@@ -217,6 +248,19 @@ event Actions {
 			}
 			default: {
 				throw Exception("Unable to coerce " + value.toString() + " to decimal", "IllegalArgumentException");
+			}
+		}
+	}
+	static action coerceToBoolean(any value) returns any {
+		switch(value) {
+			case string: {
+				return boolean.parse(value);
+			}
+			case boolean: {
+				return value;
+			}
+			default: {
+				throw Exception("Unable to coerce " + value.toString() + " to boolean", "IllegalArgumentException");
 			}
 		}
 	}

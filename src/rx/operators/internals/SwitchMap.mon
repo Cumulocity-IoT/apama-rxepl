@@ -85,7 +85,7 @@ event SwitchMapOnConnection {
 	
 	static action create(action<IObserver> returns ISubscription parentOnConnection, any mapper) returns action<IObserver> returns ISubscription {
 		Actions.checkAction(mapper, 1, 0, IObservable.getName());
-		return SwitchMapOnConnection(parentOnConnection, Actions.getCoercingGenericAction(mapper)).onConnection;
+		return SwitchMapOnConnection(parentOnConnection, Actions.getCoercingGenericAction(mapper, IObservable.getName())).onConnection;
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {

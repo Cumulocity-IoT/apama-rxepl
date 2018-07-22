@@ -37,13 +37,13 @@ event Subscriber {
 	
 	action onNext(any next) returns Subscriber {
 		Actions.checkAction(next, 1, 0, "");
-		self.next := WrapGeneric.create(Actions.getCoercingGenericAction(next));
+		self.next := WrapGeneric.create(Actions.getCoercingGenericAction(next, ""));
 		return self;
 	}
 
 	action onError(any error) returns Subscriber {
 		Actions.checkAction(error, 1, 0, "");
-		self.error := WrapGeneric.create(Actions.getCoercingGenericAction(error));
+		self.error := WrapGeneric.create(Actions.getCoercingGenericAction(error, ""));
 		return self;
 	}
 	
