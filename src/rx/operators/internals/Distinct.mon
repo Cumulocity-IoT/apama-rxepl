@@ -63,7 +63,7 @@ event DistinctByOnConnection {
 		action<sequence<any> > returns any genericAction;
 		ifpresent distinctBy {
 			Actions.checkAction(distinctBy, 1, 0, "any");
-			genericAction := Actions.getCoercingGenericAction(distinctBy);
+			genericAction := Actions.getCoercingGenericAction(distinctBy, "any");
 		} else {
 			genericAction := new action<sequence<any> > returns any;
 		}

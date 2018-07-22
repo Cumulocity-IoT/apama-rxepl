@@ -75,7 +75,7 @@ event GroupByOnConnection {
 	
 	static action create(action<IObserver> returns ISubscription parentOnConnection, any groupBy) returns action<IObserver> returns ISubscription {
 		Actions.checkAction(groupBy, 1, 0, "any");
-		return GroupByOnConnection(parentOnConnection, Actions.getCoercingGenericAction(groupBy)).onConnection;
+		return GroupByOnConnection(parentOnConnection, Actions.getCoercingGenericAction(groupBy, "any")).onConnection;
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {

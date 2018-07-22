@@ -64,7 +64,7 @@ event ScanOnConnection {
 	
 	static action create(action<IObserver> returns ISubscription parentOnConnection, any scanner, any initialValue, boolean hasInitialValue) returns action<IObserver> returns ISubscription {
 		Actions.checkAction(scanner, 2, 0, "any");
-		return ScanOnConnection(parentOnConnection, Actions.getCoercingGenericAction(scanner), initialValue, hasInitialValue).onConnection;
+		return ScanOnConnection(parentOnConnection, Actions.getCoercingGenericAction(scanner, "any"), initialValue, hasInitialValue).onConnection;
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {
