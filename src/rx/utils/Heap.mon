@@ -1,0 +1,102 @@
+/* 
+* Copyright (c) 2018 Software AG, Darmstadt, Germany and/or its licensors
+*
+* SPDX-License-Identifier: Apache-2.0
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+package com.industry.rx_epl.utils;
+
+event Heap {
+	sequence<any> arr;
+	action<any, any> returns boolean lGtR;
+	integer heapsize;
+	
+	static action create(sequence<any> values, action<any, any> returns boolean lGtR) returns Heap {
+		return Heap(values, lGtR, 0).build();
+	}
+	
+	static action heapsort(sequence<any> values, action<any, any> returns boolean lGtR) returns sequence<any> {
+		return create(values, lGtR).sort();
+	}
+	
+	action build() returns Heap {
+		heapsize := arr.size();
+		integer i := parent(heapsize - 1);
+		while i >= 0 {
+			heapify(i);
+			i := i - 1;
+		}
+		return self;
+	}
+	
+	action sort() returns sequence<any> {
+		integer i := heapsize - 1;
+		while i > 0 {
+			swap(0, i);
+			heapsize := heapsize - 1;
+			heapify(0);
+			i := i - 1;
+		}
+		return arr;
+	}
+	
+	static action parent(integer i) returns integer {
+		return ((i + 1) >> 1) - 1;
+	}
+	
+	static action left(integer i) returns integer {
+		return ((i + 1) << 1) - 1;
+	}
+	
+	static action right(integer i) returns integer {
+		return (i + 1) << 1;
+	}
+	
+	action heapify(integer i) {
+		integer l := left(i);
+		integer r := right(i);
+		integer largest;
+		if l < heapsize and lGtR(arr[l], arr[i]) {
+			largest := l;
+		} else {
+			largest := i;
+		}
+		if r < heapsize and lGtR(arr[r], arr[largest]) {
+			largest := r;
+		}
+		if largest != i {
+			swap(i, largest);
+			heapify(largest);
+		}
+	}
+	
+	action swap(integer i, integer j) {
+		any iValue := arr[i];
+		arr[i] := arr[j];
+		arr[j] := iValue;
+	}
+	
+	action insert(any value) {
+		heapsize := heapsize + 1;
+		integer i := heapsize - 1;
+		integer p := parent(i);
+		while i > 0 and lGtR(value, arr[p]) {
+			arr[i] := arr[p];
+			i := p; 
+			p := parent(i);
+		}
+		arr[i] := value;
+	}
+}

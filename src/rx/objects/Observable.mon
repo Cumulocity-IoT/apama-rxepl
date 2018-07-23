@@ -93,6 +93,9 @@ using com.industry.rx_epl.operators.Skip;
 using com.industry.rx_epl.operators.SkipLast;
 using com.industry.rx_epl.operators.SkipUntil;
 using com.industry.rx_epl.operators.SkipWhile;
+using com.industry.rx_epl.operators.Sort;
+using com.industry.rx_epl.operators.SortAsc;
+using com.industry.rx_epl.operators.SortDesc;
 using com.industry.rx_epl.operators.StartWith;
 using com.industry.rx_epl.operators.Sum;
 using com.industry.rx_epl.operators.SumDecimal;
@@ -109,6 +112,9 @@ using com.industry.rx_epl.operators.ThrottleLast;
 using com.industry.rx_epl.operators.TimeInterval;
 using com.industry.rx_epl.operators.Timeout;
 using com.industry.rx_epl.operators.Timestamp;
+using com.industry.rx_epl.operators.ToSortedList;
+using com.industry.rx_epl.operators.ToSortedListAsc;
+using com.industry.rx_epl.operators.ToSortedListDesc;
 using com.industry.rx_epl.operators.UpdateTimestamp;
 using com.industry.rx_epl.operators.WithLatestFrom;
 using com.industry.rx_epl.operators.WithLatestFromToSequence;
@@ -1061,6 +1067,42 @@ event Observable {
 		return ToChannel.create(self.asIObservable(), channelName);
 	}
 	
+	action toSortedList(any comparator) returns IObservable {
+		Observable o := _create();
+		o.onConnection := ToSortedList.create(comparator)(onConnection);
+		return o.asIObservable();
+	}
+	
+	action toSortedListAsc() returns IObservable {
+		Observable o := _create();
+		o.onConnection := ToSortedListAsc.create()(onConnection);
+		return o.asIObservable();
+	}
+	
+	action toSortedListDesc() returns IObservable {
+		Observable o := _create();
+		o.onConnection := ToSortedListDesc.create()(onConnection);
+		return o.asIObservable();
+	}
+	
+	action sort(any comparator) returns IObservable {
+		Observable o := _create();
+		o.onConnection := Sort.create(comparator)(onConnection);
+		return o.asIObservable();
+	}
+	
+	action sortAsc() returns IObservable {
+		Observable o := _create();
+		o.onConnection := SortAsc.create()(onConnection);
+		return o.asIObservable();
+	}
+	
+	action sortDesc() returns IObservable {
+		Observable o := _create();
+		o.onConnection := SortDesc.create()(onConnection);
+		return o.asIObservable();
+	}
+	
 	static action invalidConnect() returns IDisposable {
 		throw Exception("Can only connect a published Observable", "UnsupportedOperation");
 	}
@@ -1075,6 +1117,6 @@ event Observable {
 		
 	action asIObservable() returns IObservable {
 		return IObservable(self, 
-		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial, toStream, catchError, retry, observeOn, groupBy, observeToChannel, observeOnNew, every, contains, takeWhile, skipWhile, concatFromInstance, startWith, defaultIfEmpty, ignoreElements, count, sum, sumInteger, sumFloat, sumDecimal, concatString, max, maxInteger, maxFloat, maxDecimal, min, minInteger, minFloat, minDecimal, average, averageDecimal, sequenceEqualFromInstance, ambFromInstance, timestamp, updateTimestamp, timeout, getSync, getSyncOr, timeInterval, distinctUntilChanged, distinctByUntilChanged, switchMap, debounce, windowTime, throttleFirst, throttleLast, sampleTime, buffer, bufferTime, bufferCount, bufferTimeOrCount, combineLatestToSequenceFromInstance, withLatestFromToSequence, zipToSequenceFromInstance, groupByWindow, windowCount, windowTimeOrCount, sample, sampleCount, sampleTimeOrCount, bufferCountSkip, pipe, pluck, mergeAll, pipeOn, pipeOnNew, subscribeOn, subscribeOnNew, pairwise, let, groupByField, complexPipe, complexPipeOn, complexPipeOnNew, decouple, distinctByField, distinctByFieldUntilChanged, pausable, pausableBuffered, toChannel);
+		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial, toStream, catchError, retry, observeOn, groupBy, observeToChannel, observeOnNew, every, contains, takeWhile, skipWhile, concatFromInstance, startWith, defaultIfEmpty, ignoreElements, count, sum, sumInteger, sumFloat, sumDecimal, concatString, max, maxInteger, maxFloat, maxDecimal, min, minInteger, minFloat, minDecimal, average, averageDecimal, sequenceEqualFromInstance, ambFromInstance, timestamp, updateTimestamp, timeout, getSync, getSyncOr, timeInterval, distinctUntilChanged, distinctByUntilChanged, switchMap, debounce, windowTime, throttleFirst, throttleLast, sampleTime, buffer, bufferTime, bufferCount, bufferTimeOrCount, combineLatestToSequenceFromInstance, withLatestFromToSequence, zipToSequenceFromInstance, groupByWindow, windowCount, windowTimeOrCount, sample, sampleCount, sampleTimeOrCount, bufferCountSkip, pipe, pluck, mergeAll, pipeOn, pipeOnNew, subscribeOn, subscribeOnNew, pairwise, let, groupByField, complexPipe, complexPipeOn, complexPipeOnNew, decouple, distinctByField, distinctByFieldUntilChanged, pausable, pausableBuffered, toChannel, toSortedList, toSortedListAsc, toSortedListDesc, sort, sortAsc, sortDesc);
 	}
 }

@@ -1,0 +1,15 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Observable;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+	  
+	action onload() {
+	    any discard := Observable.fromValues([6,4,-1,0,3])
+			.toSortedListDesc()
+			.subscribe(ExpectValues.create([<any>[<any>6, 4, 3, 0, -1]], test.complete, test.fail));
+	}
+}

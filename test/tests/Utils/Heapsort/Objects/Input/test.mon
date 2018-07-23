@@ -1,0 +1,90 @@
+using com.industry.rx_epl.Observable;
+
+using utils.Test;
+using utils.TestObservables;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.utils.Heap;
+
+event TestObj {
+	integer value;
+}
+
+monitor Test {	
+	Test test := Test("TestResult");
+	
+	action onload() {
+		// More thorough testing is done in the primitives tests
+		runTest(getAscSeq(100));
+		runTest(getDescSeq(100));
+		runTest(getEqSeq(100));
+		runTest(getRandSeq(100));
+		
+		test.complete();
+	}
+	
+	action greaterThan(any left, any right) returns boolean {
+		return (<TestObj> left).value > (<TestObj> right).value;
+	}
+	
+	action runTest(sequence<any> values) {
+		integer originalSize := values.size();
+		values := Heap.heapsort(values, greaterThan);
+		check(values, originalSize, greaterThan);
+	}
+	
+	action check(sequence<any> values, integer originalSize, action<any, any> returns boolean lGtR) {
+		if values.size() != originalSize {
+			throw com.apama.exceptions.Exception("Not the original size!!!", "SortError");
+		}
+		integer i := 0;
+		while i < values.size() - 1 {
+			if lGtR(values[i], values[i+1]) {
+				test.fail("Did not sort correctly!!!");
+				throw com.apama.exceptions.Exception("Did not sort!!!", "SortError");
+			}
+			i := i + 1;
+		}
+		
+	}
+	
+	action getAscSeq(integer length) returns sequence<any> {
+		sequence<any> result := new sequence<any>;
+		result.setSize(length);
+		while length > 0 {
+			result[length - 1] := TestObj(length - 1); 
+			length := length - 1;
+		}
+		return result;
+	}
+	
+	action getDescSeq(integer length) returns sequence<any> {
+		sequence<any> result := new sequence<any>;
+		result.setCapacity(length);
+		while length > 0 {
+			result.append(TestObj(length - 1)); 
+			length := length - 1;
+		}
+		return result;
+	}
+	
+	action getEqSeq(integer length) returns sequence<any> {
+		sequence<any> result := new sequence<any>;
+		result.setCapacity(length);
+		while length > 0 {
+			result.append(TestObj(0)); 
+			length := length - 1;
+		}
+		return result;
+	}
+	
+	action getRandSeq(integer length) returns sequence<any> {
+		sequence<any> result := new sequence<any>;
+		result.setCapacity(length);
+		while length > 0 {
+			result.append(TestObj((length * 2).rand())); 
+			length := length - 1;
+		}
+		return result;
+	}
+}
