@@ -142,4 +142,10 @@ event ISubject {
 	action<IObservable> returns IObservable pausable;
 	action<IObservable> returns IObservable pausableBuffered;
 	action<string> returns IDisposable toChannel;
+	action<any> returns IObservable toSortedList;
+	action<> returns IObservable toSortedListAsc;
+	action<> returns IObservable toSortedListDesc;
+	action<any> returns IObservable sort;
+	action<> returns IObservable sortAsc;
+	action<> returns IObservable sortDesc;
 }

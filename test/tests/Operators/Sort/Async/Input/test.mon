@@ -1,0 +1,19 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Observable;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	action onload() {
+	    any discard := Observable.fromValues([6,4,-1,0,3]).delay(0.1)
+			.sort(compare)
+			.subscribe(ExpectValues.create([<any>(-1), 0, 3, 4, 6], test.complete, test.fail));
+	}  
+	
+	action compare(integer left, integer right) returns integer {
+		return right - left;
+	}
+}
