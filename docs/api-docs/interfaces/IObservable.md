@@ -21,7 +21,7 @@ Thes are broken up into:
 ### Transforms
 Actions that modify values coming from the source.
 
-<a name="map" href="#map">#</a> .**map**(*action<`value:` [T1](/docs#wild-card-notation)> returns [T2](/docs#wild-card-notation)*) returns [IObservable](#iobservable)<[T2](/docs#wild-card-notation)> [<>](/src/rx/operators/Map.mon  "Source")
+<a name="map" href="#map">#</a> .**map**(*action<`value:` [T1](/docs#wild-card-notation)> returns [T2](/docs#wild-card-notation)*) returns [IObservable](#iobservable-)<[T2](/docs#wild-card-notation)> [<>](/src/rx/operators/Map.mon  "Source")
 
 Apply a function to each item and pass on the result.
 ```javascript
@@ -37,7 +37,7 @@ Observable.fromValues([1,2,3])
 ```
 See also [FlatMap](#flatmap).
 
-<a name="flatmap" href="#flatmap">#</a> .**flatMap**(*action<`value:` [T1](/docs#wild-card-notation)> returns (sequence<[T2](/docs#wild-card-notation)> | [IObservable](#iobservable)<[T2](/docs#wild-card-notation)> | [ISubject](ISubject.md#isubject)<[T2](/docs#wild-card-notation)>)*) returns [IObservable](#iobservable)<[T2](/docs#wild-card-notation)> [<>](/src/rx/operators/FlatMap.mon  "Source")
+<a name="flatmap" href="#flatmap">#</a> .**flatMap**(*action<`value:` [T1](/docs#wild-card-notation)> returns (sequence<[T2](/docs#wild-card-notation)> | [IObservable](#iobservable-)<[T2](/docs#wild-card-notation)> | [ISubject](ISubject.md#isubject)<[T2](/docs#wild-card-notation)>)*) returns [IObservable](#iobservable-)<[T2](/docs#wild-card-notation)> [<>](/src/rx/operators/FlatMap.mon  "Source")
 
 Apply a mapping to each item that results in multiple values (or an Observable containing 1 or more values) and merge each item in the result into the output.
 ```javascript
@@ -54,7 +54,7 @@ Observable.fromValues([1,3,5])
 
 See also: [Map](#map).
 
-<a name="scan" href="#scan">#</a> .**scan**(*action<`aggregate:` [T2](/docs#wild-card-notation), `value:` [T1](/docs#wild-card-notation)> returns [T2](/docs#wild-card-notation)*) returns [IObservable](#iobservable)<[T2](/docs#wild-card-notation)> [<>](/src/rx/operators/Scan.mon  "Source")
+<a name="scan" href="#scan">#</a> .**scan**(*action<`aggregate:` [T2](/docs#wild-card-notation), `value:` [T1](/docs#wild-card-notation)> returns [T2](/docs#wild-card-notation)*) returns [IObservable](#iobservable-)<[T2](/docs#wild-card-notation)> [<>](/src/rx/operators/Scan.mon  "Source")
 
 Aggregate the data and emit the aggregated value for every incoming event.
 
@@ -72,7 +72,7 @@ Observable.fromValues([1,2,3])
 ```
 See also: [ScanWithInitial](#scanwithinitial), [Reduce](#reduce)
 
-<a name="scanwithinitial" href="#scanwithinitial">#</a> .**scanWithInitial**(*action<`aggregate:` [T2](/docs#wild-card-notation), `value:` [T1](/docs#wild-card-notation)> returns [T2](/docs#wild-card-notation), `initialValue:` [T2](/docs#wild-card-notation)*) returns [IObservable](#iobservable)<[T2](/docs#wild-card-notation)> [<>](/src/rx/operators/Scan.mon  "Source")
+<a name="scanwithinitial" href="#scanwithinitial">#</a> .**scanWithInitial**(*action<`aggregate:` [T2](/docs#wild-card-notation), `value:` [T1](/docs#wild-card-notation)> returns [T2](/docs#wild-card-notation), `initialValue:` [T2](/docs#wild-card-notation)*) returns [IObservable](#iobservable-)<[T2](/docs#wild-card-notation)> [<>](/src/rx/operators/Scan.mon  "Source")
 
 Aggregate the data and emit the aggregated value for every incoming event. The initial value for the aggregation is supplied.
 ```javascript
@@ -88,9 +88,9 @@ Observable.fromValues([1,2,3])
 ```
 See also: [Scan](#scan), [ReduceWithInitial](#reducewithinitial)
 
-<a name="groupby" href="#groupby">#</a> .**groupBy**(*action<`value:` [T1](/docs#wild-card-notation)> returns [T2](/docs#wild-card-notation)*) returns [IObservable](#iobservable)<[IObservable](#iobservable)<[T1](/docs#wild-card-notation)>> [<>](/src/rx/operators/GroupBy.mon  "Source")
+<a name="groupby" href="#groupby">#</a> .**groupBy**(*action<`value:` [T1](/docs#wild-card-notation)> returns [T2](/docs#wild-card-notation)*) returns [IObservable](#iobservable-)<[IObservable](#iobservable-)<[T1](/docs#wild-card-notation)>> [<>](/src/rx/operators/GroupBy.mon  "Source")
 
-Group the data into separate observables based on a calculated group identifier. These observables are sent on the resulting [IObservable](#iobservable). The provided action takes a value and returns a group identifier.
+Group the data into separate observables based on a calculated group identifier. These observables are sent on the resulting [IObservable](#iobservable-). The provided action takes a value and returns a group identifier.
 ```javascript
 event Fruit {
 	string type;
@@ -115,11 +115,11 @@ Observable.fromValues([Fruit("apple", 1), Fruit("banana", 2), Fruit("apple", 3)]
 ```
 See also: [GroupByField](#groupbyfield), [GroupByWindow](#groupbywindow)
 
-<a name="groupbyfield" href="#groupbyfield">#</a> .**groupByField**(*`fieldName:` [any](/docs#wild-card-notation)*) returns [IObservable](#iobservable)<[IObservable](#iobservable)\<[T](/docs#wild-card-notation)>> [<>](/src/rx/operators/GroupBy.mon  "Source")
+<a name="groupbyfield" href="#groupbyfield">#</a> .**groupByField**(*`fieldName:` [any](/docs#wild-card-notation)*) returns [IObservable](#iobservable-)<[IObservable](#iobservable-)\<[T](/docs#wild-card-notation)>> [<>](/src/rx/operators/GroupBy.mon  "Source")
 
-Group the data into separate observables based on a key field. These observables are sent on the resulting [IObservable](#iobservable).
+Group the data into separate observables based on a key field. These observables are sent on the resulting [IObservable](#iobservable-).
 
-Note: The fieldName can be of any type (Eg. an integer for [IObservable](#iobservable)\<sequence> or the key type for an [IObservable](#iobservable)\<dictionary>)
+Note: The fieldName can be of any type (Eg. an integer for [IObservable](#iobservable-)\<sequence> or the key type for an [IObservable](#iobservable-)\<dictionary>)
 
 ```javascript
 event Fruit {
@@ -141,9 +141,9 @@ Observable.fromValues([Fruit("apple", 1), Fruit("banana", 2), Fruit("apple", 3)]
 ```
 See also: [GroupBy](#groupby), [GroupByWindow](#groupbywindow)
 
-<a name="groupbywindow" href="#groupbywindow">#</a> .**groupByWindow**(*`trigger:` [IObservable](#iobservable)*) returns [IObservable](#iobservable)<[IObservable](#iobservable)\<[T](/docs#wild-card-notation)>> [<>](/src/rx/operators/Window.mon  "Source")
+<a name="groupbywindow" href="#groupbywindow">#</a> .**groupByWindow**(*`trigger:` [IObservable](#iobservable-)*) returns [IObservable](#iobservable-)<[IObservable](#iobservable-)\<[T](/docs#wild-card-notation)>> [<>](/src/rx/operators/Window.mon  "Source")
 
-Put each value into the current observable window. The observable windows are sent on the resulting [IObservable](#iobservable). The provided `trigger` determines when a new window is created.
+Put each value into the current observable window. The observable windows are sent on the resulting [IObservable](#iobservable-). The provided `trigger` determines when a new window is created.
 
 Note: The current window is completed when a new window is created.
 
@@ -168,9 +168,9 @@ Observable.create(source)
 ```
 See also: [WindowTime](#windowtime), [WindowCount](#windowcount), [WindowTimeOrCount](#windowtimeorcount), [GroupBy](#groupby)
 
-<a name="windowtime" href="#windowtime">#</a> .**windowTime**(*`seconds:` float*) returns [IObservable](#iobservable)<[IObservable](#iobservable)\<[T](/docs#wild-card-notation)>> [<>](/src/rx/operators/Window.mon  "Source")
+<a name="windowtime" href="#windowtime">#</a> .**windowTime**(*`seconds:` float*) returns [IObservable](#iobservable-)<[IObservable](#iobservable-)\<[T](/docs#wild-card-notation)>> [<>](/src/rx/operators/Window.mon  "Source")
 
-Put each value into the current observable window. The observable windows are sent on the resulting [IObservable](#iobservable). A new window is created every x seconds (starting when the subscription begins).
+Put each value into the current observable window. The observable windows are sent on the resulting [IObservable](#iobservable-). A new window is created every x seconds (starting when the subscription begins).
 
 Note: The current window is completed when a new window is created.
 
