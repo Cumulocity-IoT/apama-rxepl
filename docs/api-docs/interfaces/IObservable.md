@@ -310,7 +310,7 @@ Observable.fromValues([1,2,3,4,5,6])
 See also: [BufferCount](#buffercount), [BufferCountSkip](#buffercountskip)
 
 ### Filters
-<a name="filter" href="#filter">#</a> .**filter**(*`predicate:` action<`value:` [T](/docs#wild-card-notation)> returns boolean*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Buffer.mon  "Source")
+<a name="filter" href="#filter">#</a> .**filter**(*`predicate:` action<`value:` [T](/docs#wild-card-notation)> returns boolean*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Filter.mon  "Source")
 
 Filter the values by the provided predicate.
 
@@ -326,7 +326,6 @@ Observable.fromValues([1,2,3,4,5,6])
 // Output: 4, 5, 6
 ```
 
-See also: [BufferCount](#buffercount), [BufferCountSkip](#buffercountskip)
 ### Combiners
 ### Error Handling
 ### Utils
