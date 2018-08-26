@@ -1,3 +1,4 @@
+
 # IObservable [<>](/src/rx/interfaces/IObservable.mon)
 
 IObservable is the interface returned by most RxEPL operators. 
@@ -11,6 +12,7 @@ Thes are broken up into:
 	* [Scan](#scan)/[ScanWithInitial](#scanwithinitial)
 	* [GroupBy](#groupby)/[GroupByField](#groupbyfield)
 	* [GroupByWindow](#groupbywindow)/[WindowTime](#windowtime)/[WindowCount](#windowcount)/[WindowTimeOrCount](#windowtimeorcount)
+	* [Buffer](#buffer)/[BufferTime](#buffertime)/[BufferCount](#buffercount)/[BufferCountSkip](#buffercountskip)/[BufferTimeOrCount](#buffertimeorcount)/[Pairwise](#pairwise)
 * [Filters](#filters)
 * [Combiners](#combiners)
 * [Error Handling](#error-handling)
@@ -143,7 +145,7 @@ See also: [GroupBy](#groupby), [GroupByWindow](#groupbywindow)
 
 <a name="groupbywindow" href="#groupbywindow">#</a> .**groupByWindow**(*`trigger:` [IObservable](#iobservable-)*) returns [IObservable](#iobservable-)<[IObservable](#iobservable-)\<[T](/docs#wild-card-notation)>> [<>](/src/rx/operators/Window.mon  "Source")
 
-Put each value into the current observable window. The observable windows are sent on the resulting [IObservable](#iobservable-). The provided `trigger` determines when a new window is created.
+Partition each value into the current observable window. The observable windows are sent on the resulting [IObservable](#iobservable-). The provided `trigger` determines when a new window is created.
 
 Note: The current window is completed when a new window is created.
 
@@ -166,11 +168,11 @@ Observable.create(source)
 
 // Output: 3, 4, 4...
 ```
-See also: [WindowTime](#windowtime), [WindowCount](#windowcount), [WindowTimeOrCount](#windowtimeorcount), [GroupBy](#groupby)
+See also: [Buffer](#buffer), [GroupBy](#groupby)
 
 <a name="windowtime" href="#windowtime">#</a> .**windowTime**(*`seconds:` float*) returns [IObservable](#iobservable-)<[IObservable](#iobservable-)\<[T](/docs#wild-card-notation)>> [<>](/src/rx/operators/Window.mon  "Source")
 
-Put each value into the current observable window. The observable windows are sent on the resulting [IObservable](#iobservable-). A new window is created every x seconds (starting when the subscription begins).
+Partition each value into the current observable window. The observable windows are sent on the resulting [IObservable](#iobservable-). A new window is created every t seconds (starting when the subscription begins).
 
 Note: The current window is completed when a new window is created.
 
@@ -193,7 +195,127 @@ Observable.create(source)
 
 // Output: 3, 4, 4...
 ```
-See also: [GroupByWindow](#groupbywindow), [WindowCount](#windowcount), [WindowTimeOrCount](#windowtimeorcount), [GroupBy](#groupby)
+See also: [BufferTime](#buffertime), [GroupBy](#groupby)
+
+<a name="windowcount" href="#windowcount">#</a> .**windowCount**(*`count:` integer*) returns [IObservable](#iobservable-)<[IObservable](#iobservable-)\<[T](/docs#wild-card-notation)>> [<>](/src/rx/operators/Window.mon  "Source")
+
+Partition each value into the current observable window. The observable windows are sent on the resulting [IObservable](#iobservable-). A new window is created after every n values.
+
+Note: The current window is completed when a new window is created.
+
+```javascript
+action sumValuesInWindow(IObservable group) returns IObservable {
+	return group.sum();
+}
+
+Observable.fromValues([1,2,3,4,5,6])
+	.windowCount(2)
+	.flatMap(sumValuesInWindow)
+	...
+
+// Output: 3, 7, 11
+```
+See also: [BufferCount](#buffercount), [GroupBy](#groupby)
+
+<a name="windowtimeorcount" href="#windowtimeorcount">#</a> .**windowTimeOrCount**(*`seconds:` float, `count:` integer*) returns [IObservable](#iobservable-)<[IObservable](#iobservable-)\<[T](/docs#wild-card-notation)>> [<>](/src/rx/operators/Window.mon  "Source")
+
+Partition each value into the current observable window. The observable windows are sent on the resulting [IObservable](#iobservable-). A new window is created after every t seconds or n values (whichever comes first).
+
+Note: The current window is completed when a new window is created.
+
+See also: [BufferTimeOrCount](#buffertimeorcount), [GroupBy](#groupby)
+
+<a name="buffer" href="#buffer">#</a> .**buffer**(*`trigger:` [IObservable](#iobservable-)*) returns [IObservable](#iobservable-)<sequence\<any>> [<>](/src/rx/operators/Buffer.mon  "Source")
+
+Store each value in the current bucket, emitting the bucket (as a sequence\<any>) when the trigger fires.
+
+Note: The final bucket will be emitted on completion of the source. Unsubscribing will not trigger emission of the the current bucket.
+```javascript
+Observable.interval(0.25) // Emits an incrementing integer every 250 millis
+	.buffer(Observable.interval(1.0))
+	...
+
+// Output: [0,1,2,3], [4,5,6,7], [8,9,10,11]...
+```
+See also: [GroupByWindow](#groupbywindow), [GroupBy](#groupby)
+
+<a name="buffertime" href="#buffertime">#</a> .**bufferTime**(*`seconds:` float*) returns [IObservable](#iobservable-)<sequence\<any>> [<>](/src/rx/operators/BufferTime.mon  "Source")
+
+Store each value in the current bucket, emitting the bucket (as a sequence\<any>) every t seconds.
+
+Note: The final bucket will be emitted on completion of the source. Unsubscribing will not trigger emission of the the current bucket.
+```javascript
+Observable.interval(0.25) // Emits an incrementing integer every 250 millis
+	.bufferTime(1.0)
+	...
+
+// Output: [0,1,2,3], [4,5,6,7], [8,9,10,11]...
+```
+See also: [WindowTime](#windowtime), [GroupBy](#groupby)
+
+<a name="buffercount" href="#buffercount">#</a> .**bufferCount**(*`count:` integer*) returns [IObservable](#iobservable-)<sequence\<any>> [<>](/src/rx/operators/Buffer.mon  "Source")
+
+Store each value in the current bucket, emitting the bucket (as a sequence\<any>) every n values.
+
+Note: The final bucket will be emitted on completion of the source. Unsubscribing will not trigger emission of the the current bucket.
+```javascript
+Observable.fromValues([1,2,3,4,5,6])
+	.bufferCount(2)
+	...
+
+// Output: [1,2], [3,4], [5,6]
+```
+See also: [WindowCount](#windowcount), [BufferCountSkip](#buffercountskip), [Pairwise](#pairwise)
+
+<a name="buffercountskip" href="#buffercountskip">#</a> .**bufferCountSkip**(*`count:` integer, `skip:` integer*) returns [IObservable](#iobservable-)<sequence\<any>> [<>](/src/rx/operators/Buffer.mon  "Source")
+
+Store each value in the current bucket, emitting the bucket (as a sequence\<any>) every `count` values. The bucket 'slides' such that, after filling for the first time, it emits every `skip` values with the last `count` items.
+
+Note: The final bucket and all partial buckets (caused by the sliding) will be emitted on completion. Unsubscribing will not trigger emission of the the current bucket.
+
+Note 2: The skip value can be greater than the count, this will cause a gap between buckets.
+
+```javascript
+Observable.fromValues([1,2,3,4,5,6])
+	.bufferCountSkip(3,1)
+	...
+
+// Output: [1,2,3], [2,3,4], [3,4,5], [4,5,6], [5,6], [6]
+```
+See also: [BufferCount](#buffercount), [Pairwise](#pairwise)
+
+<a name="buffertimeorcount" href="#buffertimeorcount">#</a> .**bufferTimeOrCount**(*`seconds:` float, `count:` integer*) returns [IObservable](#iobservable-)<sequence\<any>> [<>](/src/rx/operators/Buffer.mon  "Source")
+
+Store each value in the current bucket, emitting the bucket (as a sequence\<any>) every `count` values or when the time `seconds` has elapsed (Whichever comes first).
+
+Note: The final bucket will be emitted on completion of the source. Unsubscribing will not trigger emission of the the current bucket.
+
+```javascript
+Observable.fromValues([1,2,3,4,5])
+	.bufferTimeOrCount(1.0, 2)
+	...
+
+// Output: [1,2], [2,3], [3,4], [4,5], [5]
+```
+
+See also: [BufferCount](#buffercount), [BufferCountSkip](#buffercountskip)
+
+<a name="pairwise" href="#pairwise">#</a> .**pairwise**() returns [IObservable](#iobservable-)<sequence\<any>> [<>](/src/rx/operators/Buffer.mon  "Source")
+
+Emit every value and the previous value in a sequence\<any>.
+
+Note: If only 1 value is received then no values are emitted.
+
+```javascript
+Observable.fromValues([1,2,3,4,5,6])
+	.pairwise()
+	...
+
+// Output: [1,2], [2,3], [3,4], [4,5], [5,6]
+```
+
+See also: [BufferCount](#buffercount), [BufferCountSkip](#buffercountskip)
+
 ### Filters
 ### Combiners
 ### Error Handling
