@@ -14,6 +14,7 @@ Thes are broken up into:
 	* [GroupByWindow](#groupbywindow)/[WindowTime](#windowtime)/[WindowCount](#windowcount)/[WindowTimeOrCount](#windowtimeorcount)
 	* [Buffer](#buffer)/[BufferTime](#buffertime)/[BufferCount](#buffercount)/[BufferCountSkip](#buffercountskip)/[BufferTimeOrCount](#buffertimeorcount)/[Pairwise](#pairwise)
 * [Filters](#filters)
+	* [Filter](#filter)
 * [Combiners](#combiners)
 * [Error Handling](#error-handling)
 * [Utils](#utils)
@@ -290,14 +291,6 @@ Store each value in the current bucket, emitting the bucket (as a sequence\<any>
 
 Note: The final bucket will be emitted on completion of the source. Unsubscribing will not trigger emission of the the current bucket.
 
-```javascript
-Observable.fromValues([1,2,3,4,5])
-	.bufferTimeOrCount(1.0, 2)
-	...
-
-// Output: [1,2], [2,3], [3,4], [4,5], [5]
-```
-
 See also: [BufferCount](#buffercount), [BufferCountSkip](#buffercountskip)
 
 <a name="pairwise" href="#pairwise">#</a> .**pairwise**() returns [IObservable](#iobservable-)<sequence\<any>> [<>](/src/rx/operators/Buffer.mon  "Source")
@@ -317,6 +310,23 @@ Observable.fromValues([1,2,3,4,5,6])
 See also: [BufferCount](#buffercount), [BufferCountSkip](#buffercountskip)
 
 ### Filters
+<a name="filter" href="#filter">#</a> .**filter**(*`predicate:` action<`value:` [T](/docs#wild-card-notation)> returns boolean*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Buffer.mon  "Source")
+
+Filter the values by the provided predicate.
+
+```javascript
+action greaterThan3(integer value) returns boolean {
+	return value > 3;
+}
+
+Observable.fromValues([1,2,3,4,5,6])
+	.filter(greaterThan3)
+	...
+
+// Output: 4, 5, 6
+```
+
+See also: [BufferCount](#buffercount), [BufferCountSkip](#buffercountskip)
 ### Combiners
 ### Error Handling
 ### Utils
