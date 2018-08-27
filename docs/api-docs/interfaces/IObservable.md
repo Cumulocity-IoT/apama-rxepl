@@ -9,24 +9,68 @@ Thes are broken up into:
 * [Transforms](#transforms)
 	* [Map](#map)
 	* [FlatMap](#flatmap)
+	* SwitchMap
+	* Pluck
 	* [Scan](#scan)/[ScanWithInitial](#scanwithinitial)
 	* [GroupBy](#groupby)/[GroupByField](#groupbyfield)
 	* [GroupByWindow](#groupbywindow)/[WindowTime](#windowtime)/[WindowCount](#windowcount)/[WindowTimeOrCount](#windowtimeorcount)
 	* [Buffer](#buffer)/[BufferTime](#buffertime)/[BufferCount](#buffercount)/[BufferCountSkip](#buffercountskip)/[BufferTimeOrCount](#buffertimeorcount)/[Pairwise](#pairwise)
+	* Sort/SortAsc/SortDesc
+	* ToSortedList/ToSortedListAsc/ToSortedListDesc
 * [Filters](#filters)
 	* [Filter](#filter)
+	* [Distinct](#distinct)/[DistinctUntilChanged](#distinctuntilchanged)/[DistinctBy](#distinctby)/[DistinctByUntilChanged](#distinctbyuntilchanged)/[DistinctByField](#distinctbyfield)/[DistinctByFieldUntilChanged](#distinctbyfielduntilchanged)
+	* Take/First/TakeLast/Last
+	* Skip/SkipLast
+	* TakeUntil/TakeWhile/SkipUntil/SkipWhile
+	* Debounce/ThrottleFirst/ThrottleLast
+	* Sample/SampleTime/SampleCount/SampleTimeOrCount
+	* ElementAt
 * [Combiners](#combiners)
+	* Merge/MergeAll
+	* WithLatestFrom/WithLatestFromToSequence
+	* CombineLatest/CombineLatestToSequence
+	* Zip/ZipToSequence
+	* Concat/StartWith
+	* SwitchOnNext
 * [Error Handling](#error-handling)
+	* CatchError
+	* Retry
 * [Utils](#utils)
+	* Do
+	* Delay/Async
+	* ObserveOn/ObserveOnNew
+	* Subscribe/SubscribeOn/SubscribeOnNew
+	* ToChannel/ToStream
+	* Timestamp/UpdateTimestamp
+	* TimeInterval
+	* Let/Pipe/PipeOn/PipeOnNew
+	* ComplexPipe/ComplexPipeOn/ComplexPipeOnNew
+	* Decouple
+	* GetSync/GetSyncOr
+	* Repeat
+	* Publish/PublishReplay
+	* Connect/RefCount
+	* Share/ShareReplay
 * [Conditional](#conditional)
+	* Contains/Every
+	* SequenceEqual
+	* Amb
+	* DefaultIfEmpty
 * [Math and Aggregation](#math-and-aggregation)
+	* Reduce/ReduceWithInitial
+	* Count
+	* Sum/SumInteger/SumFloat/SumDecimal/ConcatString
+	* Max/MaxInteger/MaxFloat/MaxDecimal
+	* Min/MinInteger/MinFloat/MinDecimal
+	* Average/AverageDecimal
 
 ### Transforms
 Actions that modify values coming from the source.
 
 <a name="map" href="#map">#</a> .**map**(*action<`value:` [T1](/docs#wild-card-notation)> returns [T2](/docs#wild-card-notation)*) returns [IObservable](#iobservable-)<[T2](/docs#wild-card-notation)> [<>](/src/rx/operators/Map.mon  "Source")
 
-Apply a function to each item and pass on the result.
+Apply a function to each `value` and pass on the result.
 ```javascript
 action multiplyBy10(integer value) returns integer {
 	return value * 10;
@@ -42,7 +86,7 @@ See also [FlatMap](#flatmap).
 
 <a name="flatmap" href="#flatmap">#</a> .**flatMap**(*action<`value:` [T1](/docs#wild-card-notation)> returns (sequence<[T2](/docs#wild-card-notation)> | [IObservable](#iobservable-)<[T2](/docs#wild-card-notation)> | [ISubject](ISubject.md#isubject)<[T2](/docs#wild-card-notation)>)*) returns [IObservable](#iobservable-)<[T2](/docs#wild-card-notation)> [<>](/src/rx/operators/FlatMap.mon  "Source")
 
-Apply a mapping to each item that results in multiple values (or an Observable containing 1 or more values) and merge each item in the result into the output.
+Apply a mapping to each `value` that results in multiple values (or an Observable containing 1 or more values) and merge each item in the result into the output.
 ```javascript
 action valueAndPlus1(integer value) returns sequence<integer> {
 	return [value, value + 1];
@@ -122,7 +166,7 @@ See also: [GroupByField](#groupbyfield), [GroupByWindow](#groupbywindow)
 
 Group the data into separate observables based on a key field. These observables are sent on the resulting [IObservable](#iobservable-).
 
-Note: The fieldName can be of any type (Eg. an integer for [IObservable](#iobservable-)\<sequence> or the key type for an [IObservable](#iobservable-)\<dictionary>)
+Note: The `fieldName` can be of any type (Eg. an integer for [IObservable](#iobservable-)\<sequence> or the key type for an [IObservable](#iobservable-)\<dictionary>)
 
 ```javascript
 event Fruit {
@@ -325,6 +369,48 @@ Observable.fromValues([1,2,3,4,5,6])
 
 // Output: 4, 5, 6
 ```
+
+<a name="distinct" href="#distinct">#</a> .**distinct**() returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
+
+Remove all duplicate values.
+
+Note: This requires storing every unique value and therefore care should be taken when used on long running observables. A safer alternative is [DistinctUntilChanged](#distinctuntilchanged)
+
+```javascript
+Observable.fromValues([1,2,1,2,3,2,3])
+	.distinct()
+	...
+
+// Output: 1, 2, 3
+```
+
+See also: [DistinctUntilChanged](#distinctuntilchanged)
+
+<a name="distinctuntilchanged" href="#distinctuntilchanged">#</a> .**distinctUntilChanged**() returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
+
+Remove all back-to-back duplicates.
+
+```javascript
+Observable.fromValues([1,1,2,2,1,2,3,3])
+	.distinctUntil()
+	...
+
+// Output: 1, 2, 1, 2, 3
+```
+
+See also: [Distinct](#distinct)
+
+<a name="distinctby" href="#distinctby">#</a> .**distinctBy**(*action<`value:` [T1](/docs#wild-card-notation)> returns [T2](/docs#wild-card-notation)*) returns [IObservable](#iobservable-)<[T1](/docs#wild-card-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
+
+<a name="distinctbyuntilchanged" href="#distinctbyuntilchanged">#</a> .**distinctByUntilChanged**(*action<`value:` [T1](/docs#wild-card-notation)> returns [T2](/docs#wild-card-notation)*) returns [IObservable](#iobservable-)<[T1](/docs#wild-card-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
+
+<a name="distinctbyfield" href="#distinctbyfield">#</a> .**distinctByField**(*`fieldName:` any*) returns [IObservable](#iobservable-)<[T1](/docs#wild-card-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
+
+Note: The `fieldName` can be of any type (Eg. an integer for [IObservable](#iobservable-)\<sequence> or the key type for an [IObservable](#iobservable-)\<dictionary>)
+
+<a name="distinctbyuntilchanged" href="#distinctbyuntilchanged">#</a> .**distinctByFieldUntilChanged**(*`fieldName:` any*) returns [IObservable](#iobservable-)<[T1](/docs#wild-card-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
+
+Note: The `fieldName` can be of any type (Eg. an integer for [IObservable](#iobservable-)\<sequence> or the key type for an [IObservable](#iobservable-)\<dictionary>)
 
 ### Combiners
 ### Error Handling
