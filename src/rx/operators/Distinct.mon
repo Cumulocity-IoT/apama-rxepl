@@ -45,7 +45,7 @@ event Distinct {
 }
 
 event DistinctByField {
-	static action create(string fieldName) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+	static action create(any fieldName) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
 		return DistinctBy.create(PluckMapper.create(fieldName));
 	}	
 }
@@ -69,7 +69,7 @@ event DistinctUntilChanged {
 }
 
 event DistinctByFieldUntilChanged {
-	static action create(string fieldName) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+	static action create(any fieldName) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
 		return DistinctByUntilChanged.create(PluckMapper.create(fieldName));
 	}
 }

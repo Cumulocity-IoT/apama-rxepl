@@ -1039,13 +1039,13 @@ event Observable {
 		return observeFromChannel(channelName);
 	}
 	
-	action distinctByField(string fieldName) returns IObservable {
+	action distinctByField(any fieldName) returns IObservable {
 		Observable o := _create();
 		o.onConnection := DistinctByField.create(fieldName)(onConnection);
 		return o.asIObservable();
 	}
 	
-	action distinctByFieldUntilChanged(string fieldName) returns IObservable {
+	action distinctByFieldUntilChanged(any fieldName) returns IObservable {
 		Observable o := _create();
 		o.onConnection := DistinctByFieldUntilChanged.create(fieldName)(onConnection);
 		return o.asIObservable();

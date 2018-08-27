@@ -551,8 +551,8 @@ event IObservable {
 	action<action<IObservable> returns IObservable, context> returns IObservable complexPipeOn;
 	action<action<IObservable> returns IObservable> returns IObservable complexPipeOnNew;
 	action<> returns IObservable decouple;
-	action<string> returns IObservable distinctByField;
-	action<string> returns IObservable distinctByFieldUntilChanged;
+	action<any> returns IObservable distinctByField;
+	action<any> returns IObservable distinctByFieldUntilChanged;
 	action<IObservable> returns IObservable pausable;
 	action<IObservable> returns IObservable pausableBuffered;
 	action<string> returns IDisposable toChannel;
