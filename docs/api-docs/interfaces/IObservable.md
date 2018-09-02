@@ -9,14 +9,13 @@ Thes are broken up into:
 * [Transforms](#transforms)
 	* [Map](#map)
 	* [FlatMap](#flatmap)
-	* SwitchMap
-	* Pluck
+	* [Pluck](#pluck)
 	* [Scan](#scan)/[ScanWithInitial](#scanwithinitial)
 	* [GroupBy](#groupby)/[GroupByField](#groupbyfield)
 	* [GroupByWindow](#groupbywindow)/[WindowTime](#windowtime)/[WindowCount](#windowcount)/[WindowTimeOrCount](#windowtimeorcount)
 	* [Buffer](#buffer)/[BufferTime](#buffertime)/[BufferCount](#buffercount)/[BufferCountSkip](#buffercountskip)/[BufferTimeOrCount](#buffertimeorcount)/[Pairwise](#pairwise)
-	* Sort/SortAsc/SortDesc
-	* ToSortedList/ToSortedListAsc/ToSortedListDesc
+	* [Sort](#sort)/[SortAsc](#sortasc)/[SortDesc](#sortdesc)
+	* [ToSortedList](#tosortedlist)/[ToSortedListAsc](#tosortedlistasc)/[ToSortedListDesc](tosorteddesclist)
 * [Filters](#filters)
 	* [Filter](#filter)
 	* [Distinct](#distinct)/[DistinctUntilChanged](#distinctuntilchanged)/[DistinctBy](#distinctby)/[DistinctByUntilChanged](#distinctbyuntilchanged)/[DistinctByField](#distinctbyfield)/[DistinctByFieldUntilChanged](#distinctbyfielduntilchanged)
@@ -32,7 +31,7 @@ Thes are broken up into:
 	* CombineLatest/CombineLatestToSequence
 	* Zip/ZipToSequence
 	* Concat/StartWith
-	* SwitchOnNext
+	* SwitchMap/SwitchOnNext
 * [Error Handling](#error-handling)
 	* CatchError
 	* Retry
@@ -52,6 +51,7 @@ Thes are broken up into:
 	* Publish/PublishReplay
 	* Connect/RefCount
 	* Share/ShareReplay
+	* ObserveToChannel
 * [Conditional](#conditional)
 	* Contains/Every
 	* SequenceEqual
@@ -100,6 +100,23 @@ Observable.fromValues([1,3,5])
 ```
 
 See also: [Map](#map).
+
+<a name="pluck" href="#pluck">#</a> .**pluck**(*`fieldName:` any*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Pluck.mon  "Source")
+
+Select a particular field from the incoming value.
+
+Note: The `fieldName` can be of any type (Eg. an integer for [IObservable](#iobservable-)\<sequence> or the key type for an [IObservable](#iobservable-)\<dictionary>)
+```javascript
+event E {
+	integer value;
+}
+
+Observable.fromValues([E(1), E(2), E(3), E(4)])
+	.pluck("value")
+	...
+
+// Output: 1,2,3,4
+```
 
 <a name="scan" href="#scan">#</a> .**scan**(*action<`aggregate:` [T2](/docs#wild-card-notation), `value:` [T1](/docs#wild-card-notation)> returns [T2](/docs#wild-card-notation)*) returns [IObservable](#iobservable-)<[T2](/docs#wild-card-notation)> [<>](/src/rx/operators/Scan.mon  "Source")
 
@@ -353,6 +370,94 @@ Observable.fromValues([1,2,3,4,5,6])
 
 See also: [BufferCount](#buffercount), [BufferCountSkip](#buffercountskip)
 
+<a name="sort" href="#sort">#</a> .**sort**(*`comparator:` action<`left:` [T](/docs#wild-card-notation), `right:` [T](/docs#wild-card-notation)> returns number*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/ToSortedList.mon  "Source")
+
+Sort the values by a comparator. The comparator takes 2 values from the observable and should produce a number to indicate which one is larger. 
+
+A positive number indicates that the `right` value should be later in the output, whereas a negative number indicates the `left` value. 
+
+Note: Uses the heapsort algorithm - there's no guaranteed ordering for equal values.
+```javascript
+action comparator(integer left, integer right) returns integer {
+	return right - left;
+}
+
+Observable.fromValues([4,1,3,2])
+	.sort(comparator)
+	...
+
+// Output: 1,2,3,4
+```
+
+<a name="sortasc" href="#sortasc">#</a> .**sortAsc**() returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/ToSortedList.mon  "Source")
+
+Sort the values by the standard `>` or `<` comparator. Numbers with different types will be coerced to to same type before comparison.
+
+Note: Uses the heapsort algorithm - there's no guaranteed ordering for equal values
+```javascript
+Observable.fromValues([4,1,3,2])
+	.sortAsc()
+	...
+
+// Output: 1,2,3,4
+```
+
+<a name="sortdesc" href="#sortdesc">#</a> .**sortDesc**() returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/ToSortedList.mon  "Source")
+
+Sort the values by the standard `>` or `<` comparator. Numbers with different types will be coerced to to same type before comparison.
+
+Note: Uses the heapsort algorithm - there's no guaranteed ordering for equal values
+```javascript
+Observable.fromValues([4,1,3,2])
+	.sortDesc()
+	...
+
+// Output: 4,3,2,1
+```
+<a name="tosortedlist" href="#tosortedlist">#</a> .**toSortedList**(*`comparator:` action<`left:` [T](/docs#wild-card-notation), `right:` [T](/docs#wild-card-notation)> returns number*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/ToSortedList.mon  "Source")
+
+Sort the values by a comparator. The comparator takes 2 values from the observable and should produce a number to indicate which one is larger. The sorted values are output as a sequence\<any>.
+
+A positive number indicates that the `right` value should be later in the output, whereas a negative number indicates the `left` value. 
+
+Note: Uses the heapsort algorithm - there's no guaranteed ordering for equal values.
+```javascript
+action comparator(integer left, integer right) returns integer {
+	return right - left;
+}
+
+Observable.fromValues([4,1,3,2])
+	.toSortedList(comparator)
+	...
+
+// Output: [1,2,3,4]
+```
+
+<a name="tosortedlistasc" href="#tosortedlistasc">#</a> .**toSortedListAsc**() returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/ToSortedList.mon  "Source")
+
+Sort the values by the standard `>` or `<` comparator. Numbers with different types will be coerced to to same type before comparison. The sorted values are output as a sequence\<any>.
+
+Note: Uses the heapsort algorithm - there's no guaranteed ordering for equal values
+```javascript
+Observable.fromValues([4,1,3,2])
+	.toSortedListAsc()
+	...
+
+// Output: [1,2,3,4]
+```
+<a name="tosortedlistdesc" href="#tosortedlistdesc">#</a> .**toSortedListDesc**() returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/ToSortedList.mon  "Source")
+
+Sort the values by the standard `>` or `<` comparator. Numbers with different types will be coerced to to same type before comparison. The sorted values are output as a sequence\<any>.
+
+Note: Uses the heapsort algorithm - there's no guaranteed ordering for equal values
+```javascript
+Observable.fromValues([4,1,3,2])
+	.toSortedListDesc()
+	...
+
+// Output: [4,3,2,1]
+```
+
 ### Filters
 <a name="filter" href="#filter">#</a> .**filter**(*`predicate:` action<`value:` [T](/docs#wild-card-notation)> returns boolean*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Filter.mon  "Source")
 
@@ -404,11 +509,11 @@ See also: [Distinct](#distinct)
 
 <a name="distinctbyuntilchanged" href="#distinctbyuntilchanged">#</a> .**distinctByUntilChanged**(*action<`value:` [T1](/docs#wild-card-notation)> returns [T2](/docs#wild-card-notation)*) returns [IObservable](#iobservable-)<[T1](/docs#wild-card-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
 
-<a name="distinctbyfield" href="#distinctbyfield">#</a> .**distinctByField**(*`fieldName:` any*) returns [IObservable](#iobservable-)<[T1](/docs#wild-card-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
+<a name="distinctbyfield" href="#distinctbyfield">#</a> .**distinctByField**(*`fieldName:` any*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
 
 Note: The `fieldName` can be of any type (Eg. an integer for [IObservable](#iobservable-)\<sequence> or the key type for an [IObservable](#iobservable-)\<dictionary>)
 
-<a name="distinctbyuntilchanged" href="#distinctbyuntilchanged">#</a> .**distinctByFieldUntilChanged**(*`fieldName:` any*) returns [IObservable](#iobservable-)<[T1](/docs#wild-card-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
+<a name="distinctbyuntilchanged" href="#distinctbyuntilchanged">#</a> .**distinctByFieldUntilChanged**(*`fieldName:` any*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
 
 Note: The `fieldName` can be of any type (Eg. an integer for [IObservable](#iobservable-)\<sequence> or the key type for an [IObservable](#iobservable-)\<dictionary>)
 
