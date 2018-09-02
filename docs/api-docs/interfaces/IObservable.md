@@ -19,8 +19,8 @@ Thes are broken up into:
 * [Filters](#filters)
 	* [Filter](#filter)
 	* [Distinct](#distinct)/[DistinctUntilChanged](#distinctuntilchanged)/[DistinctBy](#distinctby)/[DistinctByUntilChanged](#distinctbyuntilchanged)/[DistinctByField](#distinctbyfield)/[DistinctByFieldUntilChanged](#distinctbyfielduntilchanged)
-	* Take/First/TakeLast/Last
-	* Skip/SkipLast
+	* [Take](#take)/[First](#first)/[TakeLast](#takelast)/[Last](#last)
+	* [Skip](#skip)/[SkipLast](#skiplast)
 	* TakeUntil/TakeWhile/SkipUntil/SkipWhile
 	* Debounce/ThrottleFirst/ThrottleLast
 	* Sample/SampleTime/SampleCount/SampleTimeOrCount
@@ -33,8 +33,8 @@ Thes are broken up into:
 	* Concat/StartWith
 	* SwitchMap/SwitchOnNext
 * [Error Handling](#error-handling)
-	* CatchError
-	* Retry
+	* [CatchError](#catcherror)
+	* [Retry](#retry)
 * [Utils](#utils)
 	* Do
 	* Delay/Async
@@ -52,6 +52,7 @@ Thes are broken up into:
 	* Connect/RefCount
 	* Share/ShareReplay
 	* ObserveToChannel
+	* IgnoreElements
 * [Conditional](#conditional)
 	* Contains/Every
 	* SequenceEqual
@@ -505,20 +506,194 @@ Observable.fromValues([1,1,2,2,1,2,3,3])
 
 See also: [Distinct](#distinct)
 
-<a name="distinctby" href="#distinctby">#</a> .**distinctBy**(*action<`value:` [T1](/docs#wild-card-notation)> returns [T2](/docs#wild-card-notation)*) returns [IObservable](#iobservable-)<[T1](/docs#wild-card-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
+<a name="distinctby" href="#distinctby">#</a> .**distinctBy**(*`getKey:` action<`value:` [T1](/docs#wild-card-notation)> returns [T2](/docs#wild-card-notation)*) returns [IObservable](#iobservable-)<[T1](/docs#wild-card-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
 
-<a name="distinctbyuntilchanged" href="#distinctbyuntilchanged">#</a> .**distinctByUntilChanged**(*action<`value:` [T1](/docs#wild-card-notation)> returns [T2](/docs#wild-card-notation)*) returns [IObservable](#iobservable-)<[T1](/docs#wild-card-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
+Remove all duplicates. 
+
+The `getKey` action returns the value by which to measure uniqueness.
+
+Note: This requires storing every unique value and therefore care should be taken when used on long running observables. A safer alternative is [DistinctByUntilChanged](#distinctbyuntilchanged)
+
+```javascript
+action getUniqueKey(integer value) returns integer {
+	return value % 3;
+}
+
+Observable.fromValues([1,2,3,4,5,6])
+	.distinctBy(getUniqueKey)
+	...
+
+// Output: 1, 2, 3
+```
+
+<a name="distinctbyuntilchanged" href="#distinctbyuntilchanged">#</a> .**distinctByUntilChanged**(*`getKey:` action<`value:` [T1](/docs#wild-card-notation)> returns [T2](/docs#wild-card-notation)*) returns [IObservable](#iobservable-)<[T1](/docs#wild-card-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
+
+Remove all back-to-back duplicates. 
+
+The `getKey` action returns the value by which to measure uniqueness.
+```javascript
+action getUniqueKey(integer value) returns integer {
+	return value % 3;
+}
+
+Observable.fromValues([1,1,1,4,4,4,5,6,7,8])
+	.distinctBy(getUniqueKey)
+	...
+
+// Output: 1,5,6,7,8
+```
 
 <a name="distinctbyfield" href="#distinctbyfield">#</a> .**distinctByField**(*`fieldName:` any*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
 
-Note: The `fieldName` can be of any type (Eg. an integer for [IObservable](#iobservable-)\<sequence> or the key type for an [IObservable](#iobservable-)\<dictionary>)
+Remove values with a duplicate `fieldName` value. 
 
-<a name="distinctbyuntilchanged" href="#distinctbyuntilchanged">#</a> .**distinctByFieldUntilChanged**(*`fieldName:` any*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
+Note: This requires storing every unique value and therefore care should be taken when used on long running observables. A safer alternative is [DistinctByFieldUntilChanged](#distinctbyfielduntilchanged)
+
 
 Note: The `fieldName` can be of any type (Eg. an integer for [IObservable](#iobservable-)\<sequence> or the key type for an [IObservable](#iobservable-)\<dictionary>)
+```javascript
+event E {
+	integer value;
+}
+
+Observable.fromValues([E(1),E(2),E(1),E(2),E(3)])
+	.distinctByField("value")
+	...
+
+// Output: E(1), E(2), E(3)
+```
+
+<a name="distinctbyfielduntilchanged" href="#distinctbyfielduntilchanged">#</a> .**distinctByFieldUntilChanged**(*`fieldName:` any*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
+
+Remove back-to-back values with a duplicate `fieldName` value. 
+
+Note: The `fieldName` can be of any type (Eg. an integer for [IObservable](#iobservable-)\<sequence> or the key type for an [IObservable](#iobservable-)\<dictionary>)
+```javascript
+event E {
+	integer value;
+}
+
+Observable.fromValues([E(1),E(1),E(2),E(1),E(3)])
+	.distinctByFieldUntilChanged("value")
+	...
+
+// Output: E(1), E(2), E(1), E(3)
+```
+
+<a name="take" href="#take">#</a> .**take**(*`count:` integer*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Take.mon  "Source")
+
+Take only the first `count` items.
+
+```javascript
+Observable.fromValues([1,2,3,4])
+	.take(3)
+	...
+
+// Output: 1,2,3
+```
+
+<a name="first" href="#first">#</a> .**first**() returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/First.mon  "Source")
+
+Take only the first item.
+
+```javascript
+Observable.fromValues([1,2,3,4])
+	.first()
+	...
+
+// Output: 1
+```
+
+<a name="takelast" href="#takelast">#</a> .**takeLast**(*`count:` integer*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/TakeLast.mon  "Source")
+
+Take only the last `count` items.
+
+Note: The Observable must complete otherwise you won't receive a value.
+```javascript
+Observable.fromValues([1,2,3,4])
+	.takeLast(3)
+	...
+
+// Output: 2,3,4
+```
+
+<a name="last" href="#last">#</a> .**last**() returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Last.mon  "Source")
+
+Take only the last item.
+
+Note: The Observable must complete otherwise you won't receive a value.
+```javascript
+Observable.fromValues([1,2,3,4])
+	.last()
+	...
+
+// Output: 4
+```
+
+<a name="skip" href="#skip">#</a> .**skip**(*`count:` integer*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Skip.mon  "Source")
+
+Skip the first `count` values.
+
+```javascript
+Observable.fromValues([1,2,3,4])
+	.skip(2)
+	...
+
+// Output: 3,4
+```
+
+<a name="skiplast" href="#skiplast">#</a> .**skipLast**(*`count:` integer*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/SkipLast.mon  "Source")
+
+Skip the last `count` values.
+
+```javascript
+Observable.fromValues([1,2,3,4])
+	.skipLast(2)
+	...
+
+// Output: 1,2
+```
 
 ### Combiners
 ### Error Handling
+<a name="catcherror" href="#catcherror">#</a> .**catchError**(*`substitute:`  [IObservable](#iobservable-)<[T](/docs#wild-card-notation)>*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/CatchError.mon  "Source")
+
+Switch to an alternative data source in the event of an error.
+
+```javascript
+action someActionThatThrows(integer value) returns integer {
+	throw com.apama.exceptions.Exception("Ahhhh", "RuntimeException");
+}
+
+Observable.fromValues([1,2,3,4])
+	.map(someActionThatThrows)
+	.catchError(Observable.fromValues(5,6,7,8))
+	...
+
+// Output: 5,6,7,8
+```
+
+<a name="retry" href="#retry">#</a> .**retry**(*`attempts:` integer*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Retry.mon  "Source")
+
+Reconnect to the datasource in the event of an error. At most `attempts` times.
+
+```javascript
+action sometimesThrows(integer value) returns integer {
+	if (5).rand() = 0 {
+		throw com.apama.exceptions.Exception("Ahhhh", "RuntimeException");
+	}
+	return value;
+}
+
+Observable.fromValues([1,2,3,4])
+	.map(sometimesThrows)
+	.retry(3)
+	...
+
+// Example Output: 1,1,2,3,1,2,3,4
+// Example Output: 1,1,2,1,2,1, Exception("Ahhhh", "RuntimeException")
+```
+ 
 ### Utils
 ### Conditional
 ### Math and Aggregation
