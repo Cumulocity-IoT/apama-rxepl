@@ -415,7 +415,7 @@ Observable.fromValues([4,1,3,2])
 
 // Output: 4,3,2,1
 ```
-<a name="tosortedlist" href="#tosortedlist">#</a> .**toSortedList**(*`comparator:` action<`left:` [T](/docs#wild-card-notation), `right:` [T](/docs#wild-card-notation)> returns number*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/ToSortedList.mon  "Source")
+<a name="tosortedlist" href="#tosortedlist">#</a> .**toSortedList**(*`comparator:` action<`left:` [T](/docs#wild-card-notation), `right:` [T](/docs#wild-card-notation)> returns number*) returns [IObservable](#iobservable-)<sequence<[T](/docs#wild-card-notation)>> [<>](/src/rx/operators/ToSortedList.mon  "Source")
 
 Sort the values by a comparator. The comparator takes 2 values from the observable and should produce a number to indicate which one is larger. The sorted values are output as a sequence\<any>.
 
@@ -434,7 +434,7 @@ Observable.fromValues([4,1,3,2])
 // Output: [1,2,3,4]
 ```
 
-<a name="tosortedlistasc" href="#tosortedlistasc">#</a> .**toSortedListAsc**() returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/ToSortedList.mon  "Source")
+<a name="tosortedlistasc" href="#tosortedlistasc">#</a> .**toSortedListAsc**() returns [IObservable](#iobservable-)<sequence<[T](/docs#wild-card-notation)>> [<>](/src/rx/operators/ToSortedList.mon  "Source")
 
 Sort the values by the standard `>` or `<` comparator. Numbers with different types will be coerced to to same type before comparison. The sorted values are output as a sequence\<any>.
 
@@ -446,7 +446,7 @@ Observable.fromValues([4,1,3,2])
 
 // Output: [1,2,3,4]
 ```
-<a name="tosortedlistdesc" href="#tosortedlistdesc">#</a> .**toSortedListDesc**() returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/ToSortedList.mon  "Source")
+<a name="tosortedlistdesc" href="#tosortedlistdesc">#</a> .**toSortedListDesc**() returns [IObservable](#iobservable-)<sequence<[T](/docs#wild-card-notation)>> [<>](/src/rx/operators/ToSortedList.mon  "Source")
 
 Sort the values by the standard `>` or `<` comparator. Numbers with different types will be coerced to to same type before comparison. The sorted values are output as a sequence\<any>.
 
