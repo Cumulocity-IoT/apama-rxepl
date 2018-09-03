@@ -28,7 +28,7 @@ These are broken up into:
 	* [ElementAt](#elementat)
 * [Combiners](#combiners)
 	* [Merge](#merge)/[MergeAll](#mergeall)
-	* WithLatestFrom/WithLatestFromToSequence
+	* [WithLatestFrom](#withlatestfrom)/WithLatestFromToSequence
 	* CombineLatest/CombineLatestToSequence
 	* Zip/ZipToSequence
 	* Concat/StartWith
@@ -831,9 +831,9 @@ Observable.fromValues([0,1,2,3])
 ```
 
 ### Combiners
-<a name="merge" href="#merge">#</a> .**merge**(*`sources:` sequence<[IObservable](#iobservable-)<[T](/docs#wild-card-notation)>>*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Merge.mon  "Source")
+<a name="merge" href="#merge">#</a> .**merge**(*`other:` sequence<[IObservable](#iobservable-)<[T](/docs#wild-card-notation)>>*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Merge.mon  "Source")
 
-Merge the outputs of all of the provided observables.
+Merge the outputs of all of the provided `other` observables.
 
 ```javascript
 Observable.interval(0.1)
@@ -852,6 +852,29 @@ Observable.fromValues([Observable.interval(0.1), [1,2,3]])
 	...
 
 // Output: 1,2,3,0,1,2,3,4...
+```
+
+<a name="withlatestfrom" href="#withlatestfrom">#</a> .**withLatestFrom**(*`other:` sequence<[IObservable](#iobservable-)\<any>>, `combiner:` action\<`values:` sequence\<any>> returns [T](/docs#wild-card-notation)*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/WithLatestFrom.mon  "Source")
+
+Every time a value is received, take the latest values from the `other` observables and produce an output by running the `combiner`.
+
+Note: The `combiner` takes the `values` in the same order as the observables are defined (starting with the main source observable).
+
+```javascript
+action createSequenceString(sequence<any> values) returns string {
+	sequence<string> strings := new sequence<string>;
+	any value;
+	for value in values {
+		strings.append(value.valueToString());
+	}
+	return "[" + ",".join(strings) + "]";
+}
+
+Observable.interval(1.0)
+	.withLatestFrom([Observable.interval(0.1)], createSequenceString)
+	...
+
+// Output: "[0,9]","[1,19]","[2,29]"...
 ```
 
 ### Error Handling
