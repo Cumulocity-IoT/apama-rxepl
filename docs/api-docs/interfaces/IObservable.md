@@ -21,7 +21,8 @@ Thes are broken up into:
 	* [Distinct](#distinct)/[DistinctUntilChanged](#distinctuntilchanged)/[DistinctBy](#distinctby)/[DistinctByUntilChanged](#distinctbyuntilchanged)/[DistinctByField](#distinctbyfield)/[DistinctByFieldUntilChanged](#distinctbyfielduntilchanged)
 	* [Take](#take)/[First](#first)/[TakeLast](#takelast)/[Last](#last)
 	* [Skip](#skip)/[SkipLast](#skiplast)
-	* TakeUntil/TakeWhile/SkipUntil/SkipWhile
+	* [TakeUntil](#takeuntil)/[TakeWhile](#takewhile)
+	* [SkipUntil](#skipuntil)/[SkipWhile](#skipwhile)
 	* Debounce/ThrottleFirst/ThrottleLast
 	* Sample/SampleTime/SampleCount/SampleTimeOrCount
 	* ElementAt
@@ -652,6 +653,58 @@ Observable.fromValues([1,2,3,4])
 	...
 
 // Output: 1,2
+```
+
+<a name="takeuntil" href="#takeuntil">#</a> .**takeUntil**(*`trigger:` [IObservable](#iobservable-)*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/TakeUntil.mon  "Source")
+
+Take values until the `trigger` receives a value.
+```javascript
+Observable.interval(0.1) // Emits an incrementing integer every 100 millis
+	.takeUntil(Observable.interval(1.0))
+	...
+
+// Output: 0,1,2,3,4,5,6,7,8,9
+```
+
+<a name="takewhile" href="#takewhile">#</a> .**takeWhile**(*`predicate:` action<`value:` [T](/docs#wild-card-notation)> returns boolean*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/TakeWhile.mon  "Source")
+
+Take until the `predicate` for a received `value` returns false.
+```javascript
+action isLessThan3(integer value) returns boolean {
+	return values < 3;
+}
+
+Observable.fromValues([0,1,2,3,4]) // Emits an incrementing integer every 100 millis
+	.takeWhile(isLessThan3)
+	...
+
+// Output: 0,1,2
+```
+
+<a name="skipuntil" href="#skipuntil">#</a> .**skipUntil**(*`trigger:` [IObservable](#iobservable-)*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/SkipUntil.mon  "Source")
+
+Skip values until the `trigger` receives a value.
+```javascript
+Observable.interval(0.1) // Emits an incrementing integer every 100 millis
+	.skipUntil(Observable.interval(1.0))
+	...
+
+// Output: 10,11,12,13...
+```
+
+<a name="skipwhile" href="#skipwhile">#</a> .**skipWhile**(*`predicate:` action<`value:` [T](/docs#wild-card-notation)> returns boolean*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/SkipWhile.mon  "Source")
+
+Skip until the `predicate` for a received `value` returns false.
+```javascript
+action isLessThan3(integer value) returns boolean {
+	return values < 3;
+}
+
+Observable.fromValues([0,1,2,3,4]) // Emits an incrementing integer every 100 millis
+	.skipWhile(isLessThan3)
+	...
+
+// Output: 3,4
 ```
 
 ### Combiners
