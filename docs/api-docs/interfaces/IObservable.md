@@ -23,9 +23,9 @@ Thes are broken up into:
 	* [Skip](#skip)/[SkipLast](#skiplast)
 	* [TakeUntil](#takeuntil)/[TakeWhile](#takewhile)
 	* [SkipUntil](#skipuntil)/[SkipWhile](#skipwhile)
-	* Debounce/ThrottleFirst/ThrottleLast
-	* Sample/SampleTime/SampleCount/SampleTimeOrCount
-	* ElementAt
+	* [Debounce](#debounce)/[ThrottleFirst](#throttlefirst)/[ThrottleLast](#throttlelast)
+	* [Sample](#sample)/[SampleTime](#sampletime)/[SampleCount](#samplecount)/[SampleTimeOrCount](sampletimeorcount)
+	* [ElementAt](#elementat)
 * [Combiners](#combiners)
 	* Merge/MergeAll
 	* WithLatestFrom/WithLatestFromToSequence
@@ -705,6 +705,129 @@ Observable.fromValues([0,1,2,3,4]) // Emits an incrementing integer every 100 mi
 	...
 
 // Output: 3,4
+```
+
+<a name="debounce" href="#debounce">#</a> .**debounce**(*`seconds:` float*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Debounce.mon  "Source")
+
+Only emit values after there has been a t `seconds` gap between values.
+
+Note: If there is never a t `seconds` gap in the data then a value will not be emitted.
+
+```javascript
+action source(IResolver resolver) {
+	on wait(0.0) { resolver.next(0); }
+	on wait(0.1) { resolver.next(1); }
+	on wait(0.2) { resolver.next(2); }
+	on wait(1.3) { resolver.next(3); }
+	on wait(1.4) { resolver.next(4); }
+	on wait(3.0) { resolver.complete(); }
+}
+
+Observable.create(source)
+	.debounce(1.0)
+	...
+
+// Output: 2,4
+```
+
+<a name="throttlefirst" href="#throttlefirst">#</a> .**throttleFirst**(*`seconds:` float*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/ThrottleFirst.mon  "Source")
+
+When a value arrives emit it but then don't emit any more until t `seconds` have elapsed.
+
+Note: the time windows starts when a value is received, and restarts when a value is received after the time has elapsed.
+
+```javascript
+action source(IResolver resolver) {
+	on wait(0.0) { resolver.next(0); }
+	on wait(0.1) { resolver.next(1); }
+	on wait(0.2) { resolver.next(2); }
+	on wait(1.3) { resolver.next(3); }
+	on wait(1.4) { resolver.next(4); }
+	on wait(3.0) { resolver.complete(); }
+}
+
+Observable.create(source)
+	.throttleFirst(1.0)
+	...
+
+// Output: 0, 3
+```
+
+<a name="throttlelast" href="#throttlelast">#</a> .**throttleLast**(*`seconds:` float*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/ThrottleLast.mon  "Source")
+
+When a value arrives start throttling (without sending a value). After t `seconds` have elapsed emit the last value received in the throttling period.
+
+Note: the time windows starts when a value is received, and restarts when a value is received after the time has elapsed.
+
+```javascript
+action source(IResolver resolver) {
+	on wait(0.0) { resolver.next(0); }
+	on wait(0.1) { resolver.next(1); }
+	on wait(0.2) { resolver.next(2); }
+	on wait(1.3) { resolver.next(3); }
+	on wait(1.4) { resolver.next(4); }
+	on wait(3.0) { resolver.complete(); }
+}
+
+Observable.create(source)
+	.throttleLast(1.0)
+	...
+
+// Output: 2, 4
+```
+
+<a name="sample" href="#sample">#</a> .**sample**(*`trigger:` [IObservable](#iobservable-)*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Sample.mon  "Source")
+
+Take the most recently received value whenever the `trigger` fires.
+
+```javascript
+Observable.interval(0.1) // Emits an incrementing integer every 100 millis
+	.sample(Observable.interval(1.0))
+	...
+
+// Output: 9,19,29
+```
+
+<a name="sampletime" href="#sampletime">#</a> .**sampleTime**(*`seconds:` float*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Sample.mon  "Source")
+
+Take the most recently received value every t `seconds`.
+
+```javascript
+Observable.interval(0.1) // Emits an incrementing integer every 100 millis
+	.sample(1.0)
+	...
+
+// Output: 9,19,29
+```
+
+<a name="samplecount" href="#samplecount">#</a> .**sampleCount**(*`count:` integer*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Sample.mon  "Source")
+
+Take only every `count` value.
+
+```javascript
+Observable.fromValues([0,1,2,3,4,5])
+	.sampleCount(2)
+	...
+
+// Output: 1,3,5
+```
+
+<a name="sampletimeorcount" href="#sampletimeorcount">#</a> .**sampleTimeOrCount**(*`seconds:` float, `count:` integer*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Sample.mon  "Source")
+
+Take a value whenever t `seconds` or `count` values have been received (Whichever comes first).
+
+Note: The timer is reset after a value is emitted.
+
+<a name="elementat" href="#elementat">#</a> .**elementAt**(*`index:` integer*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/ElementAt.mon  "Source")
+
+Take only the n'th `index` element.
+
+```javascript
+Observable.fromValues([0,1,2,3])
+	.elementAt(2)
+	...
+
+// Output: 2
 ```
 
 ### Combiners
