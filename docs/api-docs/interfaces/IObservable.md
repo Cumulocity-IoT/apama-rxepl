@@ -5,7 +5,7 @@ IObservable is the interface returned by most RxEPL operators.
 Unless otherwise stated all methods on this interface return an IObservable, this provides [Method Chaining](https://en.wikipedia.org/wiki/Method_chaining).
 
 ## Methods
-Thes are broken up into:
+These are broken up into:
 * [Transforms](#transforms)
 	* [Map](#map)
 	* [FlatMap](#flatmap)
@@ -27,7 +27,7 @@ Thes are broken up into:
 	* [Sample](#sample)/[SampleTime](#sampletime)/[SampleCount](#samplecount)/[SampleTimeOrCount](sampletimeorcount)
 	* [ElementAt](#elementat)
 * [Combiners](#combiners)
-	* Merge/MergeAll
+	* [Merge](#merge)/[MergeAll](#mergeall)
 	* WithLatestFrom/WithLatestFromToSequence
 	* CombineLatest/CombineLatestToSequence
 	* Zip/ZipToSequence
@@ -831,6 +831,29 @@ Observable.fromValues([0,1,2,3])
 ```
 
 ### Combiners
+<a name="merge" href="#merge">#</a> .**merge**(*`sources:` sequence<[IObservable](#iobservable-)<[T](/docs#wild-card-notation)>>*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Merge.mon  "Source")
+
+Merge the outputs of all of the provided observables.
+
+```javascript
+Observable.interval(0.1)
+	.merge([Observable.interval(0.1)])
+	...
+
+// Output: 0,0,1,1,2,2,3,3...
+```
+<a name="mergeall" href="#mergeall">#</a> .**mergeAll**() returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Merge.mon  "Source")
+
+Removes a layer of nesting from observables. Received values which are  [IObservable](#iobservable-)s are merged into the output. Received values which are sequences/dictionaries have their values merged into the output.
+
+```javascript
+Observable.fromValues([Observable.interval(0.1), [1,2,3]])
+	.mergeAll()
+	...
+
+// Output: 1,2,3,0,1,2,3,4...
+```
+
 ### Error Handling
 <a name="catcherror" href="#catcherror">#</a> .**catchError**(*`substitute:`  [IObservable](#iobservable-)<[T](/docs#wild-card-notation)>*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/CatchError.mon  "Source")
 
