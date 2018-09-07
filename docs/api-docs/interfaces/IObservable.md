@@ -41,7 +41,7 @@ These are broken up into:
 	* [Do](#do)
 	* [Delay](#delay)/[Async](#async)
 	* [ObserveOn](#observeon)/[ObserveOnNew](#observeonnew)
-	* ToChannel/ToStream
+	* [ToChannel](#tochannel)/[ToStream](#tostream)
 	* Timestamp/UpdateTimestamp
 	* TimeInterval
 	* Let/Pipe/PipeOn/PipeOnNew
@@ -1202,6 +1202,36 @@ action doOnDifferentContext(IObservable source, action<> dispose) {
 
 IDisposable d := Observable.fromValues([1,2,3,4])
 	.observeOn(doOnDifferentContext, context("Context2"));
+```
+
+<a name="tochannel" href="#tochannel">#</a> .**toChannel**(*`channelName:` string*) returns [IDisposable](./IDisposable) [<>](/src/rx/operators/ToChannel.mon  "Source")
+
+Send every value to a channel. Primitive values are wrapped inside a [WrappedAny](../WrappedAny) so that they can be sent.
+
+The resulting [IDisposable](./IDisposable) can be used to manually terminate the observable.
+
+Note: Errors are thrown when received, completion causes the observable to terminate.
+
+```javascript
+IDisposable d := Observable.fromValue([1,2,3,E(4)])
+	.toChannel("OutputChannel")
+
+// Output on "OutputChannel": WrappedAny(1),WrappedAny(2),WrappedAny(3),E(4)
+```
+
+<a name="tostream" href="#tostream">#</a> .**toStream**() returns [DisposableStream](../DisposableStream)\<any> [<>](/src/rx/operators/ToStream.mon  "Source")
+
+Output every value into a stream.
+
+The resulting [DisposableStream](../DisposableStream) **should** be used to manually terminate the stream (rather than the normal `.quit()`), the stream will automatically terminate if the source completes.
+ 
+```javascript
+DisposableStream d := Observable.fromValues([1,2,3,4])
+	.toStream();
+
+stream<any> strm := d.getStream();
+
+d.dispose(); // Use instead of strm.quit();
 ```
 
 ### Conditional
