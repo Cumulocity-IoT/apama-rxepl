@@ -28,11 +28,11 @@ These are broken up into:
 	* [ElementAt](#elementat)
 * [Combiners](#combiners)
 	* [Merge](#merge)/[MergeAll](#mergeall)
-	* [WithLatestFrom](#withlatestfrom)/WithLatestFromToSequence
-	* CombineLatest/CombineLatestToSequence
-	* Zip/ZipToSequence
-	* Concat/StartWith
-	* SwitchMap/SwitchOnNext
+	* [WithLatestFrom](#withlatestfrom)/[WithLatestFromToSequence](#withlatestfromtosequence)
+	* [CombineLatest](#combinelatest)/[CombineLatestToSequence](#combinelatesttosequence)
+	* [Zip](#zip)/[ZipToSequence](#ziptosequence)
+	* [Concat](#concat)/[StartWith](#startwith)
+	* [SwitchMap](#switchmap)/[SwitchOnNext](#switchonnext)
 * [Error Handling](#error-handling)
 	* [CatchError](#catcherror)
 	* [Retry](#retry)
@@ -854,14 +854,14 @@ Observable.fromValues([Observable.interval(0.1), [1,2,3]])
 // Output: 1,2,3,0,1,2,3,4...
 ```
 
-<a name="withlatestfrom" href="#withlatestfrom">#</a> .**withLatestFrom**(*`other:` sequence<[IObservable](#iobservable-)\<any>>, `combiner:` action\<`values:` sequence\<any>> returns [T](/docs#wild-card-notation)*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/WithLatestFrom.mon  "Source")
+<a name="withlatestfrom" href="#withlatestfrom">#</a> .**withLatestFrom**(*`other:` sequence<[IObservable](#iobservable-)\<any>>, `combiner:` action\<`values:` sequence\<any>> returns any*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/WithLatestFrom.mon  "Source")
 
 Every time a value is received, take the latest values from the `other` observables and produce an output by running the `combiner`.
 
 Note: The `combiner` takes the `values` in the same order as the observables are defined (starting with the main source observable).
 
 ```javascript
-action createSequenceString(sequence<any> values) returns string {
+action createSequenceString(sequence<any> values) returns any {
 	sequence<string> strings := new sequence<string>;
 	any value;
 	for value in values {
@@ -875,6 +875,166 @@ Observable.interval(1.0)
 	...
 
 // Output: "[0,9]","[1,19]","[2,29]"...
+```
+
+<a name="withlatestfromtosequence" href="#withlatestfromtosequence">#</a> .**withLatestFromToSequence**(*`other:` sequence<[IObservable](#iobservable-)\<any>>*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/WithLatestFrom.mon  "Source")
+
+Every time a value is received, take the latest values from the `other` observables and produce a sequence\<any> containing the values from all.
+
+Note: The resulting sequence contains the `values` in the same order as the observables are defined (starting with the main source observable).
+
+```javascript
+Observable.interval(1.0)
+	.withLatestFrom([Observable.interval(0.1)])
+	...
+
+// Output: [0,9], [1,19], [2,29]...
+```
+
+<a name="combinelatest" href="#combinelatest">#</a> .**combineLatest**(*`other:` sequence<[IObservable](#iobservable-)\<any>>, `combiner:` action\<`values:` sequence\<any>> returns any*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/CombineLatest.mon  "Source")
+
+Every time a value is received, from either the source or the `other` observables, produce an output by running the `combiner`.
+
+Note: The `combiner` takes the `values` in the same order as the observables are defined (starting with the main source observable).
+
+```javascript
+action createSequenceString(sequence<any> values) returns any {
+	sequence<string> strings := new sequence<string>;
+	any value;
+	for value in values {
+		strings.append(value.valueToString());
+	}
+	return "[" + ",".join(strings) + "]";
+}
+
+Observable.interval(1.0)
+	.combineLatest([Observable.interval(0.5)], createSequenceString)
+	...
+
+// Output: "[0,0]","[0,1]","[0,2]","[1,2]","[1,3]","[1,4]","[2,4]"...
+```
+
+<a name="combinelatesttosequence" href="#combinelatesttosequence">#</a> .**combineLatestToSequence**(*`other:` sequence<[IObservable](#iobservable-)\<any>>*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/CombineLatest.mon  "Source")
+
+Every time a value is received, from either the source or the `other` observables, produce a sequence\<any> containing the values from all.
+
+Note: The resulting sequence contains the `values` in the same order as the observables are defined (starting with the main source observable).
+
+```javascript
+Observable.interval(1.0)
+	.combineLatestToSequence([Observable.interval(0.1)], createSequenceString)
+	...
+
+// Output: [0,0],[0,1],[0,2],[1,2],[1,3],[1,4],[2,4]...
+```
+
+<a name="zip" href="#zip">#</a> .**zip**(*`other:` sequence<[IObservable](#iobservable-)\<any>>, `combiner:` action\<`values:` sequence\<any>> returns any*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Zip.mon  "Source")
+
+Combine multiple observables by taking the n'th value from every observable, producing an output by running the `combiner`.
+
+I.e. The first output is the result from the combiner running on the first value from every source.
+
+Note: The `combiner` takes the `values` in the same order as the observables are defined (starting with the main source observable).
+
+Note2: The result is terminated when any of the sources run out of values, but only after the output for those values has been generated.
+
+Note3: This requires storing values until their counterpart in another observable is found, this could be expensive with long running observables.
+
+```javascript
+action createSequenceString(sequence<any> values) returns any {
+	sequence<string> strings := new sequence<string>;
+	any value;
+	for value in values {
+		strings.append(value.valueToString());
+	}
+	return "[" + ",".join(strings) + "]";
+}
+
+Observable.interval(1.0)
+	.zip([Observable.interval(0.5), Observable.fromValues(["a","b","c"])], createSequenceString)
+	...
+
+// Output: "[0,0,a]","[1,1,b]","[2,2,c]"
+```
+
+<a name="ziptosequence" href="#ziptosequence">#</a> .**zipToSequence**(*`other:` sequence<[IObservable](#iobservable-)\<any>>*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Zip.mon  "Source")
+
+Combine multiple observables by taking the n'th value from every observable, producing a sequence\<any> containing all of the n'th values.
+
+I.e. The first output is a sequence\<any> containing the first value from every source.
+
+Note: The output sequence\<any> contains the values in the same order as the observables are defined (starting with the main source observable).
+
+Note2: The result is terminated when any of the sources run out of values, but only after the output for those values has been generated.
+
+Note3: This requires storing values until their counterpart in another observable is found, this could be expensive with long running observables.
+
+```javascript
+Observable.interval(1.0)
+	.zipToSequence([Observable.interval(0.5), Observable.fromValues(["a","b","c"])])
+	...
+
+// Output: [0,0,a],[1,1,b],[2,2,c]
+```
+
+<a name="concat" href="#concat">#</a> .**concat**(*`other:` sequence<[IObservable](#iobservable-)\<any>>*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Concat.mon  "Source")
+
+After the current observable completes, instead of completing, connect to the next source observable. This repeats until all sources have completed.
+
+Note: This will potentially miss values if the `other` observables are "hot" (Miss values when not connected. Eg. Values from a channel or stream).
+
+```javascript
+Observable.fromValues([1,2,3])
+	.concat([Observable.fromValues([4,5,6])])
+	...
+
+// Output: 1,2,3,4,5,6
+```
+
+<a name="startwith" href="#startwith">#</a> .**startWith**(*`startingValues:` sequence\<any>*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/StartWith.mon  "Source")
+
+Start the current observable with the values provided.
+
+```javascript
+Observable.fromValues([1,2,3])
+	.startWith([<any>4,5,6])
+	...
+
+// Output: 4,5,6,1,2,3
+```
+
+<a name="switchmap" href="#switchmap">#</a> .**switchMap**(*`mapper:` action<[T1](/docs#wild-card-notation)> returns [IObservable](#iobservable-)<[T2](/docs#wild-card-notation)>*) returns [IObservable](#iobservable-)<[T2](/docs#wild-card-notation)> [<>](/src/rx/operators/SwitchMap.mon  "Source")
+
+Run a mapping function on every value, the result of which is an [IObservable](#iobservable-). This observable will be the source of output values until the next observable is provided by the mapping function.
+
+Note: This will complete after the last produced observable completes.
+
+```javascript
+action toRange0ToN(integer n) returns IObservable {
+	return Observable.range(0, n);
+}
+
+Observable.fromValues([1,2,3,4])
+	.switchMap(toRange0ToN)
+	...
+
+// Output: 0,1,0,1,2,0,1,2,3,0,1,2,3,4
+```
+
+<a name="switchonnext" href="#switchonnext">#</a> .**switchOnNext**() returns [IObservable](#iobservable-)\<any> [<>](/src/rx/operators/SwitchMap.mon  "Source")
+
+Takes every provided observable and connects to it until another is received, at which point it switches to the new one.
+
+The source must be an [IObservable](#iobservable-)<[IObservable](#iobservable-)\<any>>. 
+
+Note: This will complete after the last produced observable completes.
+
+```javascript
+Observable.fromValues([Observable.range(0,3),Observable.range(4,6)])
+	.switchOnNext()
+	...
+
+// Output: 0,1,2,3,4,5,6
 ```
 
 ### Error Handling
