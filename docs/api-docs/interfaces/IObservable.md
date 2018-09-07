@@ -42,7 +42,7 @@ These are broken up into:
 	* [Delay](#delay)/[Async](#async)
 	* [ObserveOn](#observeon)/[ObserveOnNew](#observeonnew)
 	* [ToChannel](#tochannel)/[ToStream](#tostream)
-	* Timestamp/UpdateTimestamp
+	* [Timestamp](#timestamp)/[UpdateTimestamp](#updatetimestamp)
 	* TimeInterval
 	* Let/Pipe/PipeOn/PipeOnNew
 	* ComplexPipe/ComplexPipeOn/ComplexPipeOnNew
@@ -1233,6 +1233,37 @@ stream<any> strm := d.getStream();
 
 d.dispose(); // Use instead of strm.quit();
 ```
+
+<a name="timestamp" href="#timestamp">#</a> .**timestamp**() returns [IObservable](#iobservable-)<[TimestampedValue](../TimestampValue)\<[T](/docs#wild-card-notation)>> [<>](/src/rx/operators/Timestamp.mon  "Source")
+
+Give every value a timestamp as it arrives at the operator.
+
+Note: Uses `currentTime` which, by default, has only 100 millisecond precision.
+
+```javascript
+Observable.interval(1.0)
+	.timestamp()
+	...
+
+// Output: TimestampedValue(0, 1.0), TimestampedValue(1, 2.0), TimestampedValue(2, 3.0)... 
+```
+
+<a name="updatetimestamp" href="#updatetimestamp">#</a> .**updateTimestamp**() returns [IObservable](#iobservable-)<[TimestampedValue](../TimestampValue)\<[T](/docs#wild-card-notation)>> [<>](/src/rx/operators/Timestamp.mon  "Source")
+
+Update the timestamp on every item as it arrives at the operator.
+
+Note: Uses `currentTime` which, by default, has only 100 millisecond precision.
+
+```javascript
+Observable.interval(1.0)
+	.timestamp()
+	.delay(1.0)
+	.updateTimestamp()
+	...
+
+// Output: TimestampedValue(0, 2.0), TimestampedValue(1, 3.0), TimestampedValue(2, 4.0)... 
+```
+
 
 ### Conditional
 ### Math and Aggregation
