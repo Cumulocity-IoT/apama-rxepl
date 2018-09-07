@@ -1099,7 +1099,7 @@ Observable.fromValues([1,2,3])
 // Output: 1,2,3,Done!
 ```
 
-<a name="subscribeon" href="#subscribeon">#</a> .**subscribeOn**(*[Subscriber](../Subscriber),  context*) returns [IS](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Subscribe.mon  "Source")
+<a name="subscribeon" href="#subscribeon">#</a> .**subscribeOn**(*[Subscriber](../Subscriber),  context*) returns [IS](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Subscribe.mon  "Source")<br/>
 <a name="subscribeonnew" href="#subscribeonnew">#</a> .**subscribeOnNew**(*[Subscriber](../Subscriber)*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Subscribe.mon  "Source")
 
 Connect to the source observable on a different context, and register listeners for values, errors and completion.
@@ -1181,7 +1181,7 @@ Observable.fromValues([1,2,3])
 // Output (Async): 1,2,3
 ```
 
-<a name="observeon" href="#observeon">#</a> .**observeOn**(*action\<`source:` [IObservable](#iobservable-), `dispose:` action\<>> ,  context*) returns [IDisposable](./IDisposable) [<>](/src/rx/operators/ObserveOn.mon  "Source")
+<a name="observeon" href="#observeon">#</a> .**observeOn**(*action\<`source:` [IObservable](#iobservable-), `dispose:` action\<>> ,  context*) returns [IDisposable](./IDisposable) [<>](/src/rx/operators/ObserveOn.mon  "Source")<br/>
 <a name="observeonnew" href="#observeonnew">#</a> .**observeOnNew**(*action\<`source:` [IObservable](#iobservable-), `dispose:` action\<>>*) returns [IDisposable](./IDisposable) [<>](/src/rx/operators/ObserveOn.mon  "Source")
 
 Continue processing the observable on a different context.
