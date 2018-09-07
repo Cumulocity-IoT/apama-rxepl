@@ -37,10 +37,10 @@ These are broken up into:
 	* [CatchError](#catcherror)
 	* [Retry](#retry)
 * [Utils](#utils)
-	* Do
-	* Delay/Async
-	* ObserveOn/ObserveOnNew
-	* Subscribe/SubscribeOn/SubscribeOnNew
+	* [Subscribe](#subscribe)/[SubscribeOn](#subscribeon)/[SubscribeOnNew](#subscribeonnew)
+	* [Do](#do)
+	* [Delay](#delay)/[Async](#async)
+	* [ObserveOn](#observeon)/[ObserveOnNew](#observeonnew)
 	* ToChannel/ToStream
 	* Timestamp/UpdateTimestamp
 	* TimeInterval
@@ -1077,5 +1077,132 @@ Observable.fromValues([1,2,3,4])
 ```
  
 ### Utils
+<a name="subscribe" href="#subscribe">#</a> .**subscribe**(*[Subscriber](../Subscriber)*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Subscribe.mon  "Source")
+
+Connect to the source observable, and register listeners for values, errors and completion.
+```javascript
+action logValue(any value) {
+	log value.valueToString();
+}
+
+action logError(com.apama.exceptions.Exception e) {
+	log e.toString();
+}
+
+action logComplete() {
+	log "Done!";
+}
+
+Observable.fromValues([1,2,3])
+	.subscribe(Subscriber.create().onNext(logValue).onError(logError).onComplete(logComplete));
+
+// Output: 1,2,3,Done!
+```
+
+<a name="subscribeon" href="#subscribeon">#</a> .**subscribeOn**(*[Subscriber](../Subscriber),  context*) returns [IS](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Subscribe.mon  "Source")
+<a name="subscribeonnew" href="#subscribeonnew">#</a> .**subscribeOnNew**(*[Subscriber](../Subscriber)*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Subscribe.mon  "Source")
+
+Connect to the source observable on a different context, and register listeners for values, errors and completion.
+
+**Important Note:** This will not recommended for complicated observables! Instead create the observable on a spawned context, or use [ObserveOn](#observeon).
+
+```javascript
+action logValue(any value) {
+	log value.valueToString();
+}
+
+action logComplete() {
+	log "Done!";
+}
+
+Observable.fromValues([1,2,3])
+	.subscribeOn(Subscriber.create().onNext(logValue).onComplete(logComplete), context("Context2"));
+
+// Output (on Context2): 1,2,3,Done!
+```
+**A better alternative:**
+```javascript
+action createAndRunObservable() {
+	ISubscription s := Observable.fromValues([1,2,3])
+		.subscribe(Subscriber.create().onNext(logValue).onComplete(logComplete))
+}
+
+spawn createAndRunObservable() to context("Context2");
+```
+
+<a name="do" href="#do">#</a> .**do**(*[Subscriber](../Subscriber)*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Do.mon  "Source")
+
+Snoops the output of an observable (at the point where the do is added), registering listeners for values, errors and completion, without subscribing to the observable.
+
+This is very useful for debugging.
+
+```javascript
+action logValue(integer value) {
+	log value.toString();
+}
+
+action logDone() {
+	log "Done!";
+}
+
+Observable.fromValues([1,2,3,4])
+	.do(Subscriber.create().onNext(logValue).onComplete(logDone))
+	...
+
+// Do Output: 1,2,3,4,Done!
+// Output: 1,2,3,4
+```
+
+See also: [Subscribe](#subscribe)
+
+<a name="delay" href="#delay">#</a> .**delay**(*`seconds:`float*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Delay.mon  "Source")
+
+Delays values and completion by a number of `seconds`.
+
+Note: This will also make every value asynchronous.
+
+```javascript
+Observable.fromValues([1,2,3])
+	.delay(1.0)
+	...
+
+// Output (after 1 second): 1,2,3
+```
+
+<a name="async" href="#async">#</a> .**async**() returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Delay.mon  "Source")
+
+Make every value asynchronous.
+
+```javascript
+Observable.fromValues([1,2,3])
+	.async()
+	...
+
+// Output (Async): 1,2,3
+```
+
+<a name="observeon" href="#observeon">#</a> .**observeOn**(*action\<`source:` [IObservable](#iobservable-), `dispose:` action\<>> ,  context*) returns [IDisposable](./IDisposable) [<>](/src/rx/operators/ObserveOn.mon  "Source")
+<a name="observeonnew" href="#observeonnew">#</a> .**observeOnNew**(*action\<`source:` [IObservable](#iobservable-), `dispose:` action\<>>*) returns [IDisposable](./IDisposable) [<>](/src/rx/operators/ObserveOn.mon  "Source")
+
+Continue processing the observable on a different context.
+
+The `dispose` action terminates terminates the cross-context communication. The cross-context communication can be terminated from either side by calling either the provided `dispose` action or by calling the `.dispose()` method of the returned [IDisposable](./IDisposable). 
+
+**Important Note:** It is important to terminate the cross-context communication to avoid a memory leak.
+
+```javascript
+action doOnDifferentContext(IObservable source, action<> dispose) {
+	ISubscription s := source
+		.map(...)
+		.reduce(...)
+		.subscribe(...);
+	
+	s.onUnsubscribe(dispose); // We'll never reconnect so, to avoid a memory leak, we notify the original source of the data that we are done
+}
+
+IDisposable d := Observable.fromValues([1,2,3,4])
+	.observeOn(doOnDifferentContext, context("Context2"));
+```
+
 ### Conditional
 ### Math and Aggregation
