@@ -1,4 +1,5 @@
 
+
 # IObservable [<>](/src/rx/interfaces/IObservable.mon)
 
 IObservable is the interface returned by most RxEPL operators. 
@@ -43,17 +44,17 @@ These are broken up into:
 	* [ObserveOn](#observeon)/[ObserveOnNew](#observeonnew)
 	* [ToChannel](#tochannel)/[ToStream](#tostream)
 	* [Timestamp](#timestamp)/[UpdateTimestamp](#updatetimestamp)
-	* TimeInterval
-	* Let/Pipe/PipeOn/PipeOnNew
-	* ComplexPipe/ComplexPipeOn/ComplexPipeOnNew
-	* Decouple
-	* GetSync/GetSyncOr
-	* Repeat
-	* Publish/PublishReplay
-	* Connect/RefCount
-	* Share/ShareReplay
-	* ObserveToChannel
-	* IgnoreElements
+	* [TimeInterval](#timeinterval)
+	* [Let](#let)/[Pipe](#pipe)/[PipeOn](#pipeon)/[PipeOnNew](#pipeonnew)
+	* [ComplexPipe](#complexpipe)/[ComplexPipeOn](#complexpipeon)/[ComplexPipeOnNew](#complexpipeonnew)
+	* [Decouple](#decouple)
+	* [GetSync](#getsync)/[GetSyncOr](#getsyncor)
+	* [Repeat](#repeat)
+	* [Publish](#publish)/[PublishReplay](#publishreplay)
+	* [Connect](#connect)/[RefCount](#refcount)
+	* [Share](#share)/[ShareReplay](#sharereplay)
+	* [ObserveToChannel](#observetochannel)
+	* [IgnoreElements](#ignoreelements)
 * [Conditional](#conditional)
 	* Contains/Every
 	* SequenceEqual
@@ -1181,12 +1182,12 @@ Observable.fromValues([1,2,3])
 // Output (Async): 1,2,3
 ```
 
-<a name="observeon" href="#observeon">#</a> .**observeOn**(*action\<`source:` [IObservable](#iobservable-), `dispose:` action\<>> ,  context*) returns [IDisposable](./IDisposable) [<>](/src/rx/operators/ObserveOn.mon  "Source")<br/>
-<a name="observeonnew" href="#observeonnew">#</a> .**observeOnNew**(*action\<`source:` [IObservable](#iobservable-), `dispose:` action\<>>*) returns [IDisposable](./IDisposable) [<>](/src/rx/operators/ObserveOn.mon  "Source")
+<a name="observeon" href="#observeon">#</a> .**observeOn**(*action\<`source:` [IObservable](#iobservable-), `dispose:` action\<>> ,  context*) returns [IDisposable](./IDisposable.md) [<>](/src/rx/operators/ObserveOn.mon  "Source")<br/>
+<a name="observeonnew" href="#observeonnew">#</a> .**observeOnNew**(*action\<`source:` [IObservable](#iobservable-), `dispose:` action\<>>*) returns [IDisposable](./IDisposable.md) [<>](/src/rx/operators/ObserveOn.mon  "Source")
 
 Continue processing the observable on a different context.
 
-The `dispose` action terminates terminates the cross-context communication. The cross-context communication can be terminated from either side by calling either the provided `dispose` action or by calling the `.dispose()` method of the returned [IDisposable](./IDisposable). 
+The `dispose` action terminates terminates the cross-context communication. The cross-context communication can be terminated from either side by calling either the provided `dispose` action or by calling the `.dispose()` method of the returned [IDisposable](./IDisposable.md). 
 
 **Important Note:** It is important to terminate the cross-context communication to avoid a memory leak.
 
@@ -1204,11 +1205,11 @@ IDisposable d := Observable.fromValues([1,2,3,4])
 	.observeOn(doOnDifferentContext, context("Context2"));
 ```
 
-<a name="tochannel" href="#tochannel">#</a> .**toChannel**(*`channelName:` string*) returns [IDisposable](./IDisposable) [<>](/src/rx/operators/ToChannel.mon  "Source")
+<a name="tochannel" href="#tochannel">#</a> .**toChannel**(*`channelName:` string*) returns [IDisposable](./IDisposable.md) [<>](/src/rx/operators/ToChannel.mon  "Source")
 
 Send every value to a channel. Primitive values are wrapped inside a [WrappedAny](../WrappedAny) so that they can be sent.
 
-The resulting [IDisposable](./IDisposable) can be used to manually terminate the observable.
+The resulting [IDisposable](./IDisposable.md) can be used to manually terminate the observable.
 
 Note: Errors are thrown when received, completion causes the observable to terminate.
 
@@ -1252,8 +1253,9 @@ Observable.interval(1.0)
 
 Update the timestamp on every item as it arrives at the operator.
 
-Note: Uses `currentTime` which, by default, has only 100 millisecond precision.
+Un-timestamped values will be timestamped.
 
+Note: Uses `currentTime` which, by default, has only 100 millisecond precision.
 ```javascript
 Observable.interval(1.0)
 	.timestamp()
@@ -1264,6 +1266,265 @@ Observable.interval(1.0)
 // Output: TimestampedValue(0, 2.0), TimestampedValue(1, 3.0), TimestampedValue(2, 4.0)... 
 ```
 
+<a name="timeinterval" href="#timeinterval">#</a> .**timeInterval**() returns [IObservable](#iobservable-)\<float> [<>](/src/rx/operators/TimeInterval.mon  "Source")
+
+Emit the time between events, as a float. Emitting the time between subscription and receiving the value for the first value.
+
+Note: Uses `currentTime` which, by default, has only 100 millisecond precision.
+
+```javascript
+Observable.interval(1.0)
+	.timeInterval()
+	...
+
+// Output: 1.0, 1.0, 1.0...
+```
+
+<a name="let" href="#let">#</a> .**let**(*`operator:` Pipeable*) returns [IObservable](#iobservable-)\<any> [<>](/src/rx/operators/Pipe.mon  "Source")
+
+Add a single operator to the observable. Can be used by extension libraries or for custom operators.
+
+Note: Pipeable = `action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription`
+
+```javascript
+using com.industry.rx_epl.operators.Sum;
+
+Observable.fromValues([1,2,3,4])
+	.let(Sum.create())
+	...
+
+// Output: 10
+```
+
+<a name="pipe" href="#pipe">#</a> .**pipe**(*`operators:` sequence\<Pipeable>*) returns [IObservable](#iobservable-)\<any> [<>](/src/rx/operators/Pipe.mon  "Source")
+
+Add a multiple operators to the observable. Can be used by extension libraries or for custom operators.
+
+Note: Pipeable = `action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription`
+
+```javascript
+using com.industry.rx_epl.operators.Map;
+using com.industry.rx_epl.operators.Sum;
+
+action multiplyBy10(integer value) returns integer {
+	return value * 10;
+}
+
+Observable.fromValues([1,2,3,4])
+	.pipe([Map.create(multiplyBy10), Sum.create()])
+	...
+
+// Output: 100
+```
+<a name="pipeon" href="#pipeon">#</a> .**pipeOn**(*`operators:` sequence\<Pipeable>, context*) returns [IObservable](#iobservable-)\<any> [<>](/src/rx/operators/PipeOn.mon  "Source")<br/>
+<a name="pipeonnew" href="#pipeonnew">#</a> .**pipeOnNew**(*`operators:` sequence\<Pipeable>*) returns [IObservable](#iobservable-)\<any> [<>](/src/rx/operators/PipeOn.mon  "Source")
+
+Add a multiple operators to the observable and run those operators on a different context. Useful to allow slow operators to run without blocking the main thread. The results are returned to the original context.
+
+Note: Pipeable = `action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription`
+
+```javascript
+using com.industry.rx_epl.operators.Map;
+using com.industry.rx_epl.operators.Sum;
+
+action multiplyBy10(integer value) returns integer {
+	return value * 10;
+}
+
+Observable.fromValues([1,2,3,4])
+	.pipeOn([Map.create(multiplyBy10), Sum.create()], context("Context2"))
+	...
+
+// Output: 100
+```
+
+See also: [ObserveOn](#observeon)
+
+<a name="complexpipe" href="#complexpipe">#</a> .**complexPipe**(*`operator:` action<[IObservable](#iobservable-)<[T1](/docs#wild-card-notation)>> returns [IObservable](#iobservable-)<[T2](/docs#wild-card-notation)>*) returns [IObservable](#iobservable-)\<[T2](/docs#wild-card-notation)> [<>](/src/rx/operators/ComplexPipe.mon  "Source")
+
+Add a series of custom operations to the observable.
+
+```javascript
+
+action customOperator(IObservable source) returns IObservable {
+	return source.withLatestFromToSequence([source.skipLast(1)]); // Similar to pairwise...
+}
+
+Observable.interval(1.0)
+	.complexPipe(customOperator)
+	...
+
+// Output: [1,0], [2,1], [3,2]
+```
+
+<a name="complexpipeon" href="#complexpipeon">#</a> .**complexPipeOn**(*`operator:` action<[IObservable](#iobservable-)<[T1](/docs#wild-card-notation)>> returns [IObservable](#iobservable-)<[T2](/docs#wild-card-notation)>, context*) returns [IObservable](#iobservable-)\<[T2](/docs#wild-card-notation)> [<>](/src/rx/operators/ComplexPipeOn.mon  "Source")<br/>
+<a name="complexpipeonnew" href="#complexpipeonnew">#</a> .**complexPipeOnNew**(*`operator:` action<[IObservable](#iobservable-)<[T1](/docs#wild-card-notation)>> returns [IObservable](#iobservable-)<[T2](/docs#wild-card-notation)>*) returns [IObservable](#iobservable-)\<[T2](/docs#wild-card-notation)> [<>](/src/rx/operators/ComplexPipeOn.mon  "Source")
+
+Add a series of custom operations to the observable and run those operations on a different context. Useful to allow slow operators to run without blocking the main thread. The results are returned to the original context.
+
+```javascript
+
+action customOperator(IObservable source) returns IObservable {
+	return source.withLatestFromToSequence([source.skipLast(1)]); // Similar to pairwise...
+}
+
+Observable.interval(1.0)
+	.complexPipeOn(customOperator, context("Context2"))
+	...
+
+// Output: [1,0], [2,1], [3,2]
+```
+
+<a name="decouple" href="#decouple">#</a> .**decouple**() returns [IObservable](#iobservable-)\<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/ComplexPipeOn.mon  "Source")
+
+Separate the resulting observable from the source observable.
+
+**Uses:** If the subscription uses [SubscribeOn](#subscribeon) but the source is a shared observable you may need to decouple to get the expected results. (See: [Gotcha](/Readme.md#gotcha-subscribe-on))
+
+**Important Note:** A similar result can be achieved with [ObserveOn](#observeon) and this is advised.
+
+<a name="getsync" href="#getsync">#</a> .**getSync**() returns any [<>](/src/rx/operators/internals/GetSync.mon "Source")
+
+Get the value from a synchronous observable. An empty any will be returned if the observable does not return a value immediately.
+
+Note: If multiple values are received then the last synchronous value will be returned.
+
+```javascript
+integer value := <integer> Observable.fromValues([1,2,3,4])
+	.sum()
+	.getSync();
+
+// value = 10
+```
+
+<a name="getsyncor" href="#getsyncor">#</a> .**getSyncOr**(*`default:` any*) returns any [<>](/src/rx/operators/internals/GetSync.mon  "Source")
+
+Get the value from a synchronous observable. The default value will be returned if the observable does not return a value immediately.
+
+Note: If multiple values are received then the last synchronous value will be returned.
+
+```javascript
+integer value := <integer> Observable.just(10)
+	.getSyncOr(3);
+	
+// value = 10
+
+integer value2 := <integer> Observable.timer(10, 1.0)
+	.getSyncOr(3);
+	
+// value2 = 3
+```
+
+<a name="repeat" href="#repeat">#</a> .**repeat**(*`count:` integer*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Repeat.mon  "Source")
+
+When the observable completes, reconnect to the source `count` times.
+
+```javascript
+Observable.fromValues([1,2,3,4])
+	.repeat(2)
+	...
+
+// Output: 1,2,3,4,1,2,3,4,1,2,3,4
+```
+
+<a name="publish" href="#publish">#</a> .**publish**() returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/internals/Publish.mon  "Source")
+
+Publish allows a single observable subscription to be shared among various other subscribers. Delaying upstream subscription until [.connect()](#connect) is called.
+
+This is explained further in the [User Guide](/Readme.md#multicasting).
+
+```javascript
+IObservable o := Observable.interval(1.0).publish();
+
+ISubscription s := o.subscribe(Subscriber.create().onNext(printValue));
+// Output (When connect is called): 0, 1, 2, 3...
+
+on wait(2.0) {
+    ISubscription s2 := o.subscribe(Subscriber.create().onNext(printValue));
+    // Output (When connect is called): 0, 1, 2, 3...
+
+    IDisposable d := o.connect();
+}
+```
+
+<a name="connect" href="#connect">#</a> .**connect**() returns [IDisposable](./IDisposable)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/internals/Publish.mon  "Source")
+
+Connect to a [published](#publish) observable, causing it to start emitting values.
+
+The returned [IDisposable](./IDisposable) can be used to disconnect, terminating the connected observables (without completion).
+
+See also: [RefCount](#refcount)
+
+<a name="publishreplay" href="#publishreplay">#</a> .**publishReplay**(*`count:` integer*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/internals/PublishReplay.mon  "Source")
+
+Similar to [Publish](#publish), except it stores up to `count` values received after [.connect()](#connect) is called, replaying the latest to any late subscriptions.
+
+```javascript
+IObservable o := Observable.interval(1.0).publishReplay(2);
+
+ISubscription s := o.subscribe(Subscriber.create().onNext(printValue));
+// Output (When connect is called): 0, 1, 2, 3...
+IDisposable d := o.connect();
+
+on wait(2.0) {
+    ISubscription s2 := o.subscribe(Subscriber.create().onNext(printValue));
+    // Output: 0, 1, 2, 3...
+    // Would have missed 0,1 if .publish() had been used
+}
+```
+
+<a name="refcount" href="#refcount">#</a> .**refCount**() returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/internals/RefCount.mon  "Source")
+
+Automatically [.connect()](#connect) and disconnect from the upstream observable after the first subscription and last unsubscription.
+
+```javascript
+IObservable o := Observable.interval(1.0).publish().refCount(); // can be replaced with .share()
+
+ISubscription s := o.subscribe(Subscriber.create().onNext(printValue));
+// Output: 0, 1, 2, 3...
+
+on wait(2.0) {
+    ISubscription s2 := o.subscribe(Subscriber.create().onNext(printValue));
+    // Output: 2, 3...
+}
+```
+
+<a name="share" href="#share">#</a> .**share**() returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/internals/Share.mon  "Source")
+
+Shorthand for [.publish()](#publish)[.refCount()](#refcount)
+
+<a name="sharereplay" href="#sharereplay">#</a> .**shareReplay**() returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/internals/ShareReplay.mon  "Source")
+
+Shorthand for [.publishReplay()](#publishreplay)[.refCount()](#refcount)
+
+<a name="observetochannel" href="#observetochannel">#</a> .**observeToChannel**(`channel:` string) returns [IDisposable](./IDisposable.md) [<>](/src/rx/operators/internals/ObserveTo.mon  "Source")
+
+ObserveToChannel and ObserveFromChannel are useful for sending data between different monitor instances which may or may not be on different contexts.
+
+Note: `.dispose()` should be called on the returned [IDisposable](./IDisposable.md) when all subscribers are finished to avoid a memory leak.
+
+```javascript
+// Ideally should dispose of this when all subscribers are finished (if ever)
+IDisposable d := Observable.interval(1.0).observeToChannel("channelName");
+
+// This could be in a different monitor
+ISubscription s := Observable.observeFromChannel("channelName")
+        .subscribe(Subscriber.create().onNext(printValue));
+        
+// Output: 0, 1, 2, 3
+```
+
+<a name="ignoreelements" href="#ignoreelements">#</a> .**ignoreElements**() returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/IgnoreElements.mon  "Source")
+
+Ignore all of the values from the source but pass on termination events (Error or Completion).
+
+```javascript
+Observable.interval(1.0).take(5)
+	.ignoreElements()
+	.subscribe(Subscriber.create().onNext(logValue).onComplete(logComplete))
+	
+// Output (5 seconds later): Complete!
+```
 
 ### Conditional
 ### Math and Aggregation
