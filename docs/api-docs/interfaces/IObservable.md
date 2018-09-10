@@ -992,6 +992,8 @@ Observable.fromValues([1,2,3])
 // Output: 1,2,3,4,5,6
 ```
 
+See also: [Repeat](#repeat)
+
 <a name="startwith" href="#startwith">#</a> .**startWith**(*`startingValues:` sequence\<any>*) returns [IObservable](#iobservable-)<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/StartWith.mon  "Source")
 
 Start the current observable with the values provided.
