@@ -75,8 +75,6 @@ Observable.fromValues([1,2,3,4)
 	* [Average](#average)/[AverageDecimal](#averagedecimal)
 
 ### Transforms
-Actions that modify values coming from the source.
-
 <a name="map" href="#map">#</a> .**map**(*action<`value:` [T1](/docs#wild-card-notation)> returns [T2](/docs#wild-card-notation)*) returns [IObservable](#iobservable-)<[T2](/docs#wild-card-notation)> [<>](/src/rx/operators/Map.mon  "Source")
 
 Apply a function to each `value` and pass on the result.
