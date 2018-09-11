@@ -42,7 +42,7 @@ In practice this is frequently used with any operators that take actions:
 .**map**(*action<`value:` [T1](#wildcard-class-notation)> returns [T2](#wildcard-class-notation)*) returns [IObservable](#iobservable-)<[T2](#wildcard-class-notation)>
 
 Here we can see that map takes an argument which is an action. The action must have 1 argument (of any type) and return a value (of any type). 
-The return type of the action determines the return type of the IObservable (just an indicator there's no runtime checking of this).
+The return type of the action determines the return type of the IObservable.
 
 As such, any action that meets the criteria is an acceptable action to use with the map operator:
 
