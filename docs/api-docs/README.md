@@ -1,5 +1,22 @@
 # API Documentation
 
+## Classes
+- Observable
+- Subscriber 
+- Subject
+- BehaviourSubject
+- ReplaySubject
+- DisposableStream
+- TimeInterval
+- TimestampedValue
+
+## Interfaces
+- [IObservable](interfaces/IObservable#iobservable-)
+- ISubject
+- ISubscription
+- IDisposable
+- IResolver
+
 ## Wildcard Class Notation
 
 In the API documentation you will see notation like:
