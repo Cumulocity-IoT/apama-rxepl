@@ -11,7 +11,7 @@
 - TimestampedValue
 
 ## Interfaces
-- [IObservable](interfaces/IObservable#iobservable-)
+- [IObservable](interfaces/IObservable.md#iobservable-)
 - ISubject
 - ISubscription
 - IDisposable
