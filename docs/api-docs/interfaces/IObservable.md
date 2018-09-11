@@ -56,17 +56,18 @@ These are broken up into:
 	* [ObserveToChannel](#observetochannel)
 	* [IgnoreElements](#ignoreelements)
 * [Conditional](#conditional)
-	* Contains/Every
-	* SequenceEqual
-	* Amb
-	* DefaultIfEmpty
+	* [Contains](#contains)/[Every](#every)
+	* [SequenceEqual](#sequenceequal)
+	* [Amb](#amb)
+	* [DefaultIfEmpty](#defaultifempty)
 * [Math and Aggregation](#math-and-aggregation)
-	* Reduce/ReduceWithInitial
-	* Count
-	* Sum/SumInteger/SumFloat/SumDecimal/ConcatString
-	* Max/MaxInteger/MaxFloat/MaxDecimal
-	* Min/MinInteger/MinFloat/MinDecimal
-	* Average/AverageDecimal
+	* [Reduce](#reduce)/[ReduceWithInitial](#reducewithinitial)
+	* [Count](#count)
+	* [Sum](#sum)/[SumInteger](#suminteger)/[SumFloat](#sumfloat)/[SumDecimal](#sumdecimal)
+	* [ConcatString](#concatstring)
+	* [Max](#max)/[MaxInteger](#maxinteger)/[MaxFloat](#maxfloat)/[MaxDecimal](#maxdecimal)
+	* [Min](#min)/[MinInteger](#mininteger)/[MinFloat](#minfloat)/[MinDecimal](#mindecimal)
+	* [Average](#average)/[AverageDecimal](#averagedecimal)
 
 ### Transforms
 Actions that modify values coming from the source.
@@ -223,7 +224,7 @@ action source(IResolver r) {
 }
 
 action sumValuesInWindow(IObservable group) returns IObservable {
-	return group.sum();
+	return group.sumInteger();
 }
 
 Observable.create(source)
@@ -250,7 +251,7 @@ action source(IResolver r) {
 }
 
 action sumValuesInWindow(IObservable group) returns IObservable {
-	return group.sum();
+	return group.sumInteger();
 }
 
 Observable.create(source)
@@ -270,7 +271,7 @@ Note: The current window is completed when a new window is created.
 
 ```javascript
 action sumValuesInWindow(IObservable group) returns IObservable {
-	return group.sum();
+	return group.sumInteger();
 }
 
 Observable.fromValues([1,2,3,4,5,6])
@@ -675,7 +676,7 @@ action isLessThan3(integer value) returns boolean {
 	return values < 3;
 }
 
-Observable.fromValues([0,1,2,3,4]) // Emits an incrementing integer every 100 millis
+Observable.fromValues([0,1,2,3,4])
 	.takeWhile(isLessThan3)
 	...
 
@@ -701,7 +702,7 @@ action isLessThan3(integer value) returns boolean {
 	return values < 3;
 }
 
-Observable.fromValues([0,1,2,3,4]) // Emits an incrementing integer every 100 millis
+Observable.fromValues([0,1,2,3,4])
 	.skipWhile(isLessThan3)
 	...
 
@@ -848,7 +849,7 @@ Observable.interval(0.1)
 Removes a layer of nesting from observables. Received values which are  [IObservable](#iobservable-)s are merged into the output. Received values which are sequences/dictionaries have their values merged into the output.
 
 ```javascript
-Observable.fromValues([Observable.interval(0.1), [1,2,3]])
+Observable.fromValues([<any> Observable.interval(0.1), [1,2,3]])
 	.mergeAll()
 	...
 
@@ -1033,7 +1034,7 @@ The source must be an [IObservable](#iobservable-)<[IObservable](#iobservable-)\
 Note: This will complete after the last produced observable completes.
 
 ```javascript
-Observable.fromValues([Observable.range(0,3),Observable.range(4,6)])
+Observable.fromValues([Observable.range(0,3), Observable.range(4,6)])
 	.switchOnNext()
 	...
 
@@ -1393,7 +1394,7 @@ Note: If multiple values are received then the last synchronous value will be re
 
 ```javascript
 integer value := <integer> Observable.fromValues([1,2,3,4])
-	.sum()
+	.sumInteger()
 	.getSync();
 
 // value = 10
@@ -1529,4 +1530,204 @@ Observable.interval(1.0).take(5)
 ```
 
 ### Conditional
+
+<a name="contains" href="#contains">#</a> .**contains**(*`predicate:` action<`value:` [T](/docs#wild-card-notation)> returns boolean*) returns [IObservable](#iobservable-)\<boolean> [<>](/src/rx/operators/Contains.mon  "Source")
+
+Check if at least one `value` matches the `predicate`.
+
+Note: An empty observable returns `false`.
+
+```javascript
+action greaterThan3(integer value) returns boolean {
+	return value > 3;
+}
+
+Observable.fromValues([1,2,3,4])
+	.contains(greaterThan3)
+	...
+
+// Output: true
+```
+
+<a name="every" href="#every">#</a> .**every**(*`predicate:` action<`value:` [T](/docs#wild-card-notation)> returns boolean*) returns [IObservable](#iobservable-)\<boolean> [<>](/src/rx/operators/Every.mon  "Source")
+
+Check if every `value` matches the `predicate`.
+
+Note: An empty observable returns `true`.
+
+```javascript
+action lessThan3(integer value) returns boolean {
+	return value < 3;
+}
+
+Observable.fromValues([1,2,3,4])
+	.every(lessThan3)
+	...
+
+// Output: false
+```
+
+<a name="sequenceequal" href="#sequenceequal">#</a> .**sequenceEqual**(*`others:` sequence<[IObservable](#iobservable-)<[T](/docs#wild-card-notation)>>*) returns [IObservable](#iobservable-)\<boolean> [<>](/src/rx/operators/Every.mon  "Source")
+
+Check if all of the provided observables contain the same values, in the same order.
+
+```javascript
+Observable.interval(1.0).take(4)
+	.sequenceEqual([Observable.fromValues([0,1,2,3]), Observable.range(0,3)])
+	...
+
+// Output: true
+```
+
+<a name="amb" href="#amb">#</a> .**amb**(*`others:` sequence<[IObservable](#iobservable-)<[T](/docs#wild-card-notation)>>*) returns [IObservable](#iobservable-)\<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/Amb.mon  "Source")
+
+Race the observables, the one which provides values first provides all of the values.
+
+```javascript
+Observable.timer("I lost", 5.0)
+	.amb([Observable.timer("I won!", 1.0)])
+	...
+
+// Output: "I won!"
+```
+
+<a name="defaultifempty" href="#defaultifempty">#</a> .**defaultIfEmpty**(*`value:` [T](/docs#wild-card-notation)*) returns [IObservable](#iobservable-)\<[T](/docs#wild-card-notation)> [<>](/src/rx/operators/DefaultIfEmpty.mon  "Source")
+
+Emit a default value if the source completes without emitting any values.
+
+```javascript
+Observable.empty()
+	.defaultIfEmpty("A default value")
+	...
+
+// Output: "A default value"
+```
+
 ### Math and Aggregation
+
+<a name="reduce" href="#reduce">#</a> .**reduce**(*action<`aggregate:` [T2](/docs#wild-card-notation), `value:` [T1](/docs#wild-card-notation)> returns [T2](/docs#wild-card-notation)*) returns [IObservable](#iobservable-)<[T2](/docs#wild-card-notation)> [<>](/src/rx/operators/Scan.mon  "Source")
+
+Aggregate the data, emitting the aggregated value on completion.
+
+Note: The first value is used as the starting value for the aggregation.
+
+```javascript
+action sum(integer currentSum, integer value) returns integer {
+	return currentSum + value;
+}
+
+Observable.fromValues([1,2,3])
+	.reduce(sum)
+	...
+
+// Output: 6
+```
+See also: [Scan](#scan)
+
+<a name="reducewithinitial" href="#reducewithinitial">#</a> .**reduceWithInitial**(*action<`aggregate:` [T2](/docs#wild-card-notation), `value:` [T1](/docs#wild-card-notation)> returns [T2](/docs#wild-card-notation), `initialValue:` [T2](/docs#wild-card-notation)*) returns [IObservable](#iobservable-)<[T2](/docs#wild-card-notation)> [<>](/src/rx/operators/Scan.mon  "Source")
+
+Aggregate the data, emitting the aggregated value on completion.. The initial value for the aggregation is supplied.
+```javascript
+action sum(integer currentSum, integer value) returns integer {
+	return currentSum + value;
+}
+
+Observable.fromValues([1,2,3])
+	.reduceWithInitial(sum, 5)
+	...
+
+// Output: 11
+```
+See also: [ScanWithInitial](#scanwithinitial)
+
+<a name="count" href="#count">#</a> .**count**() returns [IObservable](#iobservable-)\<integer> [<>](/src/rx/operators/Aggregates.mon  "Source")
+
+Count the number of items emitted by the source.
+
+Note: This is final count, not a rolling count.
+
+```javascript
+Observable.fromValues([1,2,3,4])
+	.count()
+	...
+
+// Output: 4
+```
+
+<a name="sum" href="#sum">#</a> .**sum**() returns [IObservable](#iobservable-)\<float> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
+<a name="suminteger" href="#suminteger">#</a> .**sumInteger**() returns [IObservable](#iobservable-)\<integer> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
+<a name="sumfloat" href="#sumfloat">#</a> .**sumFloat**() returns [IObservable](#iobservable-)\<float> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
+<a name="sumdecimal" href="#sumdecimal">#</a> .**sumDecimal**() returns [IObservable](#iobservable-)\<decimal> [<>](/src/rx/operators/Aggregates.mon  "Source")
+
+Sum the provided values.
+
+Note: `.sum()` will work for any numeric type (returning a float), whereas `.sumInteger()`, `.sumFloat()`, `.sumDecimal()` will only operate on their respective types.
+
+```javascript
+Observable.fromValues([1,2,3,4])
+	.sum()
+	...
+
+// Output: 10.0
+```
+
+<a name="concatstring" href="#concatstring">#</a> .**concatString**() returns [IObservable](#iobservable-)\<string> [<>](/src/rx/operators/Aggregates.mon  "Source")
+
+Concatenate the `.valueToString()` of every value.
+
+```javascript
+Observable.fromValues([<any> "Hello ", "World", "! ", 1, 2, 3])
+	.concatString()
+	...
+
+// Output: "Hello World! 123"
+```
+
+<a name="max" href="#max">#</a> .**max**() returns [IObservable](#iobservable-)\<float> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
+<a name="maxinteger" href="#maxinteger">#</a> .**maxInteger**() returns [IObservable](#iobservable-)\<integer> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
+<a name="maxfloat" href="#maxfloat">#</a> .**maxFloat**() returns [IObservable](#iobservable-)\<float> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
+<a name="maxdecimal" href="#maxdecimal">#</a> .**maxDecimal**() returns [IObservable](#iobservable-)\<decimal> [<>](/src/rx/operators/Aggregates.mon  "Source")
+
+Find the largest value.
+
+Note: `.max()` will work for any numeric type (returning a float), whereas `.maxInteger()`, `.maxFloat()`, `.maxDecimal()` will only operate on their respective types.
+
+```javascript
+Observable.fromValues([1,2,3,4])
+	.max()
+	...
+
+// Output: 4.0
+```
+
+<a name="min" href="#min">#</a> .**min**() returns [IObservable](#iobservable-)\<float> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
+<a name="mininteger" href="#mininteger">#</a> .**minInteger**() returns [IObservable](#iobservable-)\<integer> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
+<a name="minfloat" href="#minfloat">#</a> .**minFloat**() returns [IObservable](#iobservable-)\<float> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
+<a name="mindecimal" href="#mindecimal">#</a> .**minDecimal**() returns [IObservable](#iobservable-)\<decimal> [<>](/src/rx/operators/Aggregates.mon  "Source")
+
+Find the smallest value.
+
+Note: `.min()` will work for any numeric type (returning a float), whereas `.minInteger()`, `.minFloat()`, `.minDecimal()` will only operate on their respective types.
+
+```javascript
+Observable.fromValues([1,2,3,4])
+	.min()
+	...
+
+// Output: 1.0
+```
+
+<a name="average" href="#average">#</a> .**average**() returns [IObservable](#iobservable-)\<float> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
+<a name="averagedecimal" href="#averagedecimal">#</a> .**averageDecimal**() returns [IObservable](#iobservable-)\<decimal> [<>](/src/rx/operators/Aggregates.mon  "Source")
+
+Find the arithmetic mean.
+
+Note: Both `.average()` and `.averageDecimal()` will operate on numbers of any type, they differ on output type only.
+
+```javascript
+Observable.fromValues([1,2,3,4])
+	.average()
+	...
+
+// Output: 2.5
+```
