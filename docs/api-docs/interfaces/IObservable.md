@@ -2,11 +2,16 @@
 
 # IObservable [<>](/src/rx/interfaces/IObservable.mon)
 
-IObservable is the interface returned by most RxEPL operators. 
-Unless otherwise stated all methods on this interface return an IObservable, this provides [Method Chaining](https://en.wikipedia.org/wiki/Method_chaining).
+IObservable is the interface returned by almost all RxEPL operators, this allows the operators to be chained in a fluent manor.
 
-## Methods
-These are broken up into:
+```javascript
+Observable.fromValues([1,2,3,4)
+	.map(Lambda.function1("x => x * 10"))
+	.sum()
+	.subscribe(Subscriber.create().onNext(logValue));
+```
+
+## Operators and Methods
 * [Transforms](#transforms)
 	* [Map](#map)
 	* [FlatMap](#flatmap)
