@@ -54,7 +54,7 @@ Observable.create(generator)
 // Output: 1,2,3
 ```
 
-<a name="just" href="#just">#</a> .**create**(*`value:` [T](/docs/api-docs/README.md#wildcard-class-notation)*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Aggregates.mon  "Source")
+<a name="just" href="#just">#</a> .**just**(*`value:` [T](/docs/api-docs/README.md#wildcard-class-notation)*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Aggregates.mon  "Source")
 
 Create an observable containing just the provided `value`.
 
