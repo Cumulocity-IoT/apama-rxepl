@@ -1,4 +1,4 @@
-# <a name="iobservable"></a><small>com.industry.rx_epl.</small>IObservable [<>](/src/rx/interfaces/IObservable.mon)
+# <a name="iobservable"></a><sub><sup>com.industry.rx_epl.</sup></sub>IObservable [<>](/src/rx/interfaces/IObservable.mon)
 
 IObservable is the interface returned by almost all RxEPL operators, this allows the operators to be chained in a fluent manor.
 
