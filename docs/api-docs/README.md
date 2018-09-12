@@ -17,6 +17,8 @@
 - IDisposable
 - IResolver
 
+For a list of operators see: [IObservable](interfaces/IObservable.md#iobservable-)
+
 ## Wildcard Class Notation
 
 In the API documentation you will see notation like:
