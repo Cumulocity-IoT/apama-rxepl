@@ -9,7 +9,7 @@ All of the public API for this event is static and as such this event should nev
 	* [Create](#create)
 	* [Just](#just)
 	* [FromValues](#fromvalues)
-	* Interval
+	* [Interval](#interval)
 	* Range
 	* Repeat
 	* Timer
@@ -76,6 +76,17 @@ Observable.fromValues([1,2,3,4])
 	...
 
 // Output: 1,2,3,4
+```
+
+<a name="interval" href="#interval">#</a> .**interval**(*`seconds:` float*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<integer> [<>](/src/rx/operators/Aggregates.mon  "Source")
+
+Emit an increasing integer every T `seconds`. The first emission has a value `0` and is emitted at time T.
+
+```javascript
+Observable.interval(1.0)
+	...
+
+// Output: 0,1,2,3,4...
 ```
 
 ## Combinatory Operators
