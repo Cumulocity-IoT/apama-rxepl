@@ -1,5 +1,5 @@
 # <a name="observable"></a>com.industry.rx_epl.Observable [<>](/src/rx/objects/Observable.mon)
-The main class of RxEPL. This event implements the [IObservable](../interfaces/IObservable#iobservable-) interface and contains all of the various observable construction methods (which all return [IObservable](../interfaces/IObservable#iobservable-)).
+The main class of RxEPL. This event implements the [IObservable](../interfaces/IObservable.md#iobservable) interface and contains all of the various observable construction methods (which all return [IObservable](../interfaces/IObservable.md#iobservable)).
 
 ## Methods
 
