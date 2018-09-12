@@ -1,6 +1,6 @@
-# <a name="iobservable"></a><sub><sup>com.industry.rx_epl.</sup></sub>IObservable [<>](/src/rx/interfaces/IObservable.mon)
+# <a name="iobservable"></a>com.industry.rx_epl.IObservable [<>](/src/rx/interfaces/IObservable.mon)
 
-IObservable is the interface returned by almost all RxEPL operators, this allows the operators to be chained in a fluent manor.
+IObservable is the interface returned by almost all RxEPL operators, this allows the operators to be chained in with a fluent syntax.
 
 ```javascript
 Observable.fromValues([1,2,3,4)
