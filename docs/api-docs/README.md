@@ -1,3 +1,4 @@
+
 # API Documentation
 
 ## Classes
@@ -64,3 +65,31 @@ This is possible because the real method signature of `.map(...)` is:
 .**map**(*any*) returns [IObservable](#iobservable)
 
 However, there are strict runtime checks to make sure you don't provide anything invalid (eg. a string).
+
+## Chaining vs Let/Pipe
+
+All of the standard operators can be used in two ways:
+### Chaining
+```javascript
+Observable.fromValues([1,2,3])
+	.map(multiplyBy10)
+	.reduce(sumValues)
+	...
+```
+### Let/Pipe
+```javascript
+import com.industry.rx_epl.operators.Map;
+import com.industry.rx_epl.operators.Reduce;
+
+Observable.fromValues([1,2,3])
+	.let(Map.create(multiplyBy10))
+	.let(Reduce.create(sumValues))
+	...
+
+Observable.fromValues([1,2,3])
+	.pipe([
+		Map.create(multiplyBy10),
+		Reduce.create(sumValues)
+	])
+	...
+```
