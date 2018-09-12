@@ -11,13 +11,13 @@
 - TimestampedValue
 
 ## Interfaces
-- [IObservable](interfaces/IObservable.md#iobservable-)
+- [IObservable](interfaces/IObservable.md#iobservable)
 - ISubject
 - ISubscription
 - IDisposable
 - IResolver
 
-For a list of operators see: [IObservable](interfaces/IObservable.md#iobservable-)
+For a list of operators see: [IObservable](interfaces/IObservable.md#iobservable)
 
 ## Wildcard Class Notation
 
@@ -41,7 +41,7 @@ However, it would be acceptable if the definition was:
 
 In practice this is frequently used with any operators that take actions:
 
-.**map**(*action<`value:` [T1](#wildcard-class-notation)> returns [T2](#wildcard-class-notation)*) returns [IObservable](#iobservable-)<[T2](#wildcard-class-notation)>
+.**map**(*action<`value:` [T1](#wildcard-class-notation)> returns [T2](#wildcard-class-notation)*) returns [IObservable](#iobservable)<[T2](#wildcard-class-notation)>
 
 Here we can see that map takes an argument which is an action. The action must have 1 argument (of any type) and return a value (of any type). 
 The return type of the action determines the return type of the IObservable.
@@ -61,6 +61,6 @@ action convertValueToString(any value) returns string {
 
 This is possible because the real method signature of `.map(...)` is:
 
-.**map**(*any*) returns [IObservable](#iobservable-)
+.**map**(*any*) returns [IObservable](#iobservable)
 
 However, there are strict runtime checks to make sure you don't provide anything invalid (eg. a string).
