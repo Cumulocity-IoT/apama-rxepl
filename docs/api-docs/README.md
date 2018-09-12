@@ -2,7 +2,7 @@
 # API Documentation
 
 ## Constructors
-- com.industry.rx_epl.Observable
+- com.industry.rx_epl.[Observable](constructors/Observable.md#observable)
 - com.industry.rx_epl.Subject
 - com.industry.rx_epl.BehaviourSubject
 - com.industry.rx_epl.ReplaySubject
