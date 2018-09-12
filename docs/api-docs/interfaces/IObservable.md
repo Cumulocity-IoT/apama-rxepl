@@ -1,5 +1,6 @@
 
 
+
 # IObservable [<>](/src/rx/interfaces/IObservable.mon)
 
 IObservable is the interface returned by almost all RxEPL operators, this allows the operators to be chained in a fluent manor.
@@ -1272,9 +1273,9 @@ Observable.interval(1.0)
 // Output: TimestampedValue(0, 2.0), TimestampedValue(1, 3.0), TimestampedValue(2, 4.0)... 
 ```
 
-<a name="timeinterval" href="#timeinterval">#</a> .**timeInterval**() returns [IObservable](#iobservable-)\<float> [<>](/src/rx/operators/TimeInterval.mon  "Source")
+<a name="timeinterval" href="#timeinterval">#</a> .**timeInterval**() returns [IObservable](#iobservable-)\<TimeInterval\<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/TimeInterval.mon  "Source")
 
-Emit the time between events, as a float. Emitting the time between subscription and receiving the value for the first value.
+Emit the time between events, as a TimeInterval. Emitting the time between subscription and receiving the value for the first value.
 
 Note: Uses `currentTime` which, by default, has only 100 millisecond precision.
 
@@ -1283,7 +1284,7 @@ Observable.interval(1.0)
 	.timeInterval()
 	...
 
-// Output: 1.0, 1.0, 1.0...
+// Output: TimeInterval(1.0,0), TimeInterval(1.0,1), TimeInterval(1.0,2)...
 ```
 
 <a name="let" href="#let">#</a> .**let**(*`operator:` Pipeable*) returns [IObservable](#iobservable-)\<any> [<>](/src/rx/operators/Pipe.mon  "Source")
