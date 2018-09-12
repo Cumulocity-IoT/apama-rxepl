@@ -10,7 +10,7 @@ All of the public API for this event is static and as such this event should nev
 	* [Just](#just)
 	* [FromValues](#fromvalues)
 	* [Interval](#interval)
-	* Range
+	* [Range](#range)
 	* Repeat
 	* Timer
 	* FromIterator
@@ -30,7 +30,7 @@ All of the public API for this event is static and as such this event should nev
 
 ## Construction
 
-<a name="create" href="#create">#</a> .**create**(*`generator:` action<`resolver:` [IResolver](../interfaces/IResolver.md)*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Aggregates.mon  "Source")
+<a name="create" href="#create">#</a> .**create**(*`generator:` action<`resolver:` [IResolver](../interfaces/IResolver.md)*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/Create.mon  "Source")
 
 Create an observable by running the `generator` action whenever a subscription is created.
 
@@ -54,7 +54,7 @@ Observable.create(generator)
 // Output: 1,2,3
 ```
 
-<a name="just" href="#just">#</a> .**just**(*`value:` [T](/docs/api-docs/README.md#wildcard-class-notation)*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Aggregates.mon  "Source")
+<a name="just" href="#just">#</a> .**just**(*`value:` [T](/docs/api-docs/README.md#wildcard-class-notation)*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/Just.mon  "Source")
 
 Create an observable containing just the provided `value`.
 
@@ -65,7 +65,7 @@ Observable.just("Hello World")
 // Output: "Hello World"
 ```
 
-<a name="fromvalues" href="#fromvalues">#</a> .**fromValues**(*`values:` sequence<[T](/docs/api-docs/README.md#wildcard-class-notation)>*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Aggregates.mon  "Source")
+<a name="fromvalues" href="#fromvalues">#</a> .**fromValues**(*`values:` sequence<[T](/docs/api-docs/README.md#wildcard-class-notation)>*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/FromValues.mon  "Source")
 
 Create an observable containing all of the provided `values`. 
 
@@ -78,7 +78,7 @@ Observable.fromValues([1,2,3,4])
 // Output: 1,2,3,4
 ```
 
-<a name="interval" href="#interval">#</a> .**interval**(*`seconds:` float*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<integer> [<>](/src/rx/operators/Aggregates.mon  "Source")
+<a name="interval" href="#interval">#</a> .**interval**(*`seconds:` float*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<integer> [<>](/src/rx/operators/internals/Interval.mon  "Source")
 
 Emit an increasing integer every T `seconds`. The first emission has a value `0` and is emitted at time T.
 
@@ -87,6 +87,19 @@ Observable.interval(1.0)
 	...
 
 // Output: 0,1,2,3,4...
+```
+
+<a name="range" href="#range">#</a> .**range**(*`start:` integer, `end:` integer*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<integer> [<>](/src/rx/operators/internals/Range.mon  "Source")
+
+Emit every integer value from `start` (inclusive) to `end` (inclusive).
+
+Note: Currently only works with ascending values.
+
+```javascript
+Observable.range(0,5)
+	...
+
+// Output: 0,1,2,3,4,5
 ```
 
 ## Combinatory Operators
