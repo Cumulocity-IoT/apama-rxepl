@@ -1,7 +1,4 @@
-
-
-
-# IObservable [<>](/src/rx/interfaces/IObservable.mon)
+# <a name="iobservable"></a>com.industry.rx_epl.IObservable [<>](/src/rx/interfaces/IObservable.mon)
 
 IObservable is the interface returned by almost all RxEPL operators, this allows the operators to be chained in a fluent manor.
 
@@ -76,7 +73,7 @@ Observable.fromValues([1,2,3,4)
 	* [Average](#average)/[AverageDecimal](#averagedecimal)
 
 ### Transforms
-<a name="map" href="#map">#</a> .**map**(*action<`value:` [T1](/docs/api-docs/README.md#wildcard-class-notation)> returns [T2](/docs/api-docs/README.md#wildcard-class-notation)*) returns [IObservable](#iobservable-)<[T2](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Map.mon  "Source")
+<a name="map" href="#map">#</a> .**map**(*action<`value:` [T1](/docs/api-docs/README.md#wildcard-class-notation)> returns [T2](/docs/api-docs/README.md#wildcard-class-notation)*) returns [IObservable](#iobservable)<[T2](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Map.mon  "Source")
 
 Apply a function to each `value` and pass on the result.
 ```javascript
@@ -92,7 +89,7 @@ Observable.fromValues([1,2,3])
 ```
 See also [FlatMap](#flatmap).
 
-<a name="flatmap" href="#flatmap">#</a> .**flatMap**(*action<`value:` [T1](/docs/api-docs/README.md#wildcard-class-notation)> returns (sequence<[T2](/docs/api-docs/README.md#wildcard-class-notation)> | [IObservable](#iobservable-)<[T2](/docs/api-docs/README.md#wildcard-class-notation)> | [ISubject](ISubject.md#isubject)<[T2](/docs/api-docs/README.md#wildcard-class-notation)>)*) returns [IObservable](#iobservable-)<[T2](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/FlatMap.mon  "Source")
+<a name="flatmap" href="#flatmap">#</a> .**flatMap**(*action<`value:` [T1](/docs/api-docs/README.md#wildcard-class-notation)> returns (sequence<[T2](/docs/api-docs/README.md#wildcard-class-notation)> | [IObservable](#iobservable)<[T2](/docs/api-docs/README.md#wildcard-class-notation)> | [ISubject](ISubject.md#isubject)<[T2](/docs/api-docs/README.md#wildcard-class-notation)>)*) returns [IObservable](#iobservable)<[T2](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/FlatMap.mon  "Source")
 
 Apply a mapping to each `value` that results in multiple values (or an Observable containing 1 or more values) and merge each item in the result into the output.
 ```javascript
@@ -109,11 +106,11 @@ Observable.fromValues([1,3,5])
 
 See also: [Map](#map).
 
-<a name="pluck" href="#pluck">#</a> .**pluck**(*`fieldName:` any*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Pluck.mon  "Source")
+<a name="pluck" href="#pluck">#</a> .**pluck**(*`fieldName:` any*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Pluck.mon  "Source")
 
 Select a particular field from the incoming value.
 
-Note: The `fieldName` can be of any type (Eg. an integer for [IObservable](#iobservable-)\<sequence> or the key type for an [IObservable](#iobservable-)\<dictionary>)
+Note: The `fieldName` can be of any type (Eg. an integer for [IObservable](#iobservable)\<sequence> or the key type for an [IObservable](#iobservable)\<dictionary>)
 ```javascript
 event E {
 	integer value;
@@ -126,7 +123,7 @@ Observable.fromValues([E(1), E(2), E(3), E(4)])
 // Output: 1,2,3,4
 ```
 
-<a name="scan" href="#scan">#</a> .**scan**(*action<`aggregate:` [T2](/docs/api-docs/README.md#wildcard-class-notation), `value:` [T1](/docs/api-docs/README.md#wildcard-class-notation)> returns [T2](/docs/api-docs/README.md#wildcard-class-notation)*) returns [IObservable](#iobservable-)<[T2](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Scan.mon  "Source")
+<a name="scan" href="#scan">#</a> .**scan**(*action<`aggregate:` [T2](/docs/api-docs/README.md#wildcard-class-notation), `value:` [T1](/docs/api-docs/README.md#wildcard-class-notation)> returns [T2](/docs/api-docs/README.md#wildcard-class-notation)*) returns [IObservable](#iobservable)<[T2](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Scan.mon  "Source")
 
 Aggregate the data and emit the aggregated value for every incoming event.
 
@@ -144,7 +141,7 @@ Observable.fromValues([1,2,3])
 ```
 See also: [ScanWithInitial](#scanwithinitial), [Reduce](#reduce)
 
-<a name="scanwithinitial" href="#scanwithinitial">#</a> .**scanWithInitial**(*action<`aggregate:` [T2](/docs/api-docs/README.md#wildcard-class-notation), `value:` [T1](/docs/api-docs/README.md#wildcard-class-notation)> returns [T2](/docs/api-docs/README.md#wildcard-class-notation), `initialValue:` [T2](/docs/api-docs/README.md#wildcard-class-notation)*) returns [IObservable](#iobservable-)<[T2](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Scan.mon  "Source")
+<a name="scanwithinitial" href="#scanwithinitial">#</a> .**scanWithInitial**(*action<`aggregate:` [T2](/docs/api-docs/README.md#wildcard-class-notation), `value:` [T1](/docs/api-docs/README.md#wildcard-class-notation)> returns [T2](/docs/api-docs/README.md#wildcard-class-notation), `initialValue:` [T2](/docs/api-docs/README.md#wildcard-class-notation)*) returns [IObservable](#iobservable)<[T2](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Scan.mon  "Source")
 
 Aggregate the data and emit the aggregated value for every incoming event. The initial value for the aggregation is supplied.
 ```javascript
@@ -160,9 +157,9 @@ Observable.fromValues([1,2,3])
 ```
 See also: [Scan](#scan), [ReduceWithInitial](#reducewithinitial)
 
-<a name="groupby" href="#groupby">#</a> .**groupBy**(*action<`value:` [T1](/docs/api-docs/README.md#wildcard-class-notation)> returns [T2](/docs/api-docs/README.md#wildcard-class-notation)*) returns [IObservable](#iobservable-)<[IObservable](#iobservable-)<[T1](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/GroupBy.mon  "Source")
+<a name="groupby" href="#groupby">#</a> .**groupBy**(*action<`value:` [T1](/docs/api-docs/README.md#wildcard-class-notation)> returns [T2](/docs/api-docs/README.md#wildcard-class-notation)*) returns [IObservable](#iobservable)<[IObservable](#iobservable)<[T1](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/GroupBy.mon  "Source")
 
-Group the data into separate observables based on a calculated group identifier. These observables are sent on the resulting [IObservable](#iobservable-). The provided action takes a value and returns a group identifier.
+Group the data into separate observables based on a calculated group identifier. These observables are sent on the resulting [IObservable](#iobservable). The provided action takes a value and returns a group identifier.
 ```javascript
 event Fruit {
 	string type;
@@ -187,11 +184,11 @@ Observable.fromValues([Fruit("apple", 1), Fruit("banana", 2), Fruit("apple", 3)]
 ```
 See also: [GroupByField](#groupbyfield), [GroupByWindow](#groupbywindow)
 
-<a name="groupbyfield" href="#groupbyfield">#</a> .**groupByField**(*`fieldName:` [any](/docs/api-docs/README.md#wildcard-class-notation)*) returns [IObservable](#iobservable-)<[IObservable](#iobservable-)\<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/GroupBy.mon  "Source")
+<a name="groupbyfield" href="#groupbyfield">#</a> .**groupByField**(*`fieldName:` [any](/docs/api-docs/README.md#wildcard-class-notation)*) returns [IObservable](#iobservable)<[IObservable](#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/GroupBy.mon  "Source")
 
-Group the data into separate observables based on a key field. These observables are sent on the resulting [IObservable](#iobservable-).
+Group the data into separate observables based on a key field. These observables are sent on the resulting [IObservable](#iobservable).
 
-Note: The `fieldName` can be of any type (Eg. an integer for [IObservable](#iobservable-)\<sequence> or the key type for an [IObservable](#iobservable-)\<dictionary>)
+Note: The `fieldName` can be of any type (Eg. an integer for [IObservable](#iobservable)\<sequence> or the key type for an [IObservable](#iobservable)\<dictionary>)
 
 ```javascript
 event Fruit {
@@ -213,9 +210,9 @@ Observable.fromValues([Fruit("apple", 1), Fruit("banana", 2), Fruit("apple", 3)]
 ```
 See also: [GroupBy](#groupby), [GroupByWindow](#groupbywindow)
 
-<a name="groupbywindow" href="#groupbywindow">#</a> .**groupByWindow**(*`trigger:` [IObservable](#iobservable-)*) returns [IObservable](#iobservable-)<[IObservable](#iobservable-)\<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/Window.mon  "Source")
+<a name="groupbywindow" href="#groupbywindow">#</a> .**groupByWindow**(*`trigger:` [IObservable](#iobservable)*) returns [IObservable](#iobservable)<[IObservable](#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/Window.mon  "Source")
 
-Partition each value into the current observable window. The observable windows are sent on the resulting [IObservable](#iobservable-). The provided `trigger` determines when a new window is created.
+Partition each value into the current observable window. The observable windows are sent on the resulting [IObservable](#iobservable). The provided `trigger` determines when a new window is created.
 
 Note: The current window is completed when a new window is created.
 
@@ -240,9 +237,9 @@ Observable.create(source)
 ```
 See also: [Buffer](#buffer), [GroupBy](#groupby)
 
-<a name="windowtime" href="#windowtime">#</a> .**windowTime**(*`seconds:` float*) returns [IObservable](#iobservable-)<[IObservable](#iobservable-)\<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/Window.mon  "Source")
+<a name="windowtime" href="#windowtime">#</a> .**windowTime**(*`seconds:` float*) returns [IObservable](#iobservable)<[IObservable](#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/Window.mon  "Source")
 
-Partition each value into the current observable window. The observable windows are sent on the resulting [IObservable](#iobservable-). A new window is created every t seconds (starting when the subscription begins).
+Partition each value into the current observable window. The observable windows are sent on the resulting [IObservable](#iobservable). A new window is created every t seconds (starting when the subscription begins).
 
 Note: The current window is completed when a new window is created.
 
@@ -267,9 +264,9 @@ Observable.create(source)
 ```
 See also: [BufferTime](#buffertime), [GroupBy](#groupby)
 
-<a name="windowcount" href="#windowcount">#</a> .**windowCount**(*`count:` integer*) returns [IObservable](#iobservable-)<[IObservable](#iobservable-)\<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/Window.mon  "Source")
+<a name="windowcount" href="#windowcount">#</a> .**windowCount**(*`count:` integer*) returns [IObservable](#iobservable)<[IObservable](#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/Window.mon  "Source")
 
-Partition each value into the current observable window. The observable windows are sent on the resulting [IObservable](#iobservable-). A new window is created after every n values.
+Partition each value into the current observable window. The observable windows are sent on the resulting [IObservable](#iobservable). A new window is created after every n values.
 
 Note: The current window is completed when a new window is created.
 
@@ -287,15 +284,15 @@ Observable.fromValues([1,2,3,4,5,6])
 ```
 See also: [BufferCount](#buffercount), [GroupBy](#groupby)
 
-<a name="windowtimeorcount" href="#windowtimeorcount">#</a> .**windowTimeOrCount**(*`seconds:` float, `count:` integer*) returns [IObservable](#iobservable-)<[IObservable](#iobservable-)\<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/Window.mon  "Source")
+<a name="windowtimeorcount" href="#windowtimeorcount">#</a> .**windowTimeOrCount**(*`seconds:` float, `count:` integer*) returns [IObservable](#iobservable)<[IObservable](#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/Window.mon  "Source")
 
-Partition each value into the current observable window. The observable windows are sent on the resulting [IObservable](#iobservable-). A new window is created after every t seconds or n values (whichever comes first).
+Partition each value into the current observable window. The observable windows are sent on the resulting [IObservable](#iobservable). A new window is created after every t seconds or n values (whichever comes first).
 
 Note: The current window is completed when a new window is created.
 
 See also: [BufferTimeOrCount](#buffertimeorcount), [GroupBy](#groupby)
 
-<a name="buffer" href="#buffer">#</a> .**buffer**(*`trigger:` [IObservable](#iobservable-)*) returns [IObservable](#iobservable-)<sequence\<any>> [<>](/src/rx/operators/Buffer.mon  "Source")
+<a name="buffer" href="#buffer">#</a> .**buffer**(*`trigger:` [IObservable](#iobservable)*) returns [IObservable](#iobservable)<sequence\<any>> [<>](/src/rx/operators/Buffer.mon  "Source")
 
 Store each value in the current bucket, emitting the bucket (as a sequence\<any>) when the trigger fires.
 
@@ -309,7 +306,7 @@ Observable.interval(0.25) // Emits an incrementing integer every 250 millis
 ```
 See also: [GroupByWindow](#groupbywindow), [GroupBy](#groupby)
 
-<a name="buffertime" href="#buffertime">#</a> .**bufferTime**(*`seconds:` float*) returns [IObservable](#iobservable-)<sequence\<any>> [<>](/src/rx/operators/BufferTime.mon  "Source")
+<a name="buffertime" href="#buffertime">#</a> .**bufferTime**(*`seconds:` float*) returns [IObservable](#iobservable)<sequence\<any>> [<>](/src/rx/operators/BufferTime.mon  "Source")
 
 Store each value in the current bucket, emitting the bucket (as a sequence\<any>) every t seconds.
 
@@ -323,7 +320,7 @@ Observable.interval(0.25) // Emits an incrementing integer every 250 millis
 ```
 See also: [WindowTime](#windowtime), [GroupBy](#groupby)
 
-<a name="buffercount" href="#buffercount">#</a> .**bufferCount**(*`count:` integer*) returns [IObservable](#iobservable-)<sequence\<any>> [<>](/src/rx/operators/Buffer.mon  "Source")
+<a name="buffercount" href="#buffercount">#</a> .**bufferCount**(*`count:` integer*) returns [IObservable](#iobservable)<sequence\<any>> [<>](/src/rx/operators/Buffer.mon  "Source")
 
 Store each value in the current bucket, emitting the bucket (as a sequence\<any>) every n values.
 
@@ -337,7 +334,7 @@ Observable.fromValues([1,2,3,4,5,6])
 ```
 See also: [WindowCount](#windowcount), [BufferCountSkip](#buffercountskip), [Pairwise](#pairwise)
 
-<a name="buffercountskip" href="#buffercountskip">#</a> .**bufferCountSkip**(*`count:` integer, `skip:` integer*) returns [IObservable](#iobservable-)<sequence\<any>> [<>](/src/rx/operators/Buffer.mon  "Source")
+<a name="buffercountskip" href="#buffercountskip">#</a> .**bufferCountSkip**(*`count:` integer, `skip:` integer*) returns [IObservable](#iobservable)<sequence\<any>> [<>](/src/rx/operators/Buffer.mon  "Source")
 
 Store each value in the current bucket, emitting the bucket (as a sequence\<any>) every `count` values. The bucket 'slides' such that, after filling for the first time, it emits every `skip` values with the last `count` items.
 
@@ -354,7 +351,7 @@ Observable.fromValues([1,2,3,4,5,6])
 ```
 See also: [BufferCount](#buffercount), [Pairwise](#pairwise)
 
-<a name="buffertimeorcount" href="#buffertimeorcount">#</a> .**bufferTimeOrCount**(*`seconds:` float, `count:` integer*) returns [IObservable](#iobservable-)<sequence\<any>> [<>](/src/rx/operators/Buffer.mon  "Source")
+<a name="buffertimeorcount" href="#buffertimeorcount">#</a> .**bufferTimeOrCount**(*`seconds:` float, `count:` integer*) returns [IObservable](#iobservable)<sequence\<any>> [<>](/src/rx/operators/Buffer.mon  "Source")
 
 Store each value in the current bucket, emitting the bucket (as a sequence\<any>) every `count` values or when the time `seconds` has elapsed (Whichever comes first).
 
@@ -362,7 +359,7 @@ Note: The final bucket will be emitted on completion of the source. Unsubscribin
 
 See also: [BufferCount](#buffercount), [BufferCountSkip](#buffercountskip)
 
-<a name="pairwise" href="#pairwise">#</a> .**pairwise**() returns [IObservable](#iobservable-)<sequence\<any>> [<>](/src/rx/operators/Buffer.mon  "Source")
+<a name="pairwise" href="#pairwise">#</a> .**pairwise**() returns [IObservable](#iobservable)<sequence\<any>> [<>](/src/rx/operators/Buffer.mon  "Source")
 
 Emit every value and the previous value in a sequence\<any>.
 
@@ -378,7 +375,7 @@ Observable.fromValues([1,2,3,4,5,6])
 
 See also: [BufferCount](#buffercount), [BufferCountSkip](#buffercountskip)
 
-<a name="sort" href="#sort">#</a> .**sort**(*`comparator:` action<`left:` [T](/docs/api-docs/README.md#wildcard-class-notation), `right:` [T](/docs/api-docs/README.md#wildcard-class-notation)> returns number*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/ToSortedList.mon  "Source")
+<a name="sort" href="#sort">#</a> .**sort**(*`comparator:` action<`left:` [T](/docs/api-docs/README.md#wildcard-class-notation), `right:` [T](/docs/api-docs/README.md#wildcard-class-notation)> returns number*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/ToSortedList.mon  "Source")
 
 Sort the values by a comparator. The comparator takes 2 values from the observable and should produce a number to indicate which one is larger. 
 
@@ -397,7 +394,7 @@ Observable.fromValues([4,1,3,2])
 // Output: 1,2,3,4
 ```
 
-<a name="sortasc" href="#sortasc">#</a> .**sortAsc**() returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/ToSortedList.mon  "Source")
+<a name="sortasc" href="#sortasc">#</a> .**sortAsc**() returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/ToSortedList.mon  "Source")
 
 Sort the values by the standard `>` or `<` comparator. Numbers with different types will be coerced to to same type before comparison.
 
@@ -410,7 +407,7 @@ Observable.fromValues([4,1,3,2])
 // Output: 1,2,3,4
 ```
 
-<a name="sortdesc" href="#sortdesc">#</a> .**sortDesc**() returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/ToSortedList.mon  "Source")
+<a name="sortdesc" href="#sortdesc">#</a> .**sortDesc**() returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/ToSortedList.mon  "Source")
 
 Sort the values by the standard `>` or `<` comparator. Numbers with different types will be coerced to to same type before comparison.
 
@@ -422,7 +419,7 @@ Observable.fromValues([4,1,3,2])
 
 // Output: 4,3,2,1
 ```
-<a name="tosortedlist" href="#tosortedlist">#</a> .**toSortedList**(*`comparator:` action<`left:` [T](/docs/api-docs/README.md#wildcard-class-notation), `right:` [T](/docs/api-docs/README.md#wildcard-class-notation)> returns number*) returns [IObservable](#iobservable-)<sequence<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/ToSortedList.mon  "Source")
+<a name="tosortedlist" href="#tosortedlist">#</a> .**toSortedList**(*`comparator:` action<`left:` [T](/docs/api-docs/README.md#wildcard-class-notation), `right:` [T](/docs/api-docs/README.md#wildcard-class-notation)> returns number*) returns [IObservable](#iobservable)<sequence<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/ToSortedList.mon  "Source")
 
 Sort the values by a comparator. The comparator takes 2 values from the observable and should produce a number to indicate which one is larger. The sorted values are output as a sequence\<any>.
 
@@ -441,7 +438,7 @@ Observable.fromValues([4,1,3,2])
 // Output: [1,2,3,4]
 ```
 
-<a name="tosortedlistasc" href="#tosortedlistasc">#</a> .**toSortedListAsc**() returns [IObservable](#iobservable-)<sequence<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/ToSortedList.mon  "Source")
+<a name="tosortedlistasc" href="#tosortedlistasc">#</a> .**toSortedListAsc**() returns [IObservable](#iobservable)<sequence<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/ToSortedList.mon  "Source")
 
 Sort the values by the standard `>` or `<` comparator. Numbers with different types will be coerced to to same type before comparison. The sorted values are output as a sequence\<any>.
 
@@ -453,7 +450,7 @@ Observable.fromValues([4,1,3,2])
 
 // Output: [1,2,3,4]
 ```
-<a name="tosortedlistdesc" href="#tosortedlistdesc">#</a> .**toSortedListDesc**() returns [IObservable](#iobservable-)<sequence<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/ToSortedList.mon  "Source")
+<a name="tosortedlistdesc" href="#tosortedlistdesc">#</a> .**toSortedListDesc**() returns [IObservable](#iobservable)<sequence<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/ToSortedList.mon  "Source")
 
 Sort the values by the standard `>` or `<` comparator. Numbers with different types will be coerced to to same type before comparison. The sorted values are output as a sequence\<any>.
 
@@ -467,7 +464,7 @@ Observable.fromValues([4,1,3,2])
 ```
 
 ### Filters
-<a name="filter" href="#filter">#</a> .**filter**(*`predicate:` action<`value:` [T](/docs/api-docs/README.md#wildcard-class-notation)> returns boolean*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Filter.mon  "Source")
+<a name="filter" href="#filter">#</a> .**filter**(*`predicate:` action<`value:` [T](/docs/api-docs/README.md#wildcard-class-notation)> returns boolean*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Filter.mon  "Source")
 
 Filter the values by the provided predicate.
 
@@ -483,7 +480,7 @@ Observable.fromValues([1,2,3,4,5,6])
 // Output: 4, 5, 6
 ```
 
-<a name="distinct" href="#distinct">#</a> .**distinct**() returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
+<a name="distinct" href="#distinct">#</a> .**distinct**() returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
 
 Remove all duplicate values.
 
@@ -499,7 +496,7 @@ Observable.fromValues([1,2,1,2,3,2,3])
 
 See also: [DistinctUntilChanged](#distinctuntilchanged)
 
-<a name="distinctuntilchanged" href="#distinctuntilchanged">#</a> .**distinctUntilChanged**() returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
+<a name="distinctuntilchanged" href="#distinctuntilchanged">#</a> .**distinctUntilChanged**() returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
 
 Remove all back-to-back duplicates.
 
@@ -513,7 +510,7 @@ Observable.fromValues([1,1,2,2,1,2,3,3])
 
 See also: [Distinct](#distinct)
 
-<a name="distinctby" href="#distinctby">#</a> .**distinctBy**(*`getKey:` action<`value:` [T1](/docs/api-docs/README.md#wildcard-class-notation)> returns [T2](/docs/api-docs/README.md#wildcard-class-notation)*) returns [IObservable](#iobservable-)<[T1](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
+<a name="distinctby" href="#distinctby">#</a> .**distinctBy**(*`getKey:` action<`value:` [T1](/docs/api-docs/README.md#wildcard-class-notation)> returns [T2](/docs/api-docs/README.md#wildcard-class-notation)*) returns [IObservable](#iobservable)<[T1](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
 
 Remove all duplicates. 
 
@@ -533,7 +530,7 @@ Observable.fromValues([1,2,3,4,5,6])
 // Output: 1, 2, 3
 ```
 
-<a name="distinctbyuntilchanged" href="#distinctbyuntilchanged">#</a> .**distinctByUntilChanged**(*`getKey:` action<`value:` [T1](/docs/api-docs/README.md#wildcard-class-notation)> returns [T2](/docs/api-docs/README.md#wildcard-class-notation)*) returns [IObservable](#iobservable-)<[T1](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
+<a name="distinctbyuntilchanged" href="#distinctbyuntilchanged">#</a> .**distinctByUntilChanged**(*`getKey:` action<`value:` [T1](/docs/api-docs/README.md#wildcard-class-notation)> returns [T2](/docs/api-docs/README.md#wildcard-class-notation)*) returns [IObservable](#iobservable)<[T1](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
 
 Remove all back-to-back duplicates. 
 
@@ -550,14 +547,14 @@ Observable.fromValues([1,1,1,4,4,4,5,6,7,8])
 // Output: 1,5,6,7,8
 ```
 
-<a name="distinctbyfield" href="#distinctbyfield">#</a> .**distinctByField**(*`fieldName:` any*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
+<a name="distinctbyfield" href="#distinctbyfield">#</a> .**distinctByField**(*`fieldName:` any*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
 
 Remove values with a duplicate `fieldName` value. 
 
 Note: This requires storing every unique value and therefore care should be taken when used on long running observables. A safer alternative is [DistinctByFieldUntilChanged](#distinctbyfielduntilchanged)
 
 
-Note: The `fieldName` can be of any type (Eg. an integer for [IObservable](#iobservable-)\<sequence> or the key type for an [IObservable](#iobservable-)\<dictionary>)
+Note: The `fieldName` can be of any type (Eg. an integer for [IObservable](#iobservable)\<sequence> or the key type for an [IObservable](#iobservable)\<dictionary>)
 ```javascript
 event E {
 	integer value;
@@ -570,11 +567,11 @@ Observable.fromValues([E(1),E(2),E(1),E(2),E(3)])
 // Output: E(1), E(2), E(3)
 ```
 
-<a name="distinctbyfielduntilchanged" href="#distinctbyfielduntilchanged">#</a> .**distinctByFieldUntilChanged**(*`fieldName:` any*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
+<a name="distinctbyfielduntilchanged" href="#distinctbyfielduntilchanged">#</a> .**distinctByFieldUntilChanged**(*`fieldName:` any*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Distinct.mon  "Source")
 
 Remove back-to-back values with a duplicate `fieldName` value. 
 
-Note: The `fieldName` can be of any type (Eg. an integer for [IObservable](#iobservable-)\<sequence> or the key type for an [IObservable](#iobservable-)\<dictionary>)
+Note: The `fieldName` can be of any type (Eg. an integer for [IObservable](#iobservable)\<sequence> or the key type for an [IObservable](#iobservable)\<dictionary>)
 ```javascript
 event E {
 	integer value;
@@ -587,7 +584,7 @@ Observable.fromValues([E(1),E(1),E(2),E(1),E(3)])
 // Output: E(1), E(2), E(1), E(3)
 ```
 
-<a name="take" href="#take">#</a> .**take**(*`count:` integer*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Take.mon  "Source")
+<a name="take" href="#take">#</a> .**take**(*`count:` integer*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Take.mon  "Source")
 
 Take only the first `count` items.
 
@@ -599,7 +596,7 @@ Observable.fromValues([1,2,3,4])
 // Output: 1,2,3
 ```
 
-<a name="first" href="#first">#</a> .**first**() returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/First.mon  "Source")
+<a name="first" href="#first">#</a> .**first**() returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/First.mon  "Source")
 
 Take only the first item.
 
@@ -611,7 +608,7 @@ Observable.fromValues([1,2,3,4])
 // Output: 1
 ```
 
-<a name="takelast" href="#takelast">#</a> .**takeLast**(*`count:` integer*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/TakeLast.mon  "Source")
+<a name="takelast" href="#takelast">#</a> .**takeLast**(*`count:` integer*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/TakeLast.mon  "Source")
 
 Take only the last `count` items.
 
@@ -624,7 +621,7 @@ Observable.fromValues([1,2,3,4])
 // Output: 2,3,4
 ```
 
-<a name="last" href="#last">#</a> .**last**() returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Last.mon  "Source")
+<a name="last" href="#last">#</a> .**last**() returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Last.mon  "Source")
 
 Take only the last item.
 
@@ -637,7 +634,7 @@ Observable.fromValues([1,2,3,4])
 // Output: 4
 ```
 
-<a name="skip" href="#skip">#</a> .**skip**(*`count:` integer*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Skip.mon  "Source")
+<a name="skip" href="#skip">#</a> .**skip**(*`count:` integer*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Skip.mon  "Source")
 
 Skip the first `count` values.
 
@@ -649,7 +646,7 @@ Observable.fromValues([1,2,3,4])
 // Output: 3,4
 ```
 
-<a name="skiplast" href="#skiplast">#</a> .**skipLast**(*`count:` integer*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/SkipLast.mon  "Source")
+<a name="skiplast" href="#skiplast">#</a> .**skipLast**(*`count:` integer*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/SkipLast.mon  "Source")
 
 Skip the last `count` values.
 
@@ -661,7 +658,7 @@ Observable.fromValues([1,2,3,4])
 // Output: 1,2
 ```
 
-<a name="takeuntil" href="#takeuntil">#</a> .**takeUntil**(*`trigger:` [IObservable](#iobservable-)*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/TakeUntil.mon  "Source")
+<a name="takeuntil" href="#takeuntil">#</a> .**takeUntil**(*`trigger:` [IObservable](#iobservable)*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/TakeUntil.mon  "Source")
 
 Take values until the `trigger` receives a value.
 ```javascript
@@ -672,7 +669,7 @@ Observable.interval(0.1) // Emits an incrementing integer every 100 millis
 // Output: 0,1,2,3,4,5,6,7,8,9
 ```
 
-<a name="takewhile" href="#takewhile">#</a> .**takeWhile**(*`predicate:` action<`value:` [T](/docs/api-docs/README.md#wildcard-class-notation)> returns boolean*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/TakeWhile.mon  "Source")
+<a name="takewhile" href="#takewhile">#</a> .**takeWhile**(*`predicate:` action<`value:` [T](/docs/api-docs/README.md#wildcard-class-notation)> returns boolean*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/TakeWhile.mon  "Source")
 
 Take until the `predicate` for a received `value` returns false.
 ```javascript
@@ -687,7 +684,7 @@ Observable.fromValues([0,1,2,3,4])
 // Output: 0,1,2
 ```
 
-<a name="skipuntil" href="#skipuntil">#</a> .**skipUntil**(*`trigger:` [IObservable](#iobservable-)*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/SkipUntil.mon  "Source")
+<a name="skipuntil" href="#skipuntil">#</a> .**skipUntil**(*`trigger:` [IObservable](#iobservable)*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/SkipUntil.mon  "Source")
 
 Skip values until the `trigger` receives a value.
 ```javascript
@@ -698,7 +695,7 @@ Observable.interval(0.1) // Emits an incrementing integer every 100 millis
 // Output: 10,11,12,13...
 ```
 
-<a name="skipwhile" href="#skipwhile">#</a> .**skipWhile**(*`predicate:` action<`value:` [T](/docs/api-docs/README.md#wildcard-class-notation)> returns boolean*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/SkipWhile.mon  "Source")
+<a name="skipwhile" href="#skipwhile">#</a> .**skipWhile**(*`predicate:` action<`value:` [T](/docs/api-docs/README.md#wildcard-class-notation)> returns boolean*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/SkipWhile.mon  "Source")
 
 Skip until the `predicate` for a received `value` returns false.
 ```javascript
@@ -713,7 +710,7 @@ Observable.fromValues([0,1,2,3,4])
 // Output: 3,4
 ```
 
-<a name="debounce" href="#debounce">#</a> .**debounce**(*`seconds:` float*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Debounce.mon  "Source")
+<a name="debounce" href="#debounce">#</a> .**debounce**(*`seconds:` float*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Debounce.mon  "Source")
 
 Only emit values after there has been a t `seconds` gap between values.
 
@@ -736,7 +733,7 @@ Observable.create(source)
 // Output: 2,4
 ```
 
-<a name="throttlefirst" href="#throttlefirst">#</a> .**throttleFirst**(*`seconds:` float*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/ThrottleFirst.mon  "Source")
+<a name="throttlefirst" href="#throttlefirst">#</a> .**throttleFirst**(*`seconds:` float*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/ThrottleFirst.mon  "Source")
 
 When a value arrives emit it but then don't emit any more until t `seconds` have elapsed.
 
@@ -759,7 +756,7 @@ Observable.create(source)
 // Output: 0, 3
 ```
 
-<a name="throttlelast" href="#throttlelast">#</a> .**throttleLast**(*`seconds:` float*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/ThrottleLast.mon  "Source")
+<a name="throttlelast" href="#throttlelast">#</a> .**throttleLast**(*`seconds:` float*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/ThrottleLast.mon  "Source")
 
 When a value arrives start throttling (without sending a value). After t `seconds` have elapsed emit the last value received in the throttling period.
 
@@ -782,7 +779,7 @@ Observable.create(source)
 // Output: 2, 4
 ```
 
-<a name="sample" href="#sample">#</a> .**sample**(*`trigger:` [IObservable](#iobservable-)*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Sample.mon  "Source")
+<a name="sample" href="#sample">#</a> .**sample**(*`trigger:` [IObservable](#iobservable)*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Sample.mon  "Source")
 
 Take the most recently received value whenever the `trigger` fires.
 
@@ -794,7 +791,7 @@ Observable.interval(0.1) // Emits an incrementing integer every 100 millis
 // Output: 9,19,29
 ```
 
-<a name="sampletime" href="#sampletime">#</a> .**sampleTime**(*`seconds:` float*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Sample.mon  "Source")
+<a name="sampletime" href="#sampletime">#</a> .**sampleTime**(*`seconds:` float*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Sample.mon  "Source")
 
 Take the most recently received value every t `seconds`.
 
@@ -806,7 +803,7 @@ Observable.interval(0.1) // Emits an incrementing integer every 100 millis
 // Output: 9,19,29
 ```
 
-<a name="samplecount" href="#samplecount">#</a> .**sampleCount**(*`count:` integer*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Sample.mon  "Source")
+<a name="samplecount" href="#samplecount">#</a> .**sampleCount**(*`count:` integer*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Sample.mon  "Source")
 
 Take only every `count` value.
 
@@ -818,13 +815,13 @@ Observable.fromValues([0,1,2,3,4,5])
 // Output: 1,3,5
 ```
 
-<a name="sampletimeorcount" href="#sampletimeorcount">#</a> .**sampleTimeOrCount**(*`seconds:` float, `count:` integer*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Sample.mon  "Source")
+<a name="sampletimeorcount" href="#sampletimeorcount">#</a> .**sampleTimeOrCount**(*`seconds:` float, `count:` integer*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Sample.mon  "Source")
 
 Take a value whenever t `seconds` or `count` values have been received (Whichever comes first).
 
 Note: The timer is reset after a value is emitted.
 
-<a name="elementat" href="#elementat">#</a> .**elementAt**(*`index:` integer*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/ElementAt.mon  "Source")
+<a name="elementat" href="#elementat">#</a> .**elementAt**(*`index:` integer*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/ElementAt.mon  "Source")
 
 Take only the n'th `index` element.
 
@@ -837,7 +834,7 @@ Observable.fromValues([0,1,2,3])
 ```
 
 ### Combiners
-<a name="merge" href="#merge">#</a> .**merge**(*`other:` sequence<[IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)>>*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Merge.mon  "Source")
+<a name="merge" href="#merge">#</a> .**merge**(*`other:` sequence<[IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)>>*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Merge.mon  "Source")
 
 Merge the outputs of all of the provided `other` observables.
 
@@ -848,9 +845,9 @@ Observable.interval(0.1)
 
 // Output: 0,0,1,1,2,2,3,3...
 ```
-<a name="mergeall" href="#mergeall">#</a> .**mergeAll**() returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Merge.mon  "Source")
+<a name="mergeall" href="#mergeall">#</a> .**mergeAll**() returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Merge.mon  "Source")
 
-Removes a layer of nesting from observables. Received values which are  [IObservable](#iobservable-)s are merged into the output. Received values which are sequences/dictionaries have their values merged into the output.
+Removes a layer of nesting from observables. Received values which are  [IObservable](#iobservable)s are merged into the output. Received values which are sequences/dictionaries have their values merged into the output.
 
 ```javascript
 Observable.fromValues([<any> Observable.interval(0.1), [1,2,3]])
@@ -860,7 +857,7 @@ Observable.fromValues([<any> Observable.interval(0.1), [1,2,3]])
 // Output: 1,2,3,0,1,2,3,4...
 ```
 
-<a name="withlatestfrom" href="#withlatestfrom">#</a> .**withLatestFrom**(*`other:` sequence<[IObservable](#iobservable-)\<any>>, `combiner:` action\<`values:` sequence\<any>> returns any*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/WithLatestFrom.mon  "Source")
+<a name="withlatestfrom" href="#withlatestfrom">#</a> .**withLatestFrom**(*`other:` sequence<[IObservable](#iobservable)\<any>>, `combiner:` action\<`values:` sequence\<any>> returns any*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/WithLatestFrom.mon  "Source")
 
 Every time a value is received, take the latest values from the `other` observables and produce an output by running the `combiner`.
 
@@ -883,7 +880,7 @@ Observable.interval(1.0)
 // Output: "[0,9]","[1,19]","[2,29]"...
 ```
 
-<a name="withlatestfromtosequence" href="#withlatestfromtosequence">#</a> .**withLatestFromToSequence**(*`other:` sequence<[IObservable](#iobservable-)\<any>>*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/WithLatestFrom.mon  "Source")
+<a name="withlatestfromtosequence" href="#withlatestfromtosequence">#</a> .**withLatestFromToSequence**(*`other:` sequence<[IObservable](#iobservable)\<any>>*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/WithLatestFrom.mon  "Source")
 
 Every time a value is received, take the latest values from the `other` observables and produce a sequence\<any> containing the values from all.
 
@@ -897,7 +894,7 @@ Observable.interval(1.0)
 // Output: [0,9], [1,19], [2,29]...
 ```
 
-<a name="combinelatest" href="#combinelatest">#</a> .**combineLatest**(*`other:` sequence<[IObservable](#iobservable-)\<any>>, `combiner:` action\<`values:` sequence\<any>> returns any*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/CombineLatest.mon  "Source")
+<a name="combinelatest" href="#combinelatest">#</a> .**combineLatest**(*`other:` sequence<[IObservable](#iobservable)\<any>>, `combiner:` action\<`values:` sequence\<any>> returns any*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/CombineLatest.mon  "Source")
 
 Every time a value is received, from either the source or the `other` observables, produce an output by running the `combiner`.
 
@@ -920,7 +917,7 @@ Observable.interval(1.0)
 // Output: "[0,0]","[0,1]","[0,2]","[1,2]","[1,3]","[1,4]","[2,4]"...
 ```
 
-<a name="combinelatesttosequence" href="#combinelatesttosequence">#</a> .**combineLatestToSequence**(*`other:` sequence<[IObservable](#iobservable-)\<any>>*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/CombineLatest.mon  "Source")
+<a name="combinelatesttosequence" href="#combinelatesttosequence">#</a> .**combineLatestToSequence**(*`other:` sequence<[IObservable](#iobservable)\<any>>*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/CombineLatest.mon  "Source")
 
 Every time a value is received, from either the source or the `other` observables, produce a sequence\<any> containing the values from all.
 
@@ -934,7 +931,7 @@ Observable.interval(1.0)
 // Output: [0,0],[0,1],[0,2],[1,2],[1,3],[1,4],[2,4]...
 ```
 
-<a name="zip" href="#zip">#</a> .**zip**(*`other:` sequence<[IObservable](#iobservable-)\<any>>, `combiner:` action\<`values:` sequence\<any>> returns any*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Zip.mon  "Source")
+<a name="zip" href="#zip">#</a> .**zip**(*`other:` sequence<[IObservable](#iobservable)\<any>>, `combiner:` action\<`values:` sequence\<any>> returns any*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Zip.mon  "Source")
 
 Combine multiple observables by taking the n'th value from every observable, producing an output by running the `combiner`.
 
@@ -963,7 +960,7 @@ Observable.interval(1.0)
 // Output: "[0,0,a]","[1,1,b]","[2,2,c]"
 ```
 
-<a name="ziptosequence" href="#ziptosequence">#</a> .**zipToSequence**(*`other:` sequence<[IObservable](#iobservable-)\<any>>*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Zip.mon  "Source")
+<a name="ziptosequence" href="#ziptosequence">#</a> .**zipToSequence**(*`other:` sequence<[IObservable](#iobservable)\<any>>*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Zip.mon  "Source")
 
 Combine multiple observables by taking the n'th value from every observable, producing a sequence\<any> containing all of the n'th values.
 
@@ -983,7 +980,7 @@ Observable.interval(1.0)
 // Output: [0,0,a],[1,1,b],[2,2,c]
 ```
 
-<a name="concat" href="#concat">#</a> .**concat**(*`other:` sequence<[IObservable](#iobservable-)\<any>>*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Concat.mon  "Source")
+<a name="concat" href="#concat">#</a> .**concat**(*`other:` sequence<[IObservable](#iobservable)\<any>>*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Concat.mon  "Source")
 
 After the current observable completes, instead of completing, connect to the next source observable. This repeats until all sources have completed.
 
@@ -999,7 +996,7 @@ Observable.fromValues([1,2,3])
 
 See also: [Repeat](#repeat)
 
-<a name="startwith" href="#startwith">#</a> .**startWith**(*`startingValues:` sequence\<any>*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/StartWith.mon  "Source")
+<a name="startwith" href="#startwith">#</a> .**startWith**(*`startingValues:` sequence\<any>*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/StartWith.mon  "Source")
 
 Start the current observable with the values provided.
 
@@ -1011,9 +1008,9 @@ Observable.fromValues([1,2,3])
 // Output: 4,5,6,1,2,3
 ```
 
-<a name="switchmap" href="#switchmap">#</a> .**switchMap**(*`mapper:` action<[T1](/docs/api-docs/README.md#wildcard-class-notation)> returns [IObservable](#iobservable-)<[T2](/docs/api-docs/README.md#wildcard-class-notation)>*) returns [IObservable](#iobservable-)<[T2](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/SwitchMap.mon  "Source")
+<a name="switchmap" href="#switchmap">#</a> .**switchMap**(*`mapper:` action<[T1](/docs/api-docs/README.md#wildcard-class-notation)> returns [IObservable](#iobservable)<[T2](/docs/api-docs/README.md#wildcard-class-notation)>*) returns [IObservable](#iobservable)<[T2](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/SwitchMap.mon  "Source")
 
-Run a mapping function on every value, the result of which is an [IObservable](#iobservable-). This observable will be the source of output values until the next observable is provided by the mapping function.
+Run a mapping function on every value, the result of which is an [IObservable](#iobservable). This observable will be the source of output values until the next observable is provided by the mapping function.
 
 Note: This will complete after the last produced observable completes.
 
@@ -1029,11 +1026,11 @@ Observable.fromValues([1,2,3,4])
 // Output: 0,1,0,1,2,0,1,2,3,0,1,2,3,4
 ```
 
-<a name="switchonnext" href="#switchonnext">#</a> .**switchOnNext**() returns [IObservable](#iobservable-)\<any> [<>](/src/rx/operators/SwitchMap.mon  "Source")
+<a name="switchonnext" href="#switchonnext">#</a> .**switchOnNext**() returns [IObservable](#iobservable)\<any> [<>](/src/rx/operators/SwitchMap.mon  "Source")
 
 Takes every provided observable and connects to it until another is received, at which point it switches to the new one.
 
-The source must be an [IObservable](#iobservable-)<[IObservable](#iobservable-)\<any>>. 
+The source must be an [IObservable](#iobservable)<[IObservable](#iobservable)\<any>>. 
 
 Note: This will complete after the last produced observable completes.
 
@@ -1046,7 +1043,7 @@ Observable.fromValues([Observable.range(0,3), Observable.range(4,6)])
 ```
 
 ### Error Handling
-<a name="catcherror" href="#catcherror">#</a> .**catchError**(*`substitute:`  [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)>*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/CatchError.mon  "Source")
+<a name="catcherror" href="#catcherror">#</a> .**catchError**(*`substitute:`  [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)>*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/CatchError.mon  "Source")
 
 Switch to an alternative data source in the event of an error.
 
@@ -1063,7 +1060,7 @@ Observable.fromValues([1,2,3,4])
 // Output: 5,6,7,8
 ```
 
-<a name="retry" href="#retry">#</a> .**retry**(*`attempts:` integer*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Retry.mon  "Source")
+<a name="retry" href="#retry">#</a> .**retry**(*`attempts:` integer*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Retry.mon  "Source")
 
 Reconnect to the datasource in the event of an error. At most `attempts` times.
 
@@ -1085,7 +1082,7 @@ Observable.fromValues([1,2,3,4])
 ```
  
 ### Utils
-<a name="subscribe" href="#subscribe">#</a> .**subscribe**(*[Subscriber](../Subscriber)*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Subscribe.mon  "Source")
+<a name="subscribe" href="#subscribe">#</a> .**subscribe**(*[Subscriber](../Subscriber)*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Subscribe.mon  "Source")
 
 Connect to the source observable, and register listeners for values, errors and completion.
 ```javascript
@@ -1107,8 +1104,8 @@ Observable.fromValues([1,2,3])
 // Output: 1,2,3,Done!
 ```
 
-<a name="subscribeon" href="#subscribeon">#</a> .**subscribeOn**(*[Subscriber](../Subscriber),  context*) returns [IS](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Subscribe.mon  "Source")<br/>
-<a name="subscribeonnew" href="#subscribeonnew">#</a> .**subscribeOnNew**(*[Subscriber](../Subscriber)*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Subscribe.mon  "Source")
+<a name="subscribeon" href="#subscribeon">#</a> .**subscribeOn**(*[Subscriber](../Subscriber),  context*) returns [IS](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Subscribe.mon  "Source")<br/>
+<a name="subscribeonnew" href="#subscribeonnew">#</a> .**subscribeOnNew**(*[Subscriber](../Subscriber)*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Subscribe.mon  "Source")
 
 Connect to the source observable on a different context, and register listeners for values, errors and completion.
 
@@ -1138,7 +1135,7 @@ action createAndRunObservable() {
 spawn createAndRunObservable() to context("Context2");
 ```
 
-<a name="do" href="#do">#</a> .**do**(*[Subscriber](../Subscriber)*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Do.mon  "Source")
+<a name="do" href="#do">#</a> .**do**(*[Subscriber](../Subscriber)*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Do.mon  "Source")
 
 Snoops the output of an observable (at the point where the do is added), registering listeners for values, errors and completion, without subscribing to the observable.
 
@@ -1163,7 +1160,7 @@ Observable.fromValues([1,2,3,4])
 
 See also: [Subscribe](#subscribe)
 
-<a name="delay" href="#delay">#</a> .**delay**(*`seconds:`float*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Delay.mon  "Source")
+<a name="delay" href="#delay">#</a> .**delay**(*`seconds:`float*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Delay.mon  "Source")
 
 Delays values and completion by a number of `seconds`.
 
@@ -1177,7 +1174,7 @@ Observable.fromValues([1,2,3])
 // Output (after 1 second): 1,2,3
 ```
 
-<a name="async" href="#async">#</a> .**async**() returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Delay.mon  "Source")
+<a name="async" href="#async">#</a> .**async**() returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Delay.mon  "Source")
 
 Make every value asynchronous.
 
@@ -1189,8 +1186,8 @@ Observable.fromValues([1,2,3])
 // Output (Async): 1,2,3
 ```
 
-<a name="observeon" href="#observeon">#</a> .**observeOn**(*action\<`source:` [IObservable](#iobservable-), `dispose:` action\<>> ,  context*) returns [IDisposable](./IDisposable.md) [<>](/src/rx/operators/ObserveOn.mon  "Source")<br/>
-<a name="observeonnew" href="#observeonnew">#</a> .**observeOnNew**(*action\<`source:` [IObservable](#iobservable-), `dispose:` action\<>>*) returns [IDisposable](./IDisposable.md) [<>](/src/rx/operators/ObserveOn.mon  "Source")
+<a name="observeon" href="#observeon">#</a> .**observeOn**(*action\<`source:` [IObservable](#iobservable), `dispose:` action\<>> ,  context*) returns [IDisposable](./IDisposable.md) [<>](/src/rx/operators/ObserveOn.mon  "Source")<br/>
+<a name="observeonnew" href="#observeonnew">#</a> .**observeOnNew**(*action\<`source:` [IObservable](#iobservable), `dispose:` action\<>>*) returns [IDisposable](./IDisposable.md) [<>](/src/rx/operators/ObserveOn.mon  "Source")
 
 Continue processing the observable on a different context.
 
@@ -1242,7 +1239,7 @@ stream<any> strm := d.getStream();
 d.dispose(); // Use instead of strm.quit();
 ```
 
-<a name="timestamp" href="#timestamp">#</a> .**timestamp**() returns [IObservable](#iobservable-)<[TimestampedValue](../TimestampValue)\<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/Timestamp.mon  "Source")
+<a name="timestamp" href="#timestamp">#</a> .**timestamp**() returns [IObservable](#iobservable)<[TimestampedValue](../TimestampValue)\<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/Timestamp.mon  "Source")
 
 Give every value a timestamp as it arrives at the operator.
 
@@ -1256,7 +1253,7 @@ Observable.interval(1.0)
 // Output: TimestampedValue(0, 1.0), TimestampedValue(1, 2.0), TimestampedValue(2, 3.0)... 
 ```
 
-<a name="updatetimestamp" href="#updatetimestamp">#</a> .**updateTimestamp**() returns [IObservable](#iobservable-)<[TimestampedValue](../TimestampValue)\<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/Timestamp.mon  "Source")
+<a name="updatetimestamp" href="#updatetimestamp">#</a> .**updateTimestamp**() returns [IObservable](#iobservable)<[TimestampedValue](../TimestampValue)\<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/Timestamp.mon  "Source")
 
 Update the timestamp on every item as it arrives at the operator.
 
@@ -1273,7 +1270,7 @@ Observable.interval(1.0)
 // Output: TimestampedValue(0, 2.0), TimestampedValue(1, 3.0), TimestampedValue(2, 4.0)... 
 ```
 
-<a name="timeinterval" href="#timeinterval">#</a> .**timeInterval**() returns [IObservable](#iobservable-)\<TimeInterval\<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/TimeInterval.mon  "Source")
+<a name="timeinterval" href="#timeinterval">#</a> .**timeInterval**() returns [IObservable](#iobservable)\<TimeInterval\<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/TimeInterval.mon  "Source")
 
 Emit the time between events, as a TimeInterval. Emitting the time between subscription and receiving the value for the first value.
 
@@ -1287,7 +1284,7 @@ Observable.interval(1.0)
 // Output: TimeInterval(1.0,0), TimeInterval(1.0,1), TimeInterval(1.0,2)...
 ```
 
-<a name="let" href="#let">#</a> .**let**(*`operator:` Pipeable*) returns [IObservable](#iobservable-)\<any> [<>](/src/rx/operators/Pipe.mon  "Source")
+<a name="let" href="#let">#</a> .**let**(*`operator:` Pipeable*) returns [IObservable](#iobservable)\<any> [<>](/src/rx/operators/Pipe.mon  "Source")
 
 Add a single operator to the observable. Can be used by extension libraries or for custom operators.
 
@@ -1303,7 +1300,7 @@ Observable.fromValues([1,2,3,4])
 // Output: 10
 ```
 
-<a name="pipe" href="#pipe">#</a> .**pipe**(*`operators:` sequence\<Pipeable>*) returns [IObservable](#iobservable-)\<any> [<>](/src/rx/operators/Pipe.mon  "Source")
+<a name="pipe" href="#pipe">#</a> .**pipe**(*`operators:` sequence\<Pipeable>*) returns [IObservable](#iobservable)\<any> [<>](/src/rx/operators/Pipe.mon  "Source")
 
 Add a multiple operators to the observable. Can be used by extension libraries or for custom operators.
 
@@ -1323,8 +1320,8 @@ Observable.fromValues([1,2,3,4])
 
 // Output: 100
 ```
-<a name="pipeon" href="#pipeon">#</a> .**pipeOn**(*`operators:` sequence\<Pipeable>, context*) returns [IObservable](#iobservable-)\<any> [<>](/src/rx/operators/PipeOn.mon  "Source")<br/>
-<a name="pipeonnew" href="#pipeonnew">#</a> .**pipeOnNew**(*`operators:` sequence\<Pipeable>*) returns [IObservable](#iobservable-)\<any> [<>](/src/rx/operators/PipeOn.mon  "Source")
+<a name="pipeon" href="#pipeon">#</a> .**pipeOn**(*`operators:` sequence\<Pipeable>, context*) returns [IObservable](#iobservable)\<any> [<>](/src/rx/operators/PipeOn.mon  "Source")<br/>
+<a name="pipeonnew" href="#pipeonnew">#</a> .**pipeOnNew**(*`operators:` sequence\<Pipeable>*) returns [IObservable](#iobservable)\<any> [<>](/src/rx/operators/PipeOn.mon  "Source")
 
 Add a multiple operators to the observable and run those operators on a different context. Useful to allow slow operators to run without blocking the main thread. The results are returned to the original context.
 
@@ -1347,7 +1344,7 @@ Observable.fromValues([1,2,3,4])
 
 See also: [ObserveOn](#observeon)
 
-<a name="complexpipe" href="#complexpipe">#</a> .**complexPipe**(*`operator:` action<[IObservable](#iobservable-)<[T1](/docs/api-docs/README.md#wildcard-class-notation)>> returns [IObservable](#iobservable-)<[T2](/docs/api-docs/README.md#wildcard-class-notation)>*) returns [IObservable](#iobservable-)\<[T2](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/ComplexPipe.mon  "Source")
+<a name="complexpipe" href="#complexpipe">#</a> .**complexPipe**(*`operator:` action<[IObservable](#iobservable)<[T1](/docs/api-docs/README.md#wildcard-class-notation)>> returns [IObservable](#iobservable)<[T2](/docs/api-docs/README.md#wildcard-class-notation)>*) returns [IObservable](#iobservable)\<[T2](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/ComplexPipe.mon  "Source")
 
 Add a series of custom operations to the observable.
 
@@ -1364,8 +1361,8 @@ Observable.interval(1.0)
 // Output: [1,0], [2,1], [3,2]
 ```
 
-<a name="complexpipeon" href="#complexpipeon">#</a> .**complexPipeOn**(*`operator:` action<[IObservable](#iobservable-)<[T1](/docs/api-docs/README.md#wildcard-class-notation)>> returns [IObservable](#iobservable-)<[T2](/docs/api-docs/README.md#wildcard-class-notation)>, context*) returns [IObservable](#iobservable-)\<[T2](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/ComplexPipeOn.mon  "Source")<br/>
-<a name="complexpipeonnew" href="#complexpipeonnew">#</a> .**complexPipeOnNew**(*`operator:` action<[IObservable](#iobservable-)<[T1](/docs/api-docs/README.md#wildcard-class-notation)>> returns [IObservable](#iobservable-)<[T2](/docs/api-docs/README.md#wildcard-class-notation)>*) returns [IObservable](#iobservable-)\<[T2](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/ComplexPipeOn.mon  "Source")
+<a name="complexpipeon" href="#complexpipeon">#</a> .**complexPipeOn**(*`operator:` action<[IObservable](#iobservable)<[T1](/docs/api-docs/README.md#wildcard-class-notation)>> returns [IObservable](#iobservable)<[T2](/docs/api-docs/README.md#wildcard-class-notation)>, context*) returns [IObservable](#iobservable)\<[T2](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/ComplexPipeOn.mon  "Source")<br/>
+<a name="complexpipeonnew" href="#complexpipeonnew">#</a> .**complexPipeOnNew**(*`operator:` action<[IObservable](#iobservable)<[T1](/docs/api-docs/README.md#wildcard-class-notation)>> returns [IObservable](#iobservable)<[T2](/docs/api-docs/README.md#wildcard-class-notation)>*) returns [IObservable](#iobservable)\<[T2](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/ComplexPipeOn.mon  "Source")
 
 Add a series of custom operations to the observable and run those operations on a different context. Useful to allow slow operators to run without blocking the main thread. The results are returned to the original context.
 
@@ -1382,7 +1379,7 @@ Observable.interval(1.0)
 // Output: [1,0], [2,1], [3,2]
 ```
 
-<a name="decouple" href="#decouple">#</a> .**decouple**() returns [IObservable](#iobservable-)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/ComplexPipeOn.mon  "Source")
+<a name="decouple" href="#decouple">#</a> .**decouple**() returns [IObservable](#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/ComplexPipeOn.mon  "Source")
 
 Separate the resulting observable from the source observable.
 
@@ -1422,7 +1419,7 @@ integer value2 := <integer> Observable.timer(10, 1.0)
 // value2 = 3
 ```
 
-<a name="repeat" href="#repeat">#</a> .**repeat**(*`count:` integer*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Repeat.mon  "Source")
+<a name="repeat" href="#repeat">#</a> .**repeat**(*`count:` integer*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Repeat.mon  "Source")
 
 When the observable completes, reconnect to the source `count` times.
 
@@ -1434,7 +1431,7 @@ Observable.fromValues([1,2,3,4])
 // Output: 1,2,3,4,1,2,3,4,1,2,3,4
 ```
 
-<a name="publish" href="#publish">#</a> .**publish**() returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/Publish.mon  "Source")
+<a name="publish" href="#publish">#</a> .**publish**() returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/Publish.mon  "Source")
 
 Publish allows a single observable subscription to be shared among various other subscribers. Delaying upstream subscription until [.connect()](#connect) is called.
 
@@ -1462,7 +1459,7 @@ The returned [IDisposable](./IDisposable) can be used to disconnect, terminating
 
 See also: [RefCount](#refcount)
 
-<a name="publishreplay" href="#publishreplay">#</a> .**publishReplay**(*`count:` integer*) returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/PublishReplay.mon  "Source")
+<a name="publishreplay" href="#publishreplay">#</a> .**publishReplay**(*`count:` integer*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/PublishReplay.mon  "Source")
 
 Similar to [Publish](#publish), except it stores up to `count` values received after [.connect()](#connect) is called, replaying the latest to any late subscriptions.
 
@@ -1480,7 +1477,7 @@ on wait(2.0) {
 }
 ```
 
-<a name="refcount" href="#refcount">#</a> .**refCount**() returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/RefCount.mon  "Source")
+<a name="refcount" href="#refcount">#</a> .**refCount**() returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/RefCount.mon  "Source")
 
 Automatically [.connect()](#connect) and disconnect from the upstream observable after the first subscription and last unsubscription.
 
@@ -1496,11 +1493,11 @@ on wait(2.0) {
 }
 ```
 
-<a name="share" href="#share">#</a> .**share**() returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/Share.mon  "Source")
+<a name="share" href="#share">#</a> .**share**() returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/Share.mon  "Source")
 
 Shorthand for [.publish()](#publish)[.refCount()](#refcount)
 
-<a name="sharereplay" href="#sharereplay">#</a> .**shareReplay**() returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/ShareReplay.mon  "Source")
+<a name="sharereplay" href="#sharereplay">#</a> .**shareReplay**() returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/ShareReplay.mon  "Source")
 
 Shorthand for [.publishReplay()](#publishreplay)[.refCount()](#refcount)
 
@@ -1521,7 +1518,7 @@ ISubscription s := Observable.observeFromChannel("channelName")
 // Output: 0, 1, 2, 3
 ```
 
-<a name="ignoreelements" href="#ignoreelements">#</a> .**ignoreElements**() returns [IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/IgnoreElements.mon  "Source")
+<a name="ignoreelements" href="#ignoreelements">#</a> .**ignoreElements**() returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/IgnoreElements.mon  "Source")
 
 Ignore all of the values from the source but pass on termination events (Error or Completion).
 
@@ -1535,7 +1532,7 @@ Observable.interval(1.0).take(5)
 
 ### Conditional
 
-<a name="contains" href="#contains">#</a> .**contains**(*`predicate:` action<`value:` [T](/docs/api-docs/README.md#wildcard-class-notation)> returns boolean*) returns [IObservable](#iobservable-)\<boolean> [<>](/src/rx/operators/Contains.mon  "Source")
+<a name="contains" href="#contains">#</a> .**contains**(*`predicate:` action<`value:` [T](/docs/api-docs/README.md#wildcard-class-notation)> returns boolean*) returns [IObservable](#iobservable)\<boolean> [<>](/src/rx/operators/Contains.mon  "Source")
 
 Check if at least one `value` matches the `predicate`.
 
@@ -1553,7 +1550,7 @@ Observable.fromValues([1,2,3,4])
 // Output: true
 ```
 
-<a name="every" href="#every">#</a> .**every**(*`predicate:` action<`value:` [T](/docs/api-docs/README.md#wildcard-class-notation)> returns boolean*) returns [IObservable](#iobservable-)\<boolean> [<>](/src/rx/operators/Every.mon  "Source")
+<a name="every" href="#every">#</a> .**every**(*`predicate:` action<`value:` [T](/docs/api-docs/README.md#wildcard-class-notation)> returns boolean*) returns [IObservable](#iobservable)\<boolean> [<>](/src/rx/operators/Every.mon  "Source")
 
 Check if every `value` matches the `predicate`.
 
@@ -1571,7 +1568,7 @@ Observable.fromValues([1,2,3,4])
 // Output: false
 ```
 
-<a name="sequenceequal" href="#sequenceequal">#</a> .**sequenceEqual**(*`others:` sequence<[IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)>>*) returns [IObservable](#iobservable-)\<boolean> [<>](/src/rx/operators/Every.mon  "Source")
+<a name="sequenceequal" href="#sequenceequal">#</a> .**sequenceEqual**(*`others:` sequence<[IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)>>*) returns [IObservable](#iobservable)\<boolean> [<>](/src/rx/operators/Every.mon  "Source")
 
 Check if all of the provided observables contain the same values, in the same order.
 
@@ -1583,7 +1580,7 @@ Observable.interval(1.0).take(4)
 // Output: true
 ```
 
-<a name="amb" href="#amb">#</a> .**amb**(*`others:` sequence<[IObservable](#iobservable-)<[T](/docs/api-docs/README.md#wildcard-class-notation)>>*) returns [IObservable](#iobservable-)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Amb.mon  "Source")
+<a name="amb" href="#amb">#</a> .**amb**(*`others:` sequence<[IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)>>*) returns [IObservable](#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Amb.mon  "Source")
 
 Race the observables, the one which provides values first provides all of the values.
 
@@ -1595,7 +1592,7 @@ Observable.timer("I lost", 5.0)
 // Output: "I won!"
 ```
 
-<a name="defaultifempty" href="#defaultifempty">#</a> .**defaultIfEmpty**(*`value:` [T](/docs/api-docs/README.md#wildcard-class-notation)*) returns [IObservable](#iobservable-)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/DefaultIfEmpty.mon  "Source")
+<a name="defaultifempty" href="#defaultifempty">#</a> .**defaultIfEmpty**(*`value:` [T](/docs/api-docs/README.md#wildcard-class-notation)*) returns [IObservable](#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/DefaultIfEmpty.mon  "Source")
 
 Emit a default value if the source completes without emitting any values.
 
@@ -1609,7 +1606,7 @@ Observable.empty()
 
 ### Math and Aggregation
 
-<a name="reduce" href="#reduce">#</a> .**reduce**(*action<`aggregate:` [T2](/docs/api-docs/README.md#wildcard-class-notation), `value:` [T1](/docs/api-docs/README.md#wildcard-class-notation)> returns [T2](/docs/api-docs/README.md#wildcard-class-notation)*) returns [IObservable](#iobservable-)<[T2](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Scan.mon  "Source")
+<a name="reduce" href="#reduce">#</a> .**reduce**(*action<`aggregate:` [T2](/docs/api-docs/README.md#wildcard-class-notation), `value:` [T1](/docs/api-docs/README.md#wildcard-class-notation)> returns [T2](/docs/api-docs/README.md#wildcard-class-notation)*) returns [IObservable](#iobservable)<[T2](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Scan.mon  "Source")
 
 Aggregate the data, emitting the aggregated value on completion.
 
@@ -1628,7 +1625,7 @@ Observable.fromValues([1,2,3])
 ```
 See also: [Scan](#scan)
 
-<a name="reducewithinitial" href="#reducewithinitial">#</a> .**reduceWithInitial**(*action<`aggregate:` [T2](/docs/api-docs/README.md#wildcard-class-notation), `value:` [T1](/docs/api-docs/README.md#wildcard-class-notation)> returns [T2](/docs/api-docs/README.md#wildcard-class-notation), `initialValue:` [T2](/docs/api-docs/README.md#wildcard-class-notation)*) returns [IObservable](#iobservable-)<[T2](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Scan.mon  "Source")
+<a name="reducewithinitial" href="#reducewithinitial">#</a> .**reduceWithInitial**(*action<`aggregate:` [T2](/docs/api-docs/README.md#wildcard-class-notation), `value:` [T1](/docs/api-docs/README.md#wildcard-class-notation)> returns [T2](/docs/api-docs/README.md#wildcard-class-notation), `initialValue:` [T2](/docs/api-docs/README.md#wildcard-class-notation)*) returns [IObservable](#iobservable)<[T2](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Scan.mon  "Source")
 
 Aggregate the data, emitting the aggregated value on completion.. The initial value for the aggregation is supplied.
 ```javascript
@@ -1644,7 +1641,7 @@ Observable.fromValues([1,2,3])
 ```
 See also: [ScanWithInitial](#scanwithinitial)
 
-<a name="count" href="#count">#</a> .**count**() returns [IObservable](#iobservable-)\<integer> [<>](/src/rx/operators/Aggregates.mon  "Source")
+<a name="count" href="#count">#</a> .**count**() returns [IObservable](#iobservable)\<integer> [<>](/src/rx/operators/Aggregates.mon  "Source")
 
 Count the number of items emitted by the source.
 
@@ -1658,10 +1655,10 @@ Observable.fromValues([1,2,3,4])
 // Output: 4
 ```
 
-<a name="sum" href="#sum">#</a> .**sum**() returns [IObservable](#iobservable-)\<float> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
-<a name="suminteger" href="#suminteger">#</a> .**sumInteger**() returns [IObservable](#iobservable-)\<integer> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
-<a name="sumfloat" href="#sumfloat">#</a> .**sumFloat**() returns [IObservable](#iobservable-)\<float> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
-<a name="sumdecimal" href="#sumdecimal">#</a> .**sumDecimal**() returns [IObservable](#iobservable-)\<decimal> [<>](/src/rx/operators/Aggregates.mon  "Source")
+<a name="sum" href="#sum">#</a> .**sum**() returns [IObservable](#iobservable)\<float> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
+<a name="suminteger" href="#suminteger">#</a> .**sumInteger**() returns [IObservable](#iobservable)\<integer> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
+<a name="sumfloat" href="#sumfloat">#</a> .**sumFloat**() returns [IObservable](#iobservable)\<float> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
+<a name="sumdecimal" href="#sumdecimal">#</a> .**sumDecimal**() returns [IObservable](#iobservable)\<decimal> [<>](/src/rx/operators/Aggregates.mon  "Source")
 
 Sum the provided values.
 
@@ -1675,7 +1672,7 @@ Observable.fromValues([1,2,3,4])
 // Output: 10.0
 ```
 
-<a name="concatstring" href="#concatstring">#</a> .**concatString**() returns [IObservable](#iobservable-)\<string> [<>](/src/rx/operators/Aggregates.mon  "Source")
+<a name="concatstring" href="#concatstring">#</a> .**concatString**() returns [IObservable](#iobservable)\<string> [<>](/src/rx/operators/Aggregates.mon  "Source")
 
 Concatenate the `.valueToString()` of every value.
 
@@ -1687,10 +1684,10 @@ Observable.fromValues([<any> "Hello ", "World", "! ", 1, 2, 3])
 // Output: "Hello World! 123"
 ```
 
-<a name="max" href="#max">#</a> .**max**() returns [IObservable](#iobservable-)\<float> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
-<a name="maxinteger" href="#maxinteger">#</a> .**maxInteger**() returns [IObservable](#iobservable-)\<integer> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
-<a name="maxfloat" href="#maxfloat">#</a> .**maxFloat**() returns [IObservable](#iobservable-)\<float> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
-<a name="maxdecimal" href="#maxdecimal">#</a> .**maxDecimal**() returns [IObservable](#iobservable-)\<decimal> [<>](/src/rx/operators/Aggregates.mon  "Source")
+<a name="max" href="#max">#</a> .**max**() returns [IObservable](#iobservable)\<float> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
+<a name="maxinteger" href="#maxinteger">#</a> .**maxInteger**() returns [IObservable](#iobservable)\<integer> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
+<a name="maxfloat" href="#maxfloat">#</a> .**maxFloat**() returns [IObservable](#iobservable)\<float> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
+<a name="maxdecimal" href="#maxdecimal">#</a> .**maxDecimal**() returns [IObservable](#iobservable)\<decimal> [<>](/src/rx/operators/Aggregates.mon  "Source")
 
 Find the largest value.
 
@@ -1704,10 +1701,10 @@ Observable.fromValues([1,2,3,4])
 // Output: 4.0
 ```
 
-<a name="min" href="#min">#</a> .**min**() returns [IObservable](#iobservable-)\<float> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
-<a name="mininteger" href="#mininteger">#</a> .**minInteger**() returns [IObservable](#iobservable-)\<integer> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
-<a name="minfloat" href="#minfloat">#</a> .**minFloat**() returns [IObservable](#iobservable-)\<float> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
-<a name="mindecimal" href="#mindecimal">#</a> .**minDecimal**() returns [IObservable](#iobservable-)\<decimal> [<>](/src/rx/operators/Aggregates.mon  "Source")
+<a name="min" href="#min">#</a> .**min**() returns [IObservable](#iobservable)\<float> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
+<a name="mininteger" href="#mininteger">#</a> .**minInteger**() returns [IObservable](#iobservable)\<integer> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
+<a name="minfloat" href="#minfloat">#</a> .**minFloat**() returns [IObservable](#iobservable)\<float> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
+<a name="mindecimal" href="#mindecimal">#</a> .**minDecimal**() returns [IObservable](#iobservable)\<decimal> [<>](/src/rx/operators/Aggregates.mon  "Source")
 
 Find the smallest value.
 
@@ -1721,8 +1718,8 @@ Observable.fromValues([1,2,3,4])
 // Output: 1.0
 ```
 
-<a name="average" href="#average">#</a> .**average**() returns [IObservable](#iobservable-)\<float> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
-<a name="averagedecimal" href="#averagedecimal">#</a> .**averageDecimal**() returns [IObservable](#iobservable-)\<decimal> [<>](/src/rx/operators/Aggregates.mon  "Source")
+<a name="average" href="#average">#</a> .**average**() returns [IObservable](#iobservable)\<float> [<>](/src/rx/operators/Aggregates.mon  "Source")<br/>
+<a name="averagedecimal" href="#averagedecimal">#</a> .**averageDecimal**() returns [IObservable](#iobservable)\<decimal> [<>](/src/rx/operators/Aggregates.mon  "Source")
 
 Find the arithmetic mean.
 
