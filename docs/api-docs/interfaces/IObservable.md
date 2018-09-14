@@ -925,7 +925,7 @@ Note: The resulting sequence contains the `values` in the same order as the obse
 
 ```javascript
 Observable.interval(1.0)
-	.combineLatestToSequence([Observable.interval(0.1)], createSequenceString)
+	.combineLatestToSequence([Observable.interval(0.1)])
 	...
 
 // Output: [0,0],[0,1],[0,2],[1,2],[1,3],[1,4],[2,4]...
@@ -1503,7 +1503,7 @@ Shorthand for [.publishReplay()](#publishreplay)[.refCount()](#refcount)
 
 <a name="observetochannel" href="#observetochannel">#</a> .**observeToChannel**(`channel:` string) returns [IDisposable](./IDisposable.md) [<>](/src/rx/operators/internals/ObserveTo.mon  "Source")
 
-ObserveToChannel and ObserveFromChannel are useful for sending data between different monitor instances which may or may not be on different contexts.
+ObserveToChannel and [ObserveFromChannel](../constructors/Observable#observefromchannel) are useful for sending data between different monitor instances which may or may not be on different contexts.
 
 Note: `.dispose()` should be called on the returned [IDisposable](./IDisposable.md) when all subscribers are finished to avoid a memory leak.
 
