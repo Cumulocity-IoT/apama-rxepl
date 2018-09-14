@@ -3,7 +3,7 @@ The main class of RxEPL. This event implements the [IObservable](../interfaces/I
 
 ## Methods
 
-All of the public API for this event is static and as such this event should never be manually constructed. This is categorised list of the methods:
+All of the public API for this event is static and as such this event should never be manually constructed. This is a categorised list of the methods:
 
 * [Construction](#construction)
 	* [Create](#create)
