@@ -20,13 +20,13 @@ All of the public API for this event is static and as such this event should nev
 	* [Empty](#empty)/[Never](#never)/[Error](#error)
 	* [ObserveFromChannel](#observefromchannel)
 * [Combinatory Operations](#combinatory-operators)
-	* Merge
-	* WithLatestFrom/WithLatestFromToSequence
-	* CombineLatest/CombineLatestToSequence
-	* Zip/ZipToSequence
-	* Concat
-	* SequenceEqual
-	* Amb
+	* [Merge](#merge)
+	* [CombineLatest](#combinelatest)/[CombineLatestToSequence](#combinelatesttosequence)
+	* [Zip](#zip)/[ZipToSequence](#ziptosequence)
+	* [Concat](#concat)
+* [Conditional Operators](#conditional-operators)
+	* [SequenceEqual](#sequenceequal)
+	* [Amb](#amb)
 
 ## Construction
 
@@ -235,3 +235,136 @@ ISubscription s := Observable.observeFromChannel("channelName")
 ```
 
 ## Combinatory Operators
+
+<a name="merge" href="#merge">#</a> .**merge**(*`observables:` sequence<[IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)>>*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Merge.mon  "Source")
+
+Merge the outputs of all of the provided `observables`.
+
+```javascript
+Observable.merge([Observable.interval(0.1), Observable.interval(0.1)])
+	...
+
+// Output: 0,0,1,1,2,2,3,3...
+```
+
+<a name="combinelatest" href="#combinelatest">#</a> .**combineLatest**(*`observables:` sequence<[IObservable](#iobservable)\<any>>, `combiner:` action\<`values:` sequence\<any>> returns any*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/CombineLatest.mon  "Source")
+
+Every time a value is received from the `observables`, produce an output by running the `combiner`.
+
+Note: The `combiner` takes the `values` in the same order as the `observables` are defined.
+
+```javascript
+action createSequenceString(sequence<any> values) returns any {
+	sequence<string> strings := new sequence<string>;
+	any value;
+	for value in values {
+		strings.append(value.valueToString());
+	}
+	return "[" + ",".join(strings) + "]";
+}
+
+Observable.combineLatest([Observable.interval(1.0), Observable.interval(0.5)], createSequenceString)
+	...
+
+// Output: "[0,0]","[0,1]","[0,2]","[1,2]","[1,3]","[1,4]","[2,4]"...
+```
+
+<a name="combinelatesttosequence" href="#combinelatesttosequence">#</a> .**combineLatestToSequence**(*`observables:` sequence<[IObservable](#iobservable)\<any>>*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/CombineLatest.mon  "Source")
+
+Every time a value is received from the `observables`, produce a sequence\<any> containing the values from all.
+
+Note: The resulting sequence contains the `values` in the same order as the observables are defined.
+
+```javascript
+Observable.combineLatestToSequence([Observable.interval(1.0), Observable.interval(0.1)])
+	...
+
+// Output: [0,0],[0,1],[0,2],[1,2],[1,3],[1,4],[2,4]...
+```
+
+<a name="zip" href="#zip">#</a> .**zip**(*`observables:` sequence<[IObservable](#iobservable)\<any>>, `combiner:` action\<`values:` sequence\<any>> returns any*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Zip.mon  "Source")
+
+Combine multiple observables by taking the n'th value from every observable, producing an output by running the `combiner`.
+
+I.e. The first output is the result from the combiner running on the first value from every source.
+
+Note: The `combiner` takes the `values` in the same order as the observables are defined.
+
+Note2: The result is terminated when any of the sources run out of values, but only after the output for those values has been generated.
+
+Note3: This requires storing values until their counterpart in another observable is found, this could be expensive with long running observables.
+
+```javascript
+action createSequenceString(sequence<any> values) returns any {
+	sequence<string> strings := new sequence<string>;
+	any value;
+	for value in values {
+		strings.append(value.valueToString());
+	}
+	return "[" + ",".join(strings) + "]";
+}
+
+Observable
+	.zip([Observable.interval(1.0), Observable.interval(0.5), Observable.fromValues(["a","b","c"])], createSequenceString)
+	...
+
+// Output: "[0,0,a]","[1,1,b]","[2,2,c]"
+```
+
+<a name="ziptosequence" href="#ziptosequence">#</a> .**zipToSequence**(*`observables:` sequence<[IObservable](#iobservable)\<any>>*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Zip.mon  "Source")
+
+Combine multiple observables by taking the n'th value from every observable, producing a sequence\<any> containing all of the n'th values.
+
+I.e. The first output is a sequence\<any> containing the first value from every source.
+
+Note: The output sequence\<any> contains the values in the same order as the observables are defined.
+
+Note2: The result is terminated when any of the sources run out of values, but only after the output for those values has been generated.
+
+Note3: This requires storing values until their counterpart in another observable is found, this could be expensive with long running observables.
+
+```javascript
+Observable
+	.zipToSequence([Observable.interval(1.0), Observable.interval(0.5), Observable.fromValues(["a","b","c"])])
+	...
+
+// Output: [0,0,a],[1,1,b],[2,2,c]
+```
+
+<a name="concat" href="#concat">#</a> .**concat**(*`observables:` sequence<[IObservable](#iobservable)\<any>>*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Concat.mon  "Source")
+
+After the current observable completes, instead of completing, connect to the next source observable. This repeats until all sources have completed.
+
+Note: This will potentially miss values if the `observables` are "hot" (Miss values when not connected. Eg. Values from a channel or stream).
+
+```javascript
+Observable.concat([Observable.fromValues([1,2,3]), Observable.fromValues([4,5,6])])
+	...
+
+// Output: 1,2,3,4,5,6
+```
+
+## Conditional Operators
+
+<a name="sequenceequal" href="#sequenceequal">#</a> .**sequenceEqual**(*`observables:` sequence<[IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)>>*) returns [IObservable](#iobservable)\<boolean> [<>](/src/rx/operators/Every.mon  "Source")
+
+Check if all of the provided `observables` contain the same values, in the same order.
+
+```javascript
+Observable
+	.sequenceEqual([Observable.interval(1.0).take(4), Observable.fromValues([0,1,2,3]), Observable.range(0,3)])
+	...
+
+// Output: true
+```
+
+<a name="amb" href="#amb">#</a> .**amb**(*`others:` sequence<[IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)>>*) returns [IObservable](#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Amb.mon  "Source")
+
+Race the `observables`, the one which provides values first provides all of the values.
+
+```javascript
+Observable.amb([Observable.timer("I lost", 5.0), Observable.timer("I won!", 1.0)])
+	...
+
+// Output: "I won!"
+```
