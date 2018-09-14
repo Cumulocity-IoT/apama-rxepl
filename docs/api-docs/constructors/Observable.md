@@ -269,6 +269,8 @@ Observable.combineLatest([Observable.interval(1.0), Observable.interval(0.5)], c
 // Output: "[0,0]","[0,1]","[0,2]","[1,2]","[1,3]","[1,4]","[2,4]"...
 ```
 
+See also: [WithLatestFrom](../interfaces/IObservable.md#withlatestfrom)
+
 <a name="combinelatesttosequence" href="#combinelatesttosequence">#</a> .**combineLatestToSequence**(*`observables:` sequence<[IObservable](#iobservable)\<any>>*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/CombineLatest.mon  "Source")
 
 Every time a value is received from the `observables`, produce a sequence\<any> containing the values from all.
