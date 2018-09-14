@@ -1421,14 +1421,14 @@ integer value2 := <integer> Observable.timer(10, 1.0)
 
 <a name="repeat" href="#repeat">#</a> .**repeat**(*`count:` integer*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Repeat.mon  "Source")
 
-When the observable completes, reconnect to the source `count` times.
+Repeat an observable, by reconnecting to the source `count-1` times.
 
 ```javascript
 Observable.fromValues([1,2,3,4])
 	.repeat(2)
 	...
 
-// Output: 1,2,3,4,1,2,3,4,1,2,3,4
+// Output: 1,2,3,4,1,2,3,4
 ```
 
 <a name="publish" href="#publish">#</a> .**publish**() returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/Publish.mon  "Source")
