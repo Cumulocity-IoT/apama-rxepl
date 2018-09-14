@@ -221,7 +221,7 @@ Observable.error()
 
 <a name="observefromchannel" href="#observefromchannel">#</a> .**observeFromChannel**(*`channelName:` string*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<any> [<>](/src/rx/operators/internals/ObserveFromChannel.mon  "Source")
 
-[ObserveToChannel](../interfaces/IObservable#observetochannel) and ObserveFromChannel are useful for sending data between different monitor instances which may or may not be on different contexts.
+[ObserveToChannel](../interfaces/IObservable.md#observetochannel) and ObserveFromChannel are useful for sending data between different monitor instances which may or may not be on different contexts.
 
 ```javascript
 // Ideally should dispose of this when all subscribers are finished (if ever)
