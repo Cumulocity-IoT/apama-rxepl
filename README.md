@@ -147,7 +147,7 @@ monitor Main {
 `com.industry.rx_epl.Subscriber` - A subscriber. Defines handling for onNext, onError, onComplete (see [Subscribing](#subscribing))
 
 **Operators:**\
-`com.industry.rx_epl.operators.*` - All pipeable operators (See [Operators](#operators). The ApamaDoc contains a full list)
+`com.industry.rx_epl.operators.*` - All pipeable operators (See [Operators](#operators). The [APIDoc](/docs/api-docs/README.md#api-documentation) contains a full list)
 
 ## <a id="examples"></a>Examples
 There are several examples that ship with the source code. These are located in the `samples` folder.
@@ -229,7 +229,7 @@ ISubscription s := o.subscribe(Subscriber.create().onNext(printValue).onComplete
 ```
 Which you choose to use is up to you.
 
-There are far too many operators to go through every one here, but there is a really handy decision tree in the [external links section](#other) to help you find the one you need. The ApamaDoc lists all of the operators.
+There are far too many operators to go through every one here, but there is a really handy decision tree in the [external links section](#other) to help you find the one you need. The [APIDoc](/docs/api-docs/README.md#api-documentation) lists all of the operators.
 
 ## <a id="combining"></a>Joining and Combining
 **Merge** - Combine all values from multiple observables onto one observable
