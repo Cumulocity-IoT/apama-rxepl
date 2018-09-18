@@ -30,7 +30,7 @@ All of the public API for this event is static and as such this event should nev
 
 ## Construction
 
-<a name="create" href="#create">#</a> .**create**(*`generator:` action<`resolver:` [IResolver](../interfaces/IResolver.md)*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/Create.mon  "Source")
+<a name="create" href="#create">#</a> .**create**(*`generator:` action<`resolver:` [IResolver](../interfaces/IResolver.md#iresolver)*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/Create.mon  "Source")
 
 Create an observable by running the `generator` action whenever a subscription is created.
 
