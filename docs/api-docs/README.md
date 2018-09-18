@@ -13,7 +13,7 @@
 - com.industry.rx_epl.[ISubject](interfaces/ISubject.md#isubject)
 - com.industry.rx_epl.[ISubscription](interfaces/ISubscription.md#isubscription)
 - com.industry.rx_epl.[IDisposable](interfaces/IDisposable.md#idisposable)
-- com.industry.rx_epl.IResolver
+- com.industry.rx_epl.[IResolver](interfaces/IResolver.md#iresolver)
 
 ## Utilities
 
