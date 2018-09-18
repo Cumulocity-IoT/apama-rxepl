@@ -1,4 +1,4 @@
-# <a name="iresolver"></a>com.industry.rx_epl.IResolver[<>](/src/rx/interfaces/IResolver.mon)
+# <a name="iresolver"></a>com.industry.rx_epl.IResolver [<>](/src/rx/interfaces/IResolver.mon)
 
 Used by [Observable.create(...)](../constructors/Observable.md#create) as the utility to emit values, error, or completion from an observable source.
 
