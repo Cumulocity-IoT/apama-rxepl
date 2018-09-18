@@ -36,7 +36,7 @@ s.unsubscribe();
 
 <a name="subscribed" href="#subscribed">#</a> .**subscribed**() returns boolean [<>](/src/rx/objects/Subscription.mon  "Source")
 
-Check whether a subscription is active,
+Check whether a subscription is active.
 
 ```javascript
 ISubscription s := Observable.timer("Value", 1.0)
