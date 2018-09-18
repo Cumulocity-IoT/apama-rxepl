@@ -23,6 +23,7 @@
 - com.industry.rx_epl.WrappedAny
 
 ## Operators
+- com.industry.rx_epl.[**\***](interfaces/IObservable.md#operators-and-methods)
 
 All of the standard operators (except `publish`, `connect`, `refCount`, `share`...) can be used in two ways:
 
