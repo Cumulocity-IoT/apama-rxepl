@@ -11,7 +11,7 @@
 ## Interfaces
 - com.industry.rx_epl.[IObservable](interfaces/IObservable.md#iobservable)
 - com.industry.rx_epl.[ISubject](interfaces/ISubject.md#isubject)
-- com.industry.rx_epl.ISubscription
+- com.industry.rx_epl.[ISubscription](interfaces/ISubscription.md#isubscription)
 - com.industry.rx_epl.IDisposable
 - com.industry.rx_epl.IResolver
 
