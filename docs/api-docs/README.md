@@ -36,8 +36,8 @@ Observable.fromValues([1,2,3])
 ```
 **Piping** - Accessible via the `com.industry.rx_epl.operators.*` sub-package, and used via the [.let(...)](interfaces/IObservable.md#let) and [.pipe(...)](interfaces/IObservable.md#pipe) operators.
 ```javascript
-import com.industry.rx_epl.operators.Map;
-import com.industry.rx_epl.operators.Reduce;
+using com.industry.rx_epl.operators.Map;
+using com.industry.rx_epl.operators.Reduce;
 
 Observable.fromValues([1,2,3])
 	.let(Map.create(multiplyBy10))
