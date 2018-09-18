@@ -1,4 +1,4 @@
-# <a name="idisposable"></a>com.industry.rx_epl.IDisposable[<>](/src/rx/interfaces/IDisposable.mon)
+# <a name="idisposable"></a>com.industry.rx_epl.IDisposable [<>](/src/rx/interfaces/IDisposable.mon)
 Allows a resource to be disposed after use is finished.
 
 ## Methods
