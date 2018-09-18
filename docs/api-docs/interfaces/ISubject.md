@@ -1,4 +1,4 @@
-# <a name="isubject"></a>ISubject [<>](/src/rx/interfaces/ISubject.mon)
+# <a name="isubject"></a>com.industry.rx_epl.ISubject [<>](/src/rx/interfaces/ISubject.mon)
 
 ISubject is designed to be a subclass of [IObservable](./IObservable#iobservable), as such it has all of the methods on an [IObservable](./IObservable#iobservable). It also contains methods to allow values to be injected into the IObservable:
 
