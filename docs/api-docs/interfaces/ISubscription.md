@@ -1,4 +1,4 @@
-# <a name="isubscription"></a>com.industry.rx_epl.ISubscription[<>](/src/rx/interfaces/ISubscription.mon)
+# <a name="isubscription"></a>com.industry.rx_epl.ISubscription [<>](/src/rx/interfaces/ISubscription.mon)
 The interface returned by calls to [IObservable.subscribe(...)](IObservable.md#subscribe). Contains methods to unsubscribe and add listeners.
 
 ## Methods
