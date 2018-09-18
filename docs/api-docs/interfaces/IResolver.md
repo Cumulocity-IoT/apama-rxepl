@@ -8,7 +8,7 @@ Used by [Observable.create(...)](../constructors/Observable.md#create) as the ut
 * [Complete](#complete)
 * [OnUnsubscribe](#onunsubscribe)
 
-<a name="next" href="#next">#</a> .**next**(*`value:` any*) [<>](/src/rx/objects/IResolver.mon  "Source")
+<a name="next" href="#next">#</a> .**next**(*`value:` any*) [<>](/src/rx/interfaces/IResolver.mon  "Source")
 
 Send the next value to the subscriber.
 
@@ -25,7 +25,7 @@ ISubscription s := Observable.create(fromEventListener)
 	.subscribe(...);
 ```
 
-<a name="error" href="#error">#</a> .**error**(*`error:` any*) [<>](/src/rx/objects/IResolver.mon  "Source")
+<a name="error" href="#error">#</a> .**error**(*`error:` any*) [<>](/src/rx/interfaces/IResolver.mon  "Source")
 
 Send an error to the subscriber (Usually `com.apama.exceptions.Exception(...)`). Once an error has been sent the observable is terminated.
 
@@ -40,7 +40,7 @@ ISubscription s := Observable.create(fromEventListener)
 	.subscribe(...);
 ```
 
-<a name="complete" href="#complete">#</a> .**complete**() [<>](/src/rx/objects/IResolver.mon  "Source")
+<a name="complete" href="#complete">#</a> .**complete**() [<>](/src/rx/interfaces/IResolver.mon  "Source")
 
 Send a complete notification to the subscriber. Once complete has been sent the observable is terminated.
 
@@ -55,7 +55,7 @@ ISubscription s := Observable.create(fromEventListener)
 	.subscribe(...);
 ```
 
-<a name="onunsubscribe" href="#onunsubscribe">#</a> .**onUnsubscribe**(*`callback:` action<>*) [<>](/src/rx/objects/IResolver.mon  "Source")
+<a name="onunsubscribe" href="#onunsubscribe">#</a> .**onUnsubscribe**(*`callback:` action<>*) [<>](/src/rx/interfaces/IResolver.mon  "Source")
 
 Add a listener for the termination of the subscription.
 
