@@ -1191,12 +1191,12 @@ Observable.fromValues([1,2,3])
 // Output (Async): 1,2,3
 ```
 
-<a name="observeon" href="#observeon">#</a> .**observeOn**(*action\<`source:` [IObservable](#iobservable), `dispose:` action\<>> ,  context*) returns [IDisposable](./IDisposable.md) [<>](/src/rx/operators/ObserveOn.mon  "Source")<br/>
-<a name="observeonnew" href="#observeonnew">#</a> .**observeOnNew**(*action\<`source:` [IObservable](#iobservable), `dispose:` action\<>>*) returns [IDisposable](./IDisposable.md) [<>](/src/rx/operators/ObserveOn.mon  "Source")
+<a name="observeon" href="#observeon">#</a> .**observeOn**(*action\<`source:` [IObservable](#iobservable), `dispose:` action\<>> ,  context*) returns [IDisposable](./IDisposable.md#idisposable) [<>](/src/rx/operators/ObserveOn.mon  "Source")<br/>
+<a name="observeonnew" href="#observeonnew">#</a> .**observeOnNew**(*action\<`source:` [IObservable](#iobservable), `dispose:` action\<>>*) returns [IDisposable](./IDisposable.md#idisposable) [<>](/src/rx/operators/ObserveOn.mon  "Source")
 
 Continue processing the observable on a different context.
 
-The `dispose` action terminates terminates the cross-context communication. The cross-context communication can be terminated from either side by calling either the provided `dispose` action or by calling the `.dispose()` method of the returned [IDisposable](./IDisposable.md). 
+The `dispose` action terminates terminates the cross-context communication. The cross-context communication can be terminated from either side by calling either the provided `dispose` action or by calling the `.dispose()` method of the returned [IDisposable](./IDisposable.md#idisposable). 
 
 **Important Note:** It is important to terminate the cross-context communication to avoid a memory leak.
 
@@ -1214,11 +1214,11 @@ IDisposable d := Observable.fromValues([1,2,3,4])
 	.observeOn(doOnDifferentContext, context("Context2"));
 ```
 
-<a name="tochannel" href="#tochannel">#</a> .**toChannel**(*`channelName:` string*) returns [IDisposable](./IDisposable.md) [<>](/src/rx/operators/ToChannel.mon  "Source")
+<a name="tochannel" href="#tochannel">#</a> .**toChannel**(*`channelName:` string*) returns [IDisposable](./IDisposable.md#idisposable) [<>](/src/rx/operators/ToChannel.mon  "Source")
 
 Send every value to a channel. Primitive values are wrapped inside a [WrappedAny](../WrappedAny) so that they can be sent.
 
-The resulting [IDisposable](./IDisposable.md) can be used to manually terminate the observable.
+The resulting [IDisposable](./IDisposable.md#idisposable) can be used to manually terminate the observable.
 
 Note: Errors are thrown when received, completion causes the observable to terminate.
 
@@ -1456,11 +1456,11 @@ on wait(2.0) {
 }
 ```
 
-<a name="connect" href="#connect">#</a> .**connect**() returns [IDisposable](./IDisposable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/Publish.mon  "Source")
+<a name="connect" href="#connect">#</a> .**connect**() returns [IDisposable](./IDisposable.md#idisposable) [<>](/src/rx/operators/internals/Publish.mon  "Source")
 
 Connect to a [published](#publish) observable, causing it to start emitting values.
 
-The returned [IDisposable](./IDisposable) can be used to disconnect, terminating the connected observables (without completion).
+The returned [IDisposable](./IDisposable.md#idisposable) can be used to disconnect, terminating the connected observables (without completion).
 
 See also: [RefCount](#refcount)
 
@@ -1506,11 +1506,11 @@ Shorthand for [.publish()](#publish)[.refCount()](#refcount)
 
 Shorthand for [.publishReplay()](#publishreplay)[.refCount()](#refcount)
 
-<a name="observetochannel" href="#observetochannel">#</a> .**observeToChannel**(`channel:` string) returns [IDisposable](./IDisposable.md) [<>](/src/rx/operators/internals/ObserveTo.mon  "Source")
+<a name="observetochannel" href="#observetochannel">#</a> .**observeToChannel**(`channel:` string) returns [IDisposable](./IDisposable.md#idisposable) [<>](/src/rx/operators/internals/ObserveTo.mon  "Source")
 
 ObserveToChannel and [ObserveFromChannel](../constructors/Observable#observefromchannel) are useful for sending data between different monitor instances which may or may not be on different contexts.
 
-Note: `.dispose()` should be called on the returned [IDisposable](./IDisposable.md) when all subscribers are finished to avoid a memory leak.
+Note: `.dispose()` should be called on the returned [IDisposable](./IDisposable.md#idisposable) when all subscribers are finished to avoid a memory leak.
 
 ```javascript
 // Ideally should dispose of this when all subscribers are finished (if ever)
