@@ -1082,9 +1082,12 @@ Observable.fromValues([1,2,3,4])
 ```
  
 ### Utils
-<a name="subscribe" href="#subscribe">#</a> .**subscribe**(*[Subscriber](../Subscriber)*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Subscribe.mon  "Source")
+<a name="subscribe" href="#subscribe">#</a> .**subscribe**(*[Subscriber](../Subscriber)*) returns [ISubscription](ISubscription.md#isubscription) [<>](/src/rx/operators/internals/Subscribe.mon  "Source")
 
 Connect to the source observable, and register listeners for values, errors and completion.
+
+The returned [ISubscription](ISubscription.md#isubscription) can be used to manually terminate the subscription.
+
 ```javascript
 action logValue(any value) {
 	log value.valueToString();
@@ -1104,10 +1107,12 @@ Observable.fromValues([1,2,3])
 // Output: 1,2,3,Done!
 ```
 
-<a name="subscribeon" href="#subscribeon">#</a> .**subscribeOn**(*[Subscriber](../Subscriber),  context*) returns [IS](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Subscribe.mon  "Source")<br/>
-<a name="subscribeonnew" href="#subscribeonnew">#</a> .**subscribeOnNew**(*[Subscriber](../Subscriber)*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Subscribe.mon  "Source")
+<a name="subscribeon" href="#subscribeon">#</a> .**subscribeOn**(*[Subscriber](../Subscriber),  context*) returns [ISubscription](ISubscription.md#isubscription) [<>](/src/rx/operators/internals/SubscribeOn.mon  "Source")<br/>
+<a name="subscribeonnew" href="#subscribeonnew">#</a> .**subscribeOnNew**(*[Subscriber](../Subscriber)*) returns [ISubscription](ISubscription.md#isubscription) [<>](/src/rx/operators/internals/SubscribeOn.mon  "Source")
 
 Connect to the source observable on a different context, and register listeners for values, errors and completion.
+
+The returned [ISubscription](ISubscription.md#isubscription) can be used to manually terminate the subscription.
 
 **Important Note:** This will not recommended for complicated observables! Instead create the observable on a spawned context, or use [ObserveOn](#observeon).
 
