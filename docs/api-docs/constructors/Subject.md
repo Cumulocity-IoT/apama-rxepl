@@ -6,7 +6,7 @@ A simple subject that allows values to be sent to all subscribers.
 
 * [Create](#create)
 
-<a name="create" href="#create">#</a> .**create**() returns [ISubject](../interfaces/ISubject.md#isubject) [<>](/src/rx/operators/internals/Create.mon  "Source")
+<a name="create" href="#create">#</a> .**create**() returns [ISubject](../interfaces/ISubject.md#isubject) [<>](/src/rx/objects/Subject.mon  "Source")
 
 Creates a new [Subject](#subject).
 
