@@ -20,7 +20,7 @@
 - com.industry.rx_epl.[DisposableStream](utilities/DisposableStream.md#disposablestream)
 - com.industry.rx_epl.[TimeInterval](utilities/TimeInterval.md#timeinterval)
 - com.industry.rx_epl.[TimestampedValue](utilities/TimestampedValue.md#timestampedvalue)
-- com.industry.rx_epl.WrappedAny
+- com.industry.rx_epl.[WrappedAny](utilities/WrappedAny.md#wrappedany)
 
 ## Operators
 - com.industry.rx_epl.operators.[**\***](interfaces/IObservable.md#operators-and-methods)
