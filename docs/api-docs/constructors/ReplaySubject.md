@@ -6,7 +6,7 @@ A subject that allows values to be sent to all subscribers. Late subscribers wil
 
 * [Create](#create)
 
-<a name="create" href="#create">#</a> .**create**(*`count:` integer*) returns [ISubject](../interfaces/ISubject.md#isubject) [<>](/src/rx/operators/internals/Create.mon  "Source")
+<a name="create" href="#create">#</a> .**create**(*`count:` integer*) returns [ISubject](../interfaces/ISubject.md#isubject) [<>](/src/rx/objects/ReplaySubject.mon  "Source")
 
 Creates a new [ReplaySubject](#subject). It will store the last `count` values and replay them to any new subscribers.
 
