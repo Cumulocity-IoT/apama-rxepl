@@ -48,6 +48,7 @@ Observable.fromValues([1,2,3,4)
 	* [ToChannel](#tochannel)/[ToStream](#tostream)
 	* [Timestamp](#timestamp)/[UpdateTimestamp](#updatetimestamp)
 	* [TimeInterval](#timeinterval)
+	* [Pausable](#pausable)/[PausableBuffered](#pausablebuffered)
 	* [Let](#let)/[Pipe](#pipe)/[PipeOn](#pipeon)/[PipeOnNew](#pipeonnew)
 	* [ComplexPipe](#complexpipe)/[ComplexPipeOn](#complexpipeon)/[ComplexPipeOnNew](#complexpipeonnew)
 	* [Decouple](#decouple)
@@ -1287,6 +1288,31 @@ Observable.interval(1.0)
 	...
 
 // Output: TimeInterval(1.0,0), TimeInterval(1.0,1), TimeInterval(1.0,2)...
+```
+
+<a name="pausable" href="#pausable">#</a> .**pausable**(*`trigger:` [IObservable](#iobservable)*) returns [IObservable](#iobservable)\<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Pausable.mon  "Source")
+
+Enable and disable receiving values based on the `trigger`. Every time a value is received on the `trigger` observable the gate flips open or closed. The gate **starts open**, the first value received closes the gate.
+
+Values received while the gate is closed are discarded. To instead buffer them, use [PausableBuffered](#pausablebuffered).
+
+```javascript
+Observable.interval(1.0)
+	.pausable(Observable.interval(2.0))
+	...
+// Output: 0, 3, 4, 7, 8
+```
+
+<a name="pausablebuffered" href="#pausablebuffered">#</a> .**pausableBuffered**(*`trigger:` [IObservable](#iobservable)*) returns [IObservable](#iobservable)\<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/PausableBuffered.mon  "Source")
+
+Enable and disable buffering of values based on the `trigger`. Every time a value is received on the `trigger` observable the gate flips open or closed. Values received while the gate is closed are buffered and emitted as soon as the gate reopens. The gate **starts closed**, the first value received opens the gate.
+
+
+```javascript
+Observable.interval(1.0)
+	.pausableBuffered(Observable.interval(2.0))
+	...
+// Output: 1,2,3,4
 ```
 
 <a name="let" href="#let">#</a> .**let**(*`operator:` Pipeable*) returns [IObservable](#iobservable)\<any> [<>](/src/rx/operators/Pipe.mon  "Source")
