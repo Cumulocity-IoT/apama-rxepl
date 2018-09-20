@@ -1275,9 +1275,9 @@ Observable.interval(1.0)
 // Output: TimestampedValue(0, 2.0), TimestampedValue(1, 3.0), TimestampedValue(2, 4.0)... 
 ```
 
-<a name="timeinterval" href="#timeinterval">#</a> .**timeInterval**() returns [IObservable](#iobservable)\<TimeInterval\<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/TimeInterval.mon  "Source")
+<a name="timeinterval" href="#timeinterval">#</a> .**timeInterval**() returns [IObservable](#iobservable)\<[TimeInterval](../utilities/TimeInterval.md#timeinterval)\<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/TimeInterval.mon  "Source")
 
-Emit the time between events, as a TimeInterval. Emitting the time between subscription and receiving the value for the first value.
+Emit the time between events, as a [TimeInterval](../utilities/TimeInterval.md#timeinterval). Emitting the time between subscription and receiving the value for the first value.
 
 Note: Uses `currentTime` which, by default, has only 100 millisecond precision.
 
