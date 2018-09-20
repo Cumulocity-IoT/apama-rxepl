@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 --->
 
-# RxEPL - Observables in EPL [![Build Status](https://travis-ci.org/SoftwareAG/apama-rxepl.svg?branch=master)](https://travis-ci.org/SoftwareAG/apama-rxepl) [![Coverage Status](https://coveralls.io/repos/github/SoftwareAG/apama-rxepl/badge.svg?branch=master)](https://coveralls.io/github/SoftwareAG/apama-rxepl?branch=master)
+# RxEPL - Observables in EPL [![Build Status](https://travis-ci.org/SoftwareAG/apama-rxepl.svg)](https://travis-ci.org/SoftwareAG/apama-rxepl) [![Coverage Status](https://coveralls.io/repos/github/SoftwareAG/apama-rxepl/badge.svg)](https://coveralls.io/github/SoftwareAG/apama-rxepl)
 
 ReactiveX is a framework designed to handle streams of data like water through pipes. RxEPL is a library that implements the framework in EPL ([Apama](http://www.apamacommunity.com/)'s programming language), it is also available in [most](http://reactivex.io/languages.html) major programming languages.
 ```javascript
@@ -43,6 +43,7 @@ If you'd like to try RxEPL we highly recommend starting with the [web-based drag
 * [Installation](#install)
 * [Quickstart](#quick)
 * Main
+    * [API Documentation](#api-docs)
     * [Package Structure](#packages)
     * [Examples](#examples)
     * [Observable](#observable)
@@ -132,22 +133,27 @@ monitor Main {
 ```
 4. Run the project.
 
+## <a id="api-docs"></a>API Documentation
+The [API documentation is available here](docs#api-documentation).
+
+Note: Although the API documentation covers all of the public API, the main README is a better introduction.
+
 ## <a id="packages"></a>Package Structure
-**Interfaces:**\
-`com.industry.rx_epl.IObservable` - The main observable interface, returned after calling an operator or constructor (See [Observable](#observable))\
-`com.industry.rx_epl.ISubject` - The subject interface, returned from construction of a subject (see [Subject](#subject))\
-`com.industry.rx_epl.ISubscription` - Returned by `.subscribe()` allows unsubscription\
-`com.industry.rx_epl.IDisposable` - Sometimes a listener has to be created that this library doesn't know when to tear down, in that case it returns an `IDisposable` and should be torn down by the user if/when all subscribers are done (see [Multithreading](#multithreading))
-`com.industry.rx_epl.IResolver` - Similar to a subject has next, error, complete methods. Used in [Observable.create(...)](#observable-construction)
+**Interfaces:**<br/>
+`com.industry.rx_epl.IObservable` - The main observable interface, returned after calling an operator or constructor (See [Observable](#observable))<br/>
+`com.industry.rx_epl.ISubject` - The subject interface, returned from construction of a subject (see [Subject](#subject))<br/>
+`com.industry.rx_epl.ISubscription` - Returned by `.subscribe()` allows unsubscription<br/>
+`com.industry.rx_epl.IDisposable` - Sometimes a listener has to be created that this library doesn't know when to tear down, in that case it returns an `IDisposable` and should be torn down by the user if/when all subscribers are done (see [Multithreading](#multithreading))<br/>
+`com.industry.rx_epl.IResolver` - Similar to a subject has next, error, complete methods. Used in [Observable.create(...)](#observable-construction)<br/>
 
-**Constructors:**\
-`com.industry.rx_epl.Observable` - The event from which to construct an IObservable (See [Observable](#observable))\
-`com.industry.rx_epl.Subject` - A simple subject, allowing next, error, complete events to be sent  (see [Subject](#subject))\
-`com.industry.rx_epl.BehaviourSubject` - A subject that always repeats the most recent value to a new subscriber (see [Subject](#subject))\
-`com.industry.rx_epl.Subscriber` - A subscriber. Defines handling for onNext, onError, onComplete (see [Subscribing](#subscribing))
+**Constructors:**<br/>
+`com.industry.rx_epl.Observable` - The event from which to construct an IObservable (See [Observable](#observable))<br/>
+`com.industry.rx_epl.Subject` - A simple subject, allowing next, error, complete events to be sent  (see [Subject](#subject))<br/>
+`com.industry.rx_epl.BehaviourSubject` - A subject that always repeats the most recent value to a new subscriber (see [Subject](#subject))<br/>
+`com.industry.rx_epl.Subscriber` - A subscriber. Defines handling for onNext, onError, onComplete (see [Subscribing](#subscribing))<br/>
 
-**Operators:**\
-`com.industry.rx_epl.operators.*` - All pipeable operators (See [Operators](#operators). The [APIDoc](/docs/README.md#api-documentation) contains a full list)
+**Operators:**<br/>
+`com.industry.rx_epl.operators.*` - All pipeable operators (See [Operators](#operators). The [APIDoc](/docs/README.md#api-documentation) contains a full list)<br/>
 
 ## <a id="examples"></a>Examples
 There are several examples that ship with the source code. These are located in the `samples` folder.
