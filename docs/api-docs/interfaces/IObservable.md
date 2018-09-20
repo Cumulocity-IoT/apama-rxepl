@@ -1229,11 +1229,11 @@ IDisposable d := Observable.fromValue([1,2,3,E(4)])
 // Output on "OutputChannel": WrappedAny(1),WrappedAny(2),WrappedAny(3),E(4)
 ```
 
-<a name="tostream" href="#tostream">#</a> .**toStream**() returns [DisposableStream](../DisposableStream)\<any> [<>](/src/rx/operators/ToStream.mon  "Source")
+<a name="tostream" href="#tostream">#</a> .**toStream**() returns [DisposableStream](../utilities/DisposableStream.md#disposablestream)\<any> [<>](/src/rx/operators/ToStream.mon  "Source")
 
 Output every value into a stream.
 
-The resulting [DisposableStream](../DisposableStream) **should** be used to manually terminate the stream (rather than the normal `.quit()`), the stream will automatically terminate if the source completes.
+The resulting [DisposableStream](../utilities/DisposableStream.md#disposablestream) **should** be used to manually terminate the stream (rather than the normal `.quit()`), the stream will automatically terminate if the source completes.
  
 ```javascript
 DisposableStream d := Observable.fromValues([1,2,3,4])
