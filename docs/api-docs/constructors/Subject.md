@@ -2,11 +2,11 @@
 
 A simple subject that allows values to be sent to all subscribers.
 
-## Methods
+## Constructors
 
 * [Create](#create)
 
-<a name="create" href="#create">#</a> .**create**() returns [ISubject](../interfaces/ISubject.md#isubject) [<>](/src/rx/objects/Subject.mon  "Source")
+<a name="create" href="#create">#</a> *static* .**create**() returns [ISubject](../interfaces/ISubject.md#isubject) [<>](/src/rx/objects/Subject.mon  "Source")
 
 Creates a new [Subject](#subject).
 
