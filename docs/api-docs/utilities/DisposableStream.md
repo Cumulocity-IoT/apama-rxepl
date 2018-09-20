@@ -3,6 +3,7 @@
 Wrapper for a stream to allow the stream and the observable to be terminated together. Returned by calls to [.toStream(...)](../interfaces/IObservable.md#tostream).
 
 ## Methods
+
 * [GetStream](#getstream)
 * [Dispose](#dispose)
 
