@@ -1,9 +1,9 @@
 # <a name="observable"></a>com.industry.rx_epl.Observable [<>](/src/rx/objects/Observable.mon)
 The main class of RxEPL. This event implements the [IObservable](../interfaces/IObservable.md#iobservable) interface and contains all of the various observable construction methods (which all return [IObservable](../interfaces/IObservable.md#iobservable)).
 
-## Methods
+## Constructors
 
-All of the public API for this event is static and as such this event should never be manually constructed. This is a categorised list of the methods:
+All of the public API for this event is static and as such this event should never be manually constructed. This is a categorised list of the constructors:
 
 * [Construction](#construction)
 	* [Create](#create)
@@ -30,7 +30,7 @@ All of the public API for this event is static and as such this event should nev
 
 ## Construction
 
-<a name="create" href="#create">#</a> .**create**(*`generator:` action<[IResolver](../interfaces/IResolver.md#iresolver)>*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/Create.mon  "Source")
+<a name="create" href="#create">#</a> *static* .**create**(*`generator:` action<[IResolver](../interfaces/IResolver.md#iresolver)>*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/Create.mon  "Source")
 
 Create an observable by running the `generator` action whenever a subscription is created.
 
@@ -54,7 +54,7 @@ Observable.create(generator)
 // Output: 1,2,3
 ```
 
-<a name="just" href="#just">#</a> .**just**(*`value:` [T](/docs/api-docs/README.md#wildcard-class-notation)*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/Just.mon  "Source")
+<a name="just" href="#just">#</a> *static* .**just**(*`value:` [T](/docs/api-docs/README.md#wildcard-class-notation)*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/Just.mon  "Source")
 
 Create an observable containing just the provided `value`.
 
@@ -65,7 +65,7 @@ Observable.just("Hello World")
 // Output: "Hello World"
 ```
 
-<a name="fromvalues" href="#fromvalues">#</a> .**fromValues**(*`values:` sequence<[T](/docs/api-docs/README.md#wildcard-class-notation)>*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/FromValues.mon  "Source")
+<a name="fromvalues" href="#fromvalues">#</a> *static* .**fromValues**(*`values:` sequence<[T](/docs/api-docs/README.md#wildcard-class-notation)>*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/FromValues.mon  "Source")
 
 Create an observable containing all of the provided `values`. 
 
@@ -78,7 +78,7 @@ Observable.fromValues([1,2,3,4])
 // Output: 1,2,3,4
 ```
 
-<a name="interval" href="#interval">#</a> .**interval**(*`seconds:` float*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<integer> [<>](/src/rx/operators/internals/Interval.mon  "Source")
+<a name="interval" href="#interval">#</a> *static* .**interval**(*`seconds:` float*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<integer> [<>](/src/rx/operators/internals/Interval.mon  "Source")
 
 Emit an increasing integer every T `seconds`. The first emission has a value `0` and is emitted at time T.
 
@@ -89,7 +89,7 @@ Observable.interval(1.0)
 // Output: 0,1,2,3,4...
 ```
 
-<a name="range" href="#range">#</a> .**range**(*`start:` integer, `end:` integer*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<integer> [<>](/src/rx/operators/internals/Range.mon  "Source")
+<a name="range" href="#range">#</a> *static* .**range**(*`start:` integer, `end:` integer*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<integer> [<>](/src/rx/operators/internals/Range.mon  "Source")
 
 Emit every integer value from `start` (inclusive) to `end` (inclusive).
 
@@ -102,7 +102,7 @@ Observable.range(0,5)
 // Output: 0,1,2,3,4,5
 ```
 
-<a name="repeat" href="#repeat">#</a> .**repeat**(*`value:` [T](/docs/api-docs/README.md#wildcard-class-notation), `count:` integer*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Repeat.mon  "Source")
+<a name="repeat" href="#repeat">#</a> *static* .**repeat**(*`value:` [T](/docs/api-docs/README.md#wildcard-class-notation), `count:` integer*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Repeat.mon  "Source")
 
 Repeat a value a certain number of times.
 
@@ -113,7 +113,7 @@ Observable.repeat("a", 5)
 // Output: "a","a","a","a","a"
 ```
 
-<a name="timer" href="#timer">#</a> .**timer**(*`value:` [T](/docs/api-docs/README.md#wildcard-class-notation), `seconds:` float*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/Timer.mon  "Source")
+<a name="timer" href="#timer">#</a> *static* .**timer**(*`value:` [T](/docs/api-docs/README.md#wildcard-class-notation), `seconds:` float*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/Timer.mon  "Source")
 
 Emit a value after a period of time elapses.
 
@@ -124,7 +124,7 @@ Observable.timer("a", 5.0)
 // Output (after 5 seconds): "a"
 ```
 
-<a name="fromiterator" href="#fromiterator">#</a> .**fromIterator**(*action<> returns any*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<any> [<>](/src/rx/operators/internals/FromIterator.mon  "Source")
+<a name="fromiterator" href="#fromiterator">#</a> *static* .**fromIterator**(*action<> returns any*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<any> [<>](/src/rx/operators/internals/FromIterator.mon  "Source")
 
 Generate values by repeatedly calling an action, until it returns an empty any.
 
@@ -144,7 +144,7 @@ Observable.fromIterator(iterator)
 // Output: 0,1,2,3,4
 ```
 
-<a name="fromstream" href="#fromstream">#</a> .**fromStream**(*stream\<any>*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<any> [<>](/src/rx/operators/internals/FromStream.mon  "Source")
+<a name="fromstream" href="#fromstream">#</a> *static* .**fromStream**(*stream\<any>*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<any> [<>](/src/rx/operators/internals/FromStream.mon  "Source")
 
 Convert a stream to an observable.
 
@@ -159,7 +159,7 @@ Observable.fromStream(from v in strm select <any> v)
 	...
 ```
 
-<a name="fromchannel" href="#fromchannel">#</a> .**fromChannel**(*`channelName:` string*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<any> [<>](/src/rx/operators/internals/FromChannel.mon  "Source")
+<a name="fromchannel" href="#fromchannel">#</a> *static* .**fromChannel**(*`channelName:` string*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<any> [<>](/src/rx/operators/internals/FromChannel.mon  "Source")
 
 Take everything sent to a channel as the source of an Observable.
 
@@ -180,7 +180,7 @@ Observable.fromChannel("My Channel")
 // Output: 1,2,MyEvent(3)
 ```
 
-<a name="start" href="#start">#</a> .**start**(*`generator:` action<> returns any*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<any> [<>](/src/rx/operators/internals/Start.mon  "Source")
+<a name="start" href="#start">#</a> *static* .**start**(*`generator:` action<> returns any*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<any> [<>](/src/rx/operators/internals/Start.mon  "Source")
 
 Run an action once to generate a single value for an observable.
 
@@ -195,7 +195,7 @@ Observable.start(generator)
 // Output: 1.0
 ```
 
-<a name="empty" href="#empty">#</a> .**empty**() returns [IObservable](../interfaces/IObservable.md#iobservable)\<any> [<>](/src/rx/operators/internals/EmptyNeverError.mon  "Source")
+<a name="empty" href="#empty">#</a> *static* .**empty**() returns [IObservable](../interfaces/IObservable.md#iobservable)\<any> [<>](/src/rx/operators/internals/EmptyNeverError.mon  "Source")
 
 Return an observable that completes with no values.
 
@@ -203,7 +203,7 @@ Return an observable that completes with no values.
 Observable.empty()
 ```
 
-<a name="never" href="#never">#</a> .**never**() returns [IObservable](../interfaces/IObservable.md#iobservable)\<any> [<>](/src/rx/operators/internals/EmptyNeverError.mon  "Source")
+<a name="never" href="#never">#</a> *static* .**never**() returns [IObservable](../interfaces/IObservable.md#iobservable)\<any> [<>](/src/rx/operators/internals/EmptyNeverError.mon  "Source")
 
 Return an observable that **does not** complete and emits no values.
 
@@ -211,7 +211,7 @@ Return an observable that **does not** complete and emits no values.
 Observable.never()
 ```
 
-<a name="error" href="#error">#</a> .**error**() returns [IObservable](../interfaces/IObservable.md#iobservable)\<any> [<>](/src/rx/operators/internals/EmptyNeverError.mon  "Source")
+<a name="error" href="#error">#</a> *static* .**error**() returns [IObservable](../interfaces/IObservable.md#iobservable)\<any> [<>](/src/rx/operators/internals/EmptyNeverError.mon  "Source")
 
 Return an observable that provides an error.
 
@@ -219,7 +219,7 @@ Return an observable that provides an error.
 Observable.error()
 ```
 
-<a name="observefromchannel" href="#observefromchannel">#</a> .**observeFromChannel**(*`channelName:` string*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<any> [<>](/src/rx/operators/internals/ObserveFromChannel.mon  "Source")
+<a name="observefromchannel" href="#observefromchannel">#</a> *static* .**observeFromChannel**(*`channelName:` string*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<any> [<>](/src/rx/operators/internals/ObserveFromChannel.mon  "Source")
 
 [ObserveToChannel](../interfaces/IObservable.md#observetochannel) and ObserveFromChannel are useful for sending data between different monitor instances which may or may not be on different contexts.
 
@@ -236,7 +236,7 @@ ISubscription s := Observable.observeFromChannel("channelName")
 
 ## Combinatory Operators
 
-<a name="merge" href="#merge">#</a> .**merge**(*`observables:` sequence<[IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)>>*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Merge.mon  "Source")
+<a name="merge" href="#merge">#</a> *static* .**merge**(*`observables:` sequence<[IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)>>*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Merge.mon  "Source")
 
 Merge the outputs of all of the provided `observables`.
 
@@ -247,7 +247,7 @@ Observable.merge([Observable.interval(0.1), Observable.interval(0.1)])
 // Output: 0,0,1,1,2,2,3,3...
 ```
 
-<a name="combinelatest" href="#combinelatest">#</a> .**combineLatest**(*`observables:` sequence<[IObservable](#iobservable)\<any>>, `combiner:` action\<`values:` sequence\<any>> returns any*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/CombineLatest.mon  "Source")
+<a name="combinelatest" href="#combinelatest">#</a> *static* .**combineLatest**(*`observables:` sequence<[IObservable](#iobservable)\<any>>, `combiner:` action\<`values:` sequence\<any>> returns any*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/CombineLatest.mon  "Source")
 
 Every time a value is received from the `observables`, produce an output by running the `combiner`.
 
@@ -271,7 +271,7 @@ Observable.combineLatest([Observable.interval(1.0), Observable.interval(0.5)], c
 
 See also: [WithLatestFrom](../interfaces/IObservable.md#withlatestfrom)
 
-<a name="combinelatesttosequence" href="#combinelatesttosequence">#</a> .**combineLatestToSequence**(*`observables:` sequence<[IObservable](#iobservable)\<any>>*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/CombineLatest.mon  "Source")
+<a name="combinelatesttosequence" href="#combinelatesttosequence">#</a> *static* .**combineLatestToSequence**(*`observables:` sequence<[IObservable](#iobservable)\<any>>*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/CombineLatest.mon  "Source")
 
 Every time a value is received from the `observables`, produce a sequence\<any> containing the values from all.
 
@@ -284,7 +284,7 @@ Observable.combineLatestToSequence([Observable.interval(1.0), Observable.interva
 // Output: [0,0],[0,1],[0,2],[1,2],[1,3],[1,4],[2,4]...
 ```
 
-<a name="zip" href="#zip">#</a> .**zip**(*`observables:` sequence<[IObservable](#iobservable)\<any>>, `combiner:` action\<`values:` sequence\<any>> returns any*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Zip.mon  "Source")
+<a name="zip" href="#zip">#</a> *static* .**zip**(*`observables:` sequence<[IObservable](#iobservable)\<any>>, `combiner:` action\<`values:` sequence\<any>> returns any*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Zip.mon  "Source")
 
 Combine multiple observables by taking the n'th value from every observable, producing an output by running the `combiner`.
 
@@ -313,7 +313,7 @@ Observable
 // Output: "[0,0,a]","[1,1,b]","[2,2,c]"
 ```
 
-<a name="ziptosequence" href="#ziptosequence">#</a> .**zipToSequence**(*`observables:` sequence<[IObservable](#iobservable)\<any>>*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Zip.mon  "Source")
+<a name="ziptosequence" href="#ziptosequence">#</a> *static* .**zipToSequence**(*`observables:` sequence<[IObservable](#iobservable)\<any>>*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Zip.mon  "Source")
 
 Combine multiple observables by taking the n'th value from every observable, producing a sequence\<any> containing all of the n'th values.
 
@@ -333,7 +333,7 @@ Observable
 // Output: [0,0,a],[1,1,b],[2,2,c]
 ```
 
-<a name="concat" href="#concat">#</a> .**concat**(*`observables:` sequence<[IObservable](#iobservable)\<any>>*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Concat.mon  "Source")
+<a name="concat" href="#concat">#</a> *static* .**concat**(*`observables:` sequence<[IObservable](#iobservable)\<any>>*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Concat.mon  "Source")
 
 After the current observable completes, instead of completing, connect to the next source observable. This repeats until all sources have completed.
 
@@ -348,7 +348,7 @@ Observable.concat([Observable.fromValues([1,2,3]), Observable.fromValues([4,5,6]
 
 ## Conditional Operators
 
-<a name="sequenceequal" href="#sequenceequal">#</a> .**sequenceEqual**(*`observables:` sequence<[IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)>>*) returns [IObservable](#iobservable)\<boolean> [<>](/src/rx/operators/Every.mon  "Source")
+<a name="sequenceequal" href="#sequenceequal">#</a> *static* .**sequenceEqual**(*`observables:` sequence<[IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)>>*) returns [IObservable](#iobservable)\<boolean> [<>](/src/rx/operators/Every.mon  "Source")
 
 Check if all of the provided `observables` contain the same values, in the same order.
 
@@ -360,7 +360,7 @@ Observable
 // Output: true
 ```
 
-<a name="amb" href="#amb">#</a> .**amb**(*`others:` sequence<[IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)>>*) returns [IObservable](#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Amb.mon  "Source")
+<a name="amb" href="#amb">#</a> *static* .**amb**(*`others:` sequence<[IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)>>*) returns [IObservable](#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Amb.mon  "Source")
 
 Race the `observables`, the one which provides values first provides all of the values.
 
