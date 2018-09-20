@@ -45,8 +45,6 @@ if (-not $forTest) {
 	Remove-Item "$output/code/initialization.yaml"
 }
 
-cp -r "$PSScriptRoot/docs" "$output/docs"
-
 # Create the bundle
 $files = & "$apamaBin/engine_deploy" --outputList stdout src | %{$_ -replace ".*[\\/]src[\\/]rx[\\/]","code/rx/"} | %{$_ -replace "\\","/"}
 $bundleFileList = $files | %{$_ -replace "(.+)","`t`t`t<include name=`"`$1`"/>"} | Out-String
