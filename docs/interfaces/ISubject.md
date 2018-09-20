@@ -45,7 +45,7 @@ ISubscription sub := s.subscribe(...); // Receives complete and terminates the s
 s.complete();
 ```
 
-<a name="asiobservable" href="#asiobservable">#</a> .**asIObservable**() returns [IObservable](./IObservable.md#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/interfaces/ISubject.mon  "Source") 
+<a name="asiobservable" href="#asiobservable">#</a> .**asIObservable**() returns [IObservable](./IObservable.md#iobservable)\<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/interfaces/ISubject.mon  "Source") 
 
 Converts a subject to an IObservable.
 

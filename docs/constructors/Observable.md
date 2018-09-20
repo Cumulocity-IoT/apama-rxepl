@@ -30,7 +30,7 @@ All of the public API for this event is static and as such this event should nev
 
 ## Construction
 
-<a name="create" href="#create">#</a> *static* .**create**(*`generator:` action<[IResolver](../interfaces/IResolver.md#iresolver)>*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/Create.mon  "Source")
+<a name="create" href="#create">#</a> *static* .**create**(*`generator:` action<[IResolver](../interfaces/IResolver.md#iresolver)>*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/Create.mon  "Source")
 
 Create an observable by running the `generator` action whenever a subscription is created.
 
@@ -54,7 +54,7 @@ Observable.create(generator)
 // Output: 1,2,3
 ```
 
-<a name="just" href="#just">#</a> *static* .**just**(*`value:` [T](/docs/api-docs/README.md#wildcard-class-notation)*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/Just.mon  "Source")
+<a name="just" href="#just">#</a> *static* .**just**(*`value:` [T](/docs/README.md#wildcard-class-notation)*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/Just.mon  "Source")
 
 Create an observable containing just the provided `value`.
 
@@ -65,7 +65,7 @@ Observable.just("Hello World")
 // Output: "Hello World"
 ```
 
-<a name="fromvalues" href="#fromvalues">#</a> *static* .**fromValues**(*`values:` sequence<[T](/docs/api-docs/README.md#wildcard-class-notation)>*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/FromValues.mon  "Source")
+<a name="fromvalues" href="#fromvalues">#</a> *static* .**fromValues**(*`values:` sequence<[T](/docs/README.md#wildcard-class-notation)>*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/FromValues.mon  "Source")
 
 Create an observable containing all of the provided `values`. 
 
@@ -102,7 +102,7 @@ Observable.range(0,5)
 // Output: 0,1,2,3,4,5
 ```
 
-<a name="repeat" href="#repeat">#</a> *static* .**repeat**(*`value:` [T](/docs/api-docs/README.md#wildcard-class-notation), `count:` integer*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Repeat.mon  "Source")
+<a name="repeat" href="#repeat">#</a> *static* .**repeat**(*`value:` [T](/docs/README.md#wildcard-class-notation), `count:` integer*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Repeat.mon  "Source")
 
 Repeat a value a certain number of times.
 
@@ -113,7 +113,7 @@ Observable.repeat("a", 5)
 // Output: "a","a","a","a","a"
 ```
 
-<a name="timer" href="#timer">#</a> *static* .**timer**(*`value:` [T](/docs/api-docs/README.md#wildcard-class-notation), `seconds:` float*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/Timer.mon  "Source")
+<a name="timer" href="#timer">#</a> *static* .**timer**(*`value:` [T](/docs/README.md#wildcard-class-notation), `seconds:` float*) returns [IObservable](../interfaces/IObservable.md#iobservable)\<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/Timer.mon  "Source")
 
 Emit a value after a period of time elapses.
 
@@ -236,7 +236,7 @@ ISubscription s := Observable.observeFromChannel("channelName")
 
 ## Combinatory Operators
 
-<a name="merge" href="#merge">#</a> *static* .**merge**(*`observables:` sequence<[IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)>>*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Merge.mon  "Source")
+<a name="merge" href="#merge">#</a> *static* .**merge**(*`observables:` sequence<[IObservable](#iobservable)<[T](/docs/README.md#wildcard-class-notation)>>*) returns [IObservable](#iobservable)<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Merge.mon  "Source")
 
 Merge the outputs of all of the provided `observables`.
 
@@ -247,7 +247,7 @@ Observable.merge([Observable.interval(0.1), Observable.interval(0.1)])
 // Output: 0,0,1,1,2,2,3,3...
 ```
 
-<a name="combinelatest" href="#combinelatest">#</a> *static* .**combineLatest**(*`observables:` sequence<[IObservable](#iobservable)\<any>>, `combiner:` action\<`values:` sequence\<any>> returns any*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/CombineLatest.mon  "Source")
+<a name="combinelatest" href="#combinelatest">#</a> *static* .**combineLatest**(*`observables:` sequence<[IObservable](#iobservable)\<any>>, `combiner:` action\<`values:` sequence\<any>> returns any*) returns [IObservable](#iobservable)<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/CombineLatest.mon  "Source")
 
 Every time a value is received from the `observables`, produce an output by running the `combiner`.
 
@@ -271,7 +271,7 @@ Observable.combineLatest([Observable.interval(1.0), Observable.interval(0.5)], c
 
 See also: [WithLatestFrom](../interfaces/IObservable.md#withlatestfrom)
 
-<a name="combinelatesttosequence" href="#combinelatesttosequence">#</a> *static* .**combineLatestToSequence**(*`observables:` sequence<[IObservable](#iobservable)\<any>>*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/CombineLatest.mon  "Source")
+<a name="combinelatesttosequence" href="#combinelatesttosequence">#</a> *static* .**combineLatestToSequence**(*`observables:` sequence<[IObservable](#iobservable)\<any>>*) returns [IObservable](#iobservable)<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/CombineLatest.mon  "Source")
 
 Every time a value is received from the `observables`, produce a sequence\<any> containing the values from all.
 
@@ -284,7 +284,7 @@ Observable.combineLatestToSequence([Observable.interval(1.0), Observable.interva
 // Output: [0,0],[0,1],[0,2],[1,2],[1,3],[1,4],[2,4]...
 ```
 
-<a name="zip" href="#zip">#</a> *static* .**zip**(*`observables:` sequence<[IObservable](#iobservable)\<any>>, `combiner:` action\<`values:` sequence\<any>> returns any*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Zip.mon  "Source")
+<a name="zip" href="#zip">#</a> *static* .**zip**(*`observables:` sequence<[IObservable](#iobservable)\<any>>, `combiner:` action\<`values:` sequence\<any>> returns any*) returns [IObservable](#iobservable)<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Zip.mon  "Source")
 
 Combine multiple observables by taking the n'th value from every observable, producing an output by running the `combiner`.
 
@@ -313,7 +313,7 @@ Observable
 // Output: "[0,0,a]","[1,1,b]","[2,2,c]"
 ```
 
-<a name="ziptosequence" href="#ziptosequence">#</a> *static* .**zipToSequence**(*`observables:` sequence<[IObservable](#iobservable)\<any>>*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Zip.mon  "Source")
+<a name="ziptosequence" href="#ziptosequence">#</a> *static* .**zipToSequence**(*`observables:` sequence<[IObservable](#iobservable)\<any>>*) returns [IObservable](#iobservable)<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Zip.mon  "Source")
 
 Combine multiple observables by taking the n'th value from every observable, producing a sequence\<any> containing all of the n'th values.
 
@@ -333,7 +333,7 @@ Observable
 // Output: [0,0,a],[1,1,b],[2,2,c]
 ```
 
-<a name="concat" href="#concat">#</a> *static* .**concat**(*`observables:` sequence<[IObservable](#iobservable)\<any>>*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Concat.mon  "Source")
+<a name="concat" href="#concat">#</a> *static* .**concat**(*`observables:` sequence<[IObservable](#iobservable)\<any>>*) returns [IObservable](#iobservable)<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Concat.mon  "Source")
 
 After the current observable completes, instead of completing, connect to the next source observable. This repeats until all sources have completed.
 
@@ -348,7 +348,7 @@ Observable.concat([Observable.fromValues([1,2,3]), Observable.fromValues([4,5,6]
 
 ## Conditional Operators
 
-<a name="sequenceequal" href="#sequenceequal">#</a> *static* .**sequenceEqual**(*`observables:` sequence<[IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)>>*) returns [IObservable](#iobservable)\<boolean> [<>](/src/rx/operators/Every.mon  "Source")
+<a name="sequenceequal" href="#sequenceequal">#</a> *static* .**sequenceEqual**(*`observables:` sequence<[IObservable](#iobservable)<[T](/docs/README.md#wildcard-class-notation)>>*) returns [IObservable](#iobservable)\<boolean> [<>](/src/rx/operators/Every.mon  "Source")
 
 Check if all of the provided `observables` contain the same values, in the same order.
 
@@ -360,7 +360,7 @@ Observable
 // Output: true
 ```
 
-<a name="amb" href="#amb">#</a> *static* .**amb**(*`others:` sequence<[IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)>>*) returns [IObservable](#iobservable)\<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Amb.mon  "Source")
+<a name="amb" href="#amb">#</a> *static* .**amb**(*`others:` sequence<[IObservable](#iobservable)<[T](/docs/README.md#wildcard-class-notation)>>*) returns [IObservable](#iobservable)\<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Amb.mon  "Source")
 
 Race the `observables`, the one which provides values first provides all of the values.
 

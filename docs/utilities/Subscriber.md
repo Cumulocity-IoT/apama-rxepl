@@ -23,7 +23,7 @@ Observable.fromValues([1,2,3])
 * [OnComplete](#oncomplete)
 * [OnError](#onerror)
 
-<a name="onnext" href="#onnext">#</a> .**onNext**(*`callback:` action<[T](/docs/api-docs/README.md#wildcard-class-notation)>*) returns [Subscriber](#subscriber) [<>](/src/rx/objects/Subscriber.mon  "Source")
+<a name="onnext" href="#onnext">#</a> .**onNext**(*`callback:` action<[T](/docs/README.md#wildcard-class-notation)>*) returns [Subscriber](#subscriber) [<>](/src/rx/objects/Subscriber.mon  "Source")
 
 Register a callback to be called whenever the subscription receives a value.
 
@@ -49,7 +49,7 @@ Observable.fromValues([1,2,3])
 	.subscribe(Subscriber.create().onComplete(logDone));
 ```
 
-<a name="onerror" href="#onerror">#</a> .**onError**(*`callback:` action<[E](/docs/api-docs/README.md#wildcard-class-notation)>*) returns [Subscriber](#subscriber) [<>](/src/rx/objects/Subscriber.mon  "Source")
+<a name="onerror" href="#onerror">#</a> .**onError**(*`callback:` action<[E](/docs/README.md#wildcard-class-notation)>*) returns [Subscriber](#subscriber) [<>](/src/rx/objects/Subscriber.mon  "Source")
 
 Register a callback to be called when the subscription receives an error. The error can be of any type but is usually `com.apama.exceptions.Exception`.
 
