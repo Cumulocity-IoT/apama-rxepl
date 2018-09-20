@@ -37,7 +37,7 @@ class PySysTest(BaseTest):
 		correlator.flush()
 		
 		# wait for test to complete, this is a longer test and will take about 1 second
-		self.waitForSignal('TestResult.evt', expr="TestComplete", condition="==1", timeout=2) 
+		self.waitForSignal('TestResult.evt', expr="TestComplete", condition="==1", timeout=10) 
 		
 	def validate(self):
 		# check the main correlator log for Errors
