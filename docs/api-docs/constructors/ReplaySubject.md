@@ -8,7 +8,7 @@ A subject that allows values to be sent to all subscribers. Late subscribers wil
 
 <a name="create" href="#create">#</a> .**create**(*`count:` integer*) returns [ISubject](../interfaces/ISubject.md#isubject) [<>](/src/rx/objects/ReplaySubject.mon  "Source")
 
-Creates a new [ReplaySubject](#subject). It will store the last `count` values and replay them to any new subscribers.
+Creates a new [ReplaySubject](#replaysubject). It will store the last `count` values and replay them to any new subscribers.
 
 ```javascript
 ISubject s := ReplaySubject.create(2);
