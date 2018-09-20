@@ -1082,7 +1082,7 @@ Observable.fromValues([1,2,3,4])
 ```
  
 ### Utils
-<a name="subscribe" href="#subscribe">#</a> .**subscribe**(*[Subscriber](../Subscriber)*) returns [ISubscription](ISubscription.md#isubscription) [<>](/src/rx/operators/internals/Subscribe.mon  "Source")
+<a name="subscribe" href="#subscribe">#</a> .**subscribe**(*[Subscriber](../utilities/Subscriber.md#subscriber)*) returns [ISubscription](ISubscription.md#isubscription) [<>](/src/rx/operators/internals/Subscribe.mon  "Source")
 
 Connect to the source observable, and register listeners for values, errors and completion.
 
@@ -1107,8 +1107,8 @@ Observable.fromValues([1,2,3])
 // Output: 1,2,3,Done!
 ```
 
-<a name="subscribeon" href="#subscribeon">#</a> .**subscribeOn**(*[Subscriber](../Subscriber),  context*) returns [ISubscription](ISubscription.md#isubscription) [<>](/src/rx/operators/internals/SubscribeOn.mon  "Source")<br/>
-<a name="subscribeonnew" href="#subscribeonnew">#</a> .**subscribeOnNew**(*[Subscriber](../Subscriber)*) returns [ISubscription](ISubscription.md#isubscription) [<>](/src/rx/operators/internals/SubscribeOn.mon  "Source")
+<a name="subscribeon" href="#subscribeon">#</a> .**subscribeOn**(*[Subscriber](../utilities/Subscriber.md#subscriber),  context*) returns [ISubscription](ISubscription.md#isubscription) [<>](/src/rx/operators/internals/SubscribeOn.mon  "Source")<br/>
+<a name="subscribeonnew" href="#subscribeonnew">#</a> .**subscribeOnNew**(*[Subscriber](../utilities/Subscriber.md#subscriber)*) returns [ISubscription](ISubscription.md#isubscription) [<>](/src/rx/operators/internals/SubscribeOn.mon  "Source")
 
 Connect to the source observable on a different context, and register listeners for values, errors and completion.
 
@@ -1140,7 +1140,7 @@ action createAndRunObservable() {
 spawn createAndRunObservable() to context("Context2");
 ```
 
-<a name="do" href="#do">#</a> .**do**(*[Subscriber](../Subscriber)*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Do.mon  "Source")
+<a name="do" href="#do">#</a> .**do**(*[Subscriber](../utilities/Subscriber.md#subscriber)*) returns [IObservable](#iobservable)<[T](/docs/api-docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Do.mon  "Source")
 
 Snoops the output of an observable (at the point where the do is added), registering listeners for values, errors and completion, without subscribing to the observable.
 
