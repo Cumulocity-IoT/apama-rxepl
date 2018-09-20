@@ -17,7 +17,7 @@
 
 ## Utilities
 
-- com.industry.rx_epl.DisposableStream
+- com.industry.rx_epl.[DisposableStream](utilities/DisposableStream)
 - com.industry.rx_epl.TimeInterval
 - com.industry.rx_epl.TimestampedValue
 - com.industry.rx_epl.WrappedAny
