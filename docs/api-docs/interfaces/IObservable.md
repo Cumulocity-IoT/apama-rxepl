@@ -1244,7 +1244,7 @@ stream<any> strm := d.getStream();
 d.dispose(); // Use instead of strm.quit();
 ```
 
-<a name="timestamp" href="#timestamp">#</a> .**timestamp**() returns [IObservable](#iobservable)<[TimestampedValue](../TimestampValue)\<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/Timestamp.mon  "Source")
+<a name="timestamp" href="#timestamp">#</a> .**timestamp**() returns [IObservable](#iobservable)<[TimestampedValue](../utilities/TimestampValue.md#timestampedvalue)\<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/Timestamp.mon  "Source")
 
 Give every value a timestamp as it arrives at the operator.
 
@@ -1258,7 +1258,7 @@ Observable.interval(1.0)
 // Output: TimestampedValue(0, 1.0), TimestampedValue(1, 2.0), TimestampedValue(2, 3.0)... 
 ```
 
-<a name="updatetimestamp" href="#updatetimestamp">#</a> .**updateTimestamp**() returns [IObservable](#iobservable)<[TimestampedValue](../TimestampValue)\<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/Timestamp.mon  "Source")
+<a name="updatetimestamp" href="#updatetimestamp">#</a> .**updateTimestamp**() returns [IObservable](#iobservable)<[TimestampedValue](../utilities/TimestampValue.md#timestampedvalue)\<[T](/docs/api-docs/README.md#wildcard-class-notation)>> [<>](/src/rx/operators/Timestamp.mon  "Source")
 
 Update the timestamp on every item as it arrives at the operator.
 
