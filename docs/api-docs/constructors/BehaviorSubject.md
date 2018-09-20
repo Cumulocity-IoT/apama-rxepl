@@ -2,11 +2,11 @@
 
 A subject that starts with an initial value and replays the latest value to new subscribers.
 
-## Methods
+## Constructors
 
 * [Create](#create)
 
-<a name="create" href="#create">#</a> .**create**(*`initialValue:` any*) returns [ISubject](../interfaces/ISubject.md#isubject) [<>](/src/rx/objects/BehaviorSubject.mon  "Source")
+<a name="create" href="#create">#</a> *static* .**create**(*`initialValue:` any*) returns [ISubject](../interfaces/ISubject.md#isubject) [<>](/src/rx/objects/BehaviorSubject.mon  "Source")
 
 Creates a new [BehaviorSubject](#behaviorsubject). Starting with the `initialValue`.
 
