@@ -3,10 +3,9 @@
 
 ## Constructors
 - com.industry.rx_epl.[Observable](constructors/Observable.md#observable)
-- com.industry.rx_epl.Subject
-- com.industry.rx_epl.BehaviourSubject
-- com.industry.rx_epl.ReplaySubject
-- com.industry.rx_epl.Subscriber 
+- com.industry.rx_epl.[Subject](constructors/Subject.md#subject)
+- com.industry.rx_epl.[BehaviorSubject](constructors/BehaviorSubject.md#behaviorsubject)
+- com.industry.rx_epl.[ReplaySubject](constructors/ReplaySubject.md#replaysubject)
 
 ## Interfaces
 - com.industry.rx_epl.[IObservable](interfaces/IObservable.md#iobservable)
@@ -16,7 +15,7 @@
 - com.industry.rx_epl.[IResolver](interfaces/IResolver.md#iresolver)
 
 ## Utilities
-
+- com.industry.rx_epl.[Subscriber](utilities/Subscriber.md#subscriber)
 - com.industry.rx_epl.[DisposableStream](utilities/DisposableStream.md#disposablestream)
 - com.industry.rx_epl.[TimeInterval](utilities/TimeInterval.md#timeinterval)
 - com.industry.rx_epl.[TimestampedValue](utilities/TimestampedValue.md#timestampedvalue)
