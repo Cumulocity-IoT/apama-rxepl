@@ -10,7 +10,7 @@ monitor TestObservable {
 	action onload() {		
 	    any discard := Observable.range(0,5)
 			.take(5)
-			.pausable(Observable.range(0,1))
+			.pausable(Observable.just(0))
 	      	.subscribe(ExpectValues.create([<any>0,1,2,3,4], test.complete, test.fail));
 	}  
 }

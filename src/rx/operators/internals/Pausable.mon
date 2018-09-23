@@ -30,7 +30,7 @@ event PausableComplexPipe {
 	}
 	
 	action pausable(IObservable o) returns IObservable {
-		IObservable pauser := trigger.startWith([<any>false]).scanWithInitial(invertBool, false);
+		IObservable pauser := trigger.startWith([<any>false]).scanWithInitial(invertBool, true);
 		return o.withLatestFromToSequence([pauser]).filter(getSecondFromSeq).map(getFirstFromSeq);
 	}
 

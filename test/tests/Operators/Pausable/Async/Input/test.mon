@@ -11,6 +11,6 @@ monitor TestObservable {
 	    any discard := Observable.interval(0.1)
 			.pausable(Observable.interval(0.3))
 			.take(5)
-	      	.subscribe(ExpectValues.create([<any>0,1,2,6,7], test.complete, test.fail));
+	      	.subscribe(ExpectValues.create([<any>3,4,5,9,10], test.complete, test.fail));
 	}  
 }

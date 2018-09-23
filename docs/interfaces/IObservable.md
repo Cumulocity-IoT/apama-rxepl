@@ -1292,7 +1292,7 @@ Observable.interval(1.0)
 
 <a name="pausable" href="#pausable">#</a> .**pausable**(*`trigger:` [IObservable](#iobservable)*) returns [IObservable](#iobservable)\<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Pausable.mon  "Source")
 
-Enable and disable receiving values based on the `trigger`. Every time a value is received on the `trigger` observable the gate flips open or closed. The gate **starts open**, the first value received closes the gate.
+Enable and disable receiving values based on the `trigger`. Every time a value is received on the `trigger` observable the gate flips open or closed. The gate **starts closed**, the first value received opens the gate.
 
 Values received while the gate is closed are discarded. To instead buffer them, use [PausableBuffered](#pausablebuffered).
 
@@ -1300,7 +1300,7 @@ Values received while the gate is closed are discarded. To instead buffer them, 
 Observable.interval(1.0)
 	.pausable(Observable.interval(2.0))
 	...
-// Output: 0, 3, 4, 7, 8
+// Output: 1, 2, 5, 6, 9
 ```
 
 <a name="pausablebuffered" href="#pausablebuffered">#</a> .**pausableBuffered**(*`trigger:` [IObservable](#iobservable)*) returns [IObservable](#iobservable)\<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/PausableBuffered.mon  "Source")
