@@ -18,19 +18,16 @@ monitor TestObservable {
 	Test test := Test("TestResult");
   
 	action onload() {
-	    any discard := Observable.fromChannel("Test")
+	    any discard := Observable.fromValues([
+	                                          TestEvent(1, 2.0), 
+	                                          TestEvent.create(1),
+	                                          TestEvent(2, 2.0),
+	                                          TestEvent.create(2),
+	                                          TestEvent(1, 2.0),
+	                                          TestEvent(0, 2.0),
+	                                          TestEvent.create(0)]).async()
 			.distinctByFieldUntilChanged("i")
 			.take(4)
 	      	.subscribe(ExpectValues.create([<any>TestEvent(1, 2.0),TestEvent(2, 2.0),TestEvent(1, 2.0),TestEvent(0, 2.0)], test.complete, test.fail));
-	    
-	    on wait(0.5) {
-	    	send TestEvent(1, 2.0) to "Test";
-	    	send TestEvent.create(1) to "Test";
-	    	send TestEvent(2, 2.0) to "Test";
-	    	send TestEvent.create(2) to "Test";
-	    	send TestEvent(1, 2.0) to "Test";
-	    	send TestEvent(0, 2.0) to "Test";
-	    	send TestEvent.create(0) to "Test";
-	    }
 	}
 }
