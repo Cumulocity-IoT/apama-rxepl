@@ -30,18 +30,28 @@ using com.industry.rx_epl.Subscriber;
 event RangeOnConnection {
 	integer current;
 	integer end;
+	boolean finished;
 	
 	static action create(integer start, integer end) returns action<IObserver> returns ISubscription {
-		return FromIteratorOnConnection(RangeOnConnection(start, end).iterator).onConnection;
+		return FromIteratorOnConnection(RangeOnConnection(start, end, false).iterator).onConnection;
 	}
 	
 	action iterator() returns any {
-		if current <= end {
+		if current < end {
 			integer value := current;
 			current := current + 1;
 			return value;
+		} else if current > end {
+			integer value := current;
+			current := current - 1;
+			return value;
 		} else {
-			return new any;
+			if finished {
+				return new any;
+			} else {
+				finished := true;
+				return current;
+			}
 		}
 	}
 }

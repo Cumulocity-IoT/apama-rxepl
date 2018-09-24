@@ -93,7 +93,7 @@ Observable.interval(1.0)
 
 Emit every integer value from `start` (inclusive) to `end` (inclusive).
 
-Note: Currently only works with ascending values.
+Note: Can be provided with an ascending or a descending range.
 
 ```javascript
 Observable.range(0,5)
