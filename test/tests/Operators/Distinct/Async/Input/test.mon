@@ -9,21 +9,9 @@ monitor TestObservable {
 	Test test := Test("TestResult");
   
 	action onload() {
-	    any discard := Observable.fromChannel("Test")
+	    any discard := Observable.fromValues([1,1,2,1,2,0,1,2,3]).async()
 			.distinct()
 			.take(4)
 	      	.subscribe(ExpectValues.create([<any>1,2,0,3], test.complete, test.fail));
-	    
-	    on wait(0.1) {
-	    	send WrappedAny(1) to "Test";
-	    	send WrappedAny(1) to "Test";
-	    	send WrappedAny(2) to "Test";
-	    	send WrappedAny(1) to "Test";
-	    	send WrappedAny(2) to "Test";
-	    	send WrappedAny(0) to "Test";
-	    	send WrappedAny(1) to "Test";
-	    	send WrappedAny(2) to "Test";
-	    	send WrappedAny(3) to "Test";
-	    }
 	} 
 }
