@@ -229,8 +229,7 @@ event Observable {
 	}
 	
 	static action repeat(any value, integer count) returns IObservable {
-		Observable j := <Observable> just(value).observable;
-		return j.repeatObservable(count);
+		return just(value).repeat(count);
 	}
 	
 	static action combineLatest(sequence<IObservable> observables, action<sequence<any> > returns any combiner) returns IObservable {
