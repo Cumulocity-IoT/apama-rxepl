@@ -63,6 +63,7 @@ event PipeOnOnConnection {
 		
 		if not spawned and not spawning {
 			spawning := true;
+			monitor.subscribe(downstreamChannel); // Need to subscribe before spawning otherwise the spawned context could send Spawned() before we have subscribed
 			spawnToContext(downstreamChannel);
 		}
 		if spawning {
@@ -95,7 +96,7 @@ event PipeOnOnConnection {
 			ifpresent upstream {
 				upstream.dispose();
 			}
-			upstream := new IDisposable;
+			upstream := new optional<IDisposable>;
 			
 			if spawned {
 				send Dispose(downstreamChannel) to downstreamChannel;
