@@ -64,7 +64,7 @@ Observable.fromValues([1,2,3,4)
 	* [Contains](#contains)/[Every](#every)
 	* [SequenceEqual](#sequenceequal)
 	* [Amb](#amb)/[Race](#race)
-	* [DefaultIfEmpty](#defaultifempty)
+	* [DefaultIfEmpty](#defaultifempty)/[SwitchIfEmpty](#switchifempty)
 * [Math and Aggregation](#math-and-aggregation)
 	* [Reduce](#reduce)/[ReduceWithInitial](#reducewithinitial)
 	* [Count](#count)
@@ -1637,6 +1637,18 @@ Observable.empty()
 	...
 
 // Output: "A default value"
+```
+
+<a name="switchifempty" href="#switchifempty">#</a> .**switchIfEmpty**(*`alternative:` [IObservable](#iobservable)\<[T](/docs/README.md#wildcard-class-notation)>*) returns [IObservable](#iobservable)\<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/SwitchIfEmpty.mon  "Source")
+
+Switch to a different observable source if the main source completes without emitting any values.
+
+```javascript
+Observable.empty()
+	.switchIfEmpty(Observable.fromValues([1,2,3]))
+	...
+
+// Output: 1,2,3
 ```
 
 ### Math and Aggregation

@@ -143,4 +143,5 @@ event IObservable {
 	action<any> returns IObservable sort;
 	action<> returns IObservable sortAsc;
 	action<> returns IObservable sortDesc;
+	action<IObservable> returns IObservable switchIfEmpty;
 }
