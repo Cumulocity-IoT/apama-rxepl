@@ -89,6 +89,7 @@ event IObservable {
 	action<> returns IObservable averageDecimal;
 	action<sequence<IObservable> > returns IObservable sequenceEqual;
 	action<sequence<IObservable> > returns IObservable amb;
+	action<sequence<IObservable> > returns IObservable race;
 	action<> returns IObservable timestamp;
 	action<> returns IObservable updateTimestamp;
 	action<float> returns IObservable timeout;

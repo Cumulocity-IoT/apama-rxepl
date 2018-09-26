@@ -1,3 +1,4 @@
+
 # <a name="iobservable"></a>com.industry.rx_epl.IObservable [<>](/src/rx/interfaces/IObservable.mon)
 
 IObservable is the interface returned by almost all RxEPL operators, this allows the operators to be chained in with a fluent syntax.
@@ -62,7 +63,7 @@ Observable.fromValues([1,2,3,4)
 * [Conditional](#conditional)
 	* [Contains](#contains)/[Every](#every)
 	* [SequenceEqual](#sequenceequal)
-	* [Amb](#amb)
+	* [Amb](#amb)/[Race](#race)
 	* [DefaultIfEmpty](#defaultifempty)
 * [Math and Aggregation](#math-and-aggregation)
 	* [Reduce](#reduce)/[ReduceWithInitial](#reducewithinitial)
@@ -1611,9 +1612,12 @@ Observable.interval(1.0).take(4)
 // Output: true
 ```
 
-<a name="amb" href="#amb">#</a> .**amb**(*`others:` sequence<[IObservable](#iobservable)<[T](/docs/README.md#wildcard-class-notation)>>*) returns [IObservable](#iobservable)\<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Amb.mon  "Source")
+<a name="amb" href="#amb">#</a> .**amb**(*`others:` sequence<[IObservable](#iobservable)<[T](/docs/README.md#wildcard-class-notation)>>*) returns [IObservable](#iobservable)\<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Amb.mon  "Source")<br/>
+<a name="race" href="#race">#</a> .**race**(*`others:` sequence<[IObservable](#iobservable)<[T](/docs/README.md#wildcard-class-notation)>>*) returns [IObservable](#iobservable)\<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Amb.mon  "Source")
 
 Race the observables, the one which provides values first provides all of the values.
+
+Note: Amb and Race are aliases.
 
 ```javascript
 Observable.timer("I lost", 5.0)
