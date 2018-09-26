@@ -1,0 +1,23 @@
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IResolver;
+
+using utils.Test;
+using utils.ExpectValues;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	action onload() {
+		on utils.KeepAliveUntilTerminated() {}		
+	    any discard := Observable.create(generator)
+			.defaultIfEmpty("boo")
+	      	.subscribe(ExpectValues.create([<any>"yay"], test.complete, test.fail));
+	}
+
+	action generator(IResolver resolver) {
+		on wait(0.1) {
+			resolver.next("yay");
+			resolver.complete();
+		}
+	}
+}

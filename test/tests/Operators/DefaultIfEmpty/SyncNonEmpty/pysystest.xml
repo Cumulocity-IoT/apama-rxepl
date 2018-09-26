@@ -2,8 +2,8 @@
 <pysystest type="auto" state="runnable">
     
   <description> 
-    <title>DefaultIfEmpty Sync</title>    
-    <purpose><![CDATA[DefaultIfEmpty Sync]]></purpose>
+    <title>DefaultIfEmpty SyncNonEmpty</title>    
+    <purpose><![CDATA[DefaultIfEmpty SyncNonEmpty]]></purpose>
   </description>
 
   <classification>
