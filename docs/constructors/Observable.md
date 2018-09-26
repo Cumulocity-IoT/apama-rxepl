@@ -1,3 +1,4 @@
+
 # <a name="observable"></a>com.industry.rx_epl.Observable [<>](/src/rx/objects/Observable.mon)
 The main class of RxEPL. This event implements the [IObservable](../interfaces/IObservable.md#iobservable) interface and contains all of the various observable construction methods (which all return [IObservable](../interfaces/IObservable.md#iobservable)).
 
@@ -26,7 +27,7 @@ All of the public API for this event is static and as such this event should nev
 	* [Concat](#concat)
 * [Conditional Operators](#conditional-operators)
 	* [SequenceEqual](#sequenceequal)
-	* [Amb](#amb)
+	* [Amb](#amb)/[Race](#race)
 
 ## Construction
 
@@ -360,9 +361,12 @@ Observable
 // Output: true
 ```
 
-<a name="amb" href="#amb">#</a> *static* .**amb**(*`others:` sequence<[IObservable](#iobservable)<[T](/docs/README.md#wildcard-class-notation)>>*) returns [IObservable](#iobservable)\<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Amb.mon  "Source")
+<a name="amb" href="#amb">#</a> *static* .**amb**(*`others:` sequence<[IObservable](#iobservable)<[T](/docs/README.md#wildcard-class-notation)>>*) returns [IObservable](#iobservable)\<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Amb.mon  "Source")<br/>
+<a name="race" href="#race">#</a> *static* .**race**(*`others:` sequence<[IObservable](#iobservable)<[T](/docs/README.md#wildcard-class-notation)>>*) returns [IObservable](#iobservable)\<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Amb.mon  "Source")
 
 Race the `observables`, the one which provides values first provides all of the values.
+
+Note: Amb and Race are aliases.
 
 ```javascript
 Observable.amb([Observable.timer("I lost", 5.0), Observable.timer("I won!", 1.0)])
