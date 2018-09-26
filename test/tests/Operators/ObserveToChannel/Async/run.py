@@ -42,7 +42,7 @@ class PySysTest(BaseTest):
 		
 		# Output the engine_inspect result to a file to check for any remaining subscribed channels
 		correlator.inspect(filename='preTerminateInspect.txt', arguments=['-x'])
-		
+				
 		correlator.sendEventStrings('utils.KeepAliveUntilTerminated()')
 		
 		# Output the engine_inspect result to a file to check for non-terminated listeners

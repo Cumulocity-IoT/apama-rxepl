@@ -54,10 +54,8 @@ class PySysTest(BaseTest):
 		# Check that the test didn't fail
 		self.assertGrep('TestResult.evt', expr='TestFailed', contains=False)
 		
-		# Check that there are no subscribed channels left
-		self.assertGrep('preTerminateInspect.txt', expr='main\\s*\\d+\\s*\\d+\\s*(\\w+)', contains=False)
+		# Check that only the decouple channel remains
+		self.assertGrep('preTerminateInspect.txt', expr='main\\s*\\d+\\s*\\d+\\s*DecoupleChannel0')
 		
-		# Check that there is nothing keeping the correlator alive
-		self.assertDiff('postTerminateInspect.txt', 'terminatedEngineInspectReference.txt', filedir2=PROJECT.UTILS_DIR)
-
-		
+		# Check that the correlator is kept alive - but only by the decouple
+		self.assertDiff('postTerminateInspect.txt', 'decoupleTerminatedEngineInspectReference.txt')

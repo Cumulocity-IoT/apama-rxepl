@@ -76,6 +76,7 @@ event ToStream {
 			on wait(0.0) {
 				// handle completes async to give any queued values a chance to be received
 				outputStream.quit();
+				monitor.unsubscribe(channelName);
 				log "Stream killed" at DEBUG;
 			}
 		}

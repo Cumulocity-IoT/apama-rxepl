@@ -34,6 +34,12 @@ event Connect {
 }
 
 /** @private */
+event Connected {
+	string channel;
+	string connectionId;
+}
+
+/** @private */
 event Next {
 	string channel;
 	string connectionId;
@@ -90,31 +96,63 @@ event ObserveToChannelSubscriber {
 }
 
 /** @private */
+event ObserveToChannelUnsubscribe {
+	dictionary<integer, IObserver> subscribers;
+	integer id;
+	listener unsubscribeListener;
+	string channel;
+	
+	static action create(dictionary<integer, IObserver> subscribers, integer id, listener unsubscribeListener, string channel) returns action<> {
+		return ObserveToChannelUnsubscribe(subscribers, id, unsubscribeListener, channel).unsubscribe;
+	}
+	
+	action unsubscribe() {
+		unsubscribeListener.quit();
+		if subscribers.hasKey(id) {
+			subscribers.remove(id);
+		}
+	}
+}
+
+/** @private */
 event ObserveToHandler {
 	action<IObserver> returns ISubscription parentOnConnect;
 	string channel;
+	dictionary<integer, IObserver> subscribers;
+	listener connectionListener;
 	
 	static action create(action<IObserver> returns ISubscription parentOnConnect, string channel) returns IDisposable {
-		ObserveToHandler p := ObserveToHandler(parentOnConnect, channel);
-		monitor.subscribe(channel);
+		ObserveToHandler p := ObserveToHandler(parentOnConnect, channel, new dictionary<integer, IObserver>, new listener);
 		return p.init();
 	}
 	
 	action init() returns IDisposable {
-		on (all Connect(channel = channel) as connection) and not Dispose(channel = channel) {
+		monitor.subscribe(channel);
+		connectionListener := on (all Connect(channel = channel) as connection) and not Dispose(channel = channel) {
+			send Connected(channel, connection.connectionId) to channel;
+			integer id := integer.incrementCounter("ObserveToSubscribers");
 			IObserver subscriber := ObserveToChannelSubscriber.create(channel, connection.connectionId);
-			on Unsubscribe(channel = channel, connectionId = connection.connectionId) or Dispose(channel = channel) {
-				subscriber.unsubscribe();
+			listener unsubscribeListener := on Unsubscribe(channel = channel, connectionId = connection.connectionId) or Dispose(channel = channel) {
+				if subscriber.subscribed() {
+					subscriber.unsubscribe();
+				}
 			}
+			subscriber.onUnsubscribe(ObserveToChannelUnsubscribe.create(subscribers, id, unsubscribeListener, channel));
 			ISubscription s := parentOnConnect(subscriber);
 		}
-		on (Dispose(channel = channel) -> Connect(channel = channel) as connection) and not (Dispose(channel) -> wait(1.0)) {
-			sendDispose();
-		}
-		return IDisposable(sendDispose);
+		return IDisposable(dispose);
 	}
 	
-	action sendDispose() {
+	action dispose() {
+		monitor.unsubscribe(channel);
+		IObserver o;
+		for o in subscribers.values() {
+			if o.subscribed() {
+				o.unsubscribe();
+			}
+		}
+		subscribers.clear();
 		send Dispose(channel) to channel;
+		connectionListener.quit();
 	}
 }

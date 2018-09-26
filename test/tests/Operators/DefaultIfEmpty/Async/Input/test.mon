@@ -15,7 +15,7 @@ monitor TestObservable {
 	}
 
 	action generator(IResolver resolver) {
-		on all wait(0.1) {
+		on wait(0.1) {
 			resolver.complete();
 		}
 	}

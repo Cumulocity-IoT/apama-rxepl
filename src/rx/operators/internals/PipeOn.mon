@@ -67,7 +67,6 @@ event PipeOnOnConnection {
 			spawnToContext(downstreamChannel);
 		}
 		if spawning {
-			monitor.subscribe(downstreamChannel);
 			on Spawned(channel = downstreamChannel) {
 				spawning := false;
 				spawned := true;

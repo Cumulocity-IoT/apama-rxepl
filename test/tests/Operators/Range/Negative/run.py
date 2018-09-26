@@ -22,6 +22,7 @@ class PySysTest(BaseTest):
 
 	def execute(self):
 		correlator = CorrelatorHelper(self, name='correlator')
+		
 		correlator.start(logfile='correlator.log', config=os.path.join(PROJECT.TEST_SUBJECT_DIR, 'initialization.yaml'))
 
 		correlator.flush()
@@ -29,7 +30,7 @@ class PySysTest(BaseTest):
 		
 		# Start test results receiver
 		correlator.receive(filename='TestResult.evt', channels=['TestResult'], logChannels=True)
-		
+				
 		# Inject test
 		correlator.injectEPL(filenames=['test.mon'])
 		
@@ -54,8 +55,10 @@ class PySysTest(BaseTest):
 		# Check that the test didn't fail
 		self.assertGrep('TestResult.evt', expr='TestFailed', contains=False)
 		
-		# Check that only the decouple channel remains
-		self.assertGrep('preTerminateInspect.txt', expr='main\\s*\\d+\\s*\\d+\\s*DecoupleChannel0')
+		# Check that there are no subscribed channels left
+		self.assertGrep('preTerminateInspect.txt', expr='main\\s*\\d+\\s*\\d+\\s*(\\w+)', contains=False)
 		
-		# Check that the correlator is kept alive - but only by the decouple
-		self.assertDiff('postTerminateInspect.txt', 'decoupleTerminatedEngineInspectReference.txt')
+		# Check that there is nothing keeping the correlator alive
+		self.assertDiff('postTerminateInspect.txt', 'terminatedEngineInspectReference.txt', filedir2=PROJECT.UTILS_DIR)
+
+		
