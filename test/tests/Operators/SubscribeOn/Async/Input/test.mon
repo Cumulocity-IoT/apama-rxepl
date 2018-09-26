@@ -12,6 +12,8 @@ monitor TestObservable {
 	integer teardownCount := 0;
 
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
+		
 		context testContext := context("NewTestContext", false);
 
 	    any discard := Observable.create(generator)

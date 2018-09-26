@@ -14,6 +14,7 @@ monitor TestObservable {
 	
 	
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
 		monitor.subscribe("output");
 		
 		IDisposable disposable := Observable.fromValues([<any>1,2,3,4])
@@ -21,7 +22,7 @@ monitor TestObservable {
 			.map(toWrappedAny)
 		    .toChannel("output");
 		
-		on all WrappedAny() as w {
+		on all WrappedAny() as w and not utils.KeepAliveUntilTerminated() {
 			log "Received: " + w.value.valueToString();
 			receivedValues := receivedValues + 1;
 			if <integer>w.value != receivedValues {
@@ -29,6 +30,7 @@ monitor TestObservable {
 			} else if <integer>w.value = 4 {
 				disposable.dispose();
 				countTeardowns();
+				monitor.unsubscribe("output");
 			}
 		}
 	}

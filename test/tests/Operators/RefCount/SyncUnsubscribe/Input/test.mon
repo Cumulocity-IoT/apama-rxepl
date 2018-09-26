@@ -30,6 +30,7 @@ monitor TestObservable {
 	integer teardownCount := 0;
 	
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
     IObservable connectableObservable := TestObservables.createSync()
       .map(makeSureNotCalledUntilConnected)
       .map(CheckFiresAtMostXTimes.create(3 + 5, test.fail))

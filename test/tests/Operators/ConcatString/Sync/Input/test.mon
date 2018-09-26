@@ -12,6 +12,7 @@ monitor TestObservable {
 	integer teardownCount := 0;
 	
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
 		any discard := Observable.fromValues([<any>"Hello"," ","World ", 1,2.0,3.0,AnEvent()])
 			.concatString()
       		.subscribe(ExpectValues.create([<any>"Hello World 123AnEvent()"], test.complete, test.fail));

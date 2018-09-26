@@ -43,10 +43,25 @@ class PySysTest(BaseTest):
 		# wait for test to complete
 		self.waitForSignal('TestResult.evt', expr="TestComplete", condition="==1", timeout=10)
 		
+		# Output the engine_inspect result to a file to check for any remaining subscribed channels
+		correlator.inspect(filename='preTerminateInspect.txt', arguments=['-x'])
+		
+		correlator.sendEventStrings('utils.KeepAliveUntilTerminated()')
+		
+		# Output the engine_inspect result to a file to check for non-terminated listeners
+		correlator.inspect(filename='postTerminateInspect.txt', raw=True, arguments=['-x'])
+		
 	def validate(self):
 		# check the main correlator log for Errors
 		self.assertGrep('correlator.log', expr=' (ERROR|FATAL) ', contains=False)
 		
 		# Check that the test didn't fail
 		self.assertGrep('TestResult.evt', expr='TestFailed', contains=False)
+		
+		# Check that there are no subscribed channels left
+		self.assertGrep('preTerminateInspect.txt', expr='main\\s*\\d+\\s*\\d+\\s*(\\w+)', contains=False)
+		
+		# Check that there is nothing keeping the correlator alive
+		self.assertDiff('postTerminateInspect.txt', 'terminatedEngineInspectReference.txt', filedir2=PROJECT.UTILS_DIR)
+
 		

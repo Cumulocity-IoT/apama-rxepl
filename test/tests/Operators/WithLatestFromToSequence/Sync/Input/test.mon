@@ -9,6 +9,7 @@ monitor TestObservable {
 	Test test := Test("TestResult");
   
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
 		IObservable o := Observable.fromValues([<any>0,1,2,3]);
 		
 	    any discard := o.withLatestFromToSequence([o])

@@ -10,6 +10,7 @@ monitor TestObservable {
 	integer teardownCount := 0;
 	
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
 		any discard := Observable.fromValues([<any>0,1,2,3,4])
 			.bufferCountSkip(3,1)
   			.subscribe(ExpectValues.create([<any>[<any>0,1,2], [<any>1,2,3], [<any>2,3,4], [<any>3,4],[<any>4]], test.complete, test.fail));

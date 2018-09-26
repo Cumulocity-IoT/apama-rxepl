@@ -13,6 +13,7 @@ monitor TestObservable {
 	integer teardownCount := 0;
 	
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
 		any discard := TestObservables.createAsync()
 								.do(ExpectValues.createNoComplete([<any>0.0,1.0,2.0], onTeardown, test.fail))
 								.map(throwOnThird)

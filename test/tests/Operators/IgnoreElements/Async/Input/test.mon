@@ -11,6 +11,7 @@ monitor TestObservable {
 	boolean canComplete := false;
 	
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
 		on wait(0.29999) {
 			canComplete := true;
 		}

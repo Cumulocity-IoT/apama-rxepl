@@ -67,7 +67,6 @@ event PipeOnOnConnection {
 			spawnToContext(downstreamChannel);
 		}
 		if spawning {
-			monitor.subscribe(downstreamChannel);
 			on Spawned(channel = downstreamChannel) {
 				spawning := false;
 				spawned := true;
@@ -97,6 +96,8 @@ event PipeOnOnConnection {
 				upstream.dispose();
 			}
 			upstream := new optional<IDisposable>;
+			
+			monitor.unsubscribe(downstreamChannel);
 			
 			if spawned {
 				send Dispose(downstreamChannel) to downstreamChannel;

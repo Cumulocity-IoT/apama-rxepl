@@ -18,6 +18,7 @@ monitor TestObservable {
 	Test test := Test("TestResult");
   
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
 	    any discard := Observable.fromValues([
 	                                      	TestEvent(1, 2.0),
 	                            	    	TestEvent.create(1),

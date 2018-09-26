@@ -14,6 +14,7 @@ monitor TestObservable {
 	boolean isDisposed := false;
 	
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
 	    IObservable connectableObservable := TestObservables.createSync()
 			.take(3)
 			.map(makeSureNotCalledUntilConnected)

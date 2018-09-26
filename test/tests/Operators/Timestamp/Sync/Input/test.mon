@@ -7,7 +7,8 @@ using com.industry.rx_epl.TimestampedValue;
 monitor TestObservable {
 	Test test := Test("TestResult");
   
-	action onload() {		
+	action onload() {
+		on utils.KeepAliveUntilTerminated() {}		
 	    any discard := TestObservables.createSync()
 			.take(2)
 			.timestamp()

@@ -10,6 +10,7 @@ monitor TestObservable {
 	integer teardownCount := 0;
 	
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
 		any discard := Observable.fromValues([<any>1,3.5,2.5d]).async()
 			.max()
       		.subscribe(ExpectValues.create([<any>3.5], onTeardown, test.fail));

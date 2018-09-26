@@ -16,6 +16,7 @@ monitor TestObservable {
 	action<> sendComplete;
 	
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
 	     IObservable replay := Observable.create(send0to4WithoutComplete).publishReplay(2);
 
 	     any subscription1 := replay.subscribe(ExpectValues.create([<any>0,1,2,3,4], onTeardown, test.fail));

@@ -8,6 +8,7 @@ monitor TestObservable {
 	Test test := Test("TestResult");
   
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
 	    any discard := Observable.fromValues([6,4,-1,0,3]).delay(0.1)
 		.toSortedListDesc()
 		.subscribe(ExpectValues.create([<any>[<any>6, 4, 3, 0, -1]], test.complete, test.fail));

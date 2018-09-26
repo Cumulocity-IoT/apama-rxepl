@@ -12,20 +12,22 @@ monitor TestObservable {
 
 	integer teardownCount := 0;
 	
+	IDisposable disposable;
 	
 	action onload() {
-		IDisposable disposable := TestObservables.createAsync()
-			.take(3)
-			.do(ExpectValues.create([<any>0.0,1.0,2.0], countTeardowns, test.fail))
+		on utils.KeepAliveUntilTerminated() {}
+		disposable := TestObservables.createAsync().take(3)
+			.do(ExpectValues.create([<any>0.0,1.0,2.0], countTeardownsAndDispose, test.fail))
   			.observeToChannel("TestChannel");
 		
 		ISubscription downstreamSubscription := Observable.observeFromChannel("TestChannel")
-  			.subscribe(ExpectValues.create([<any>0.0,1.0,2.0], countTeardowns, test.fail));
+  			.subscribe(ExpectValues.create([<any>0.0,1.0,2.0], countTeardownsAndDispose, test.fail));
 	}
 	
-	action countTeardowns() {
+	action countTeardownsAndDispose() {
 		teardownCount := teardownCount + 1;
 		if teardownCount = 2 {
+			disposable.dispose();
 			test.complete();
 		}
 	}

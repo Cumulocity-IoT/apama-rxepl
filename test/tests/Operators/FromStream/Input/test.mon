@@ -8,7 +8,8 @@ using utils.ExpectValues;
 monitor TestObservable {
 	Test test := Test("TestResult");
   
-	action onload() {		
+	action onload() {
+		on utils.KeepAliveUntilTerminated() {}		
 	    stream<any> inputStream := from a in all WrappedAny() select a.value;
 	    
 	    IObservable o := Observable.fromStream(inputStream);

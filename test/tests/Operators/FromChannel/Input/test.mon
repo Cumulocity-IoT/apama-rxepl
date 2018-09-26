@@ -8,7 +8,8 @@ using utils.ExpectValues;
 monitor TestObservable {
 	Test test := Test("TestResult");
   
-	action onload() {		
+	action onload() {
+		on utils.KeepAliveUntilTerminated() {}		
 	    IObservable o := Observable.fromChannel("test");
 	    
 	   any discard := o.take(5)

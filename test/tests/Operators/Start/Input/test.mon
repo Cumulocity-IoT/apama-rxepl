@@ -10,7 +10,8 @@ monitor TestObservable {
 	integer i := 0;
 	integer teardownCount := 0;
   
-	action onload() {		
+	action onload() {
+		on utils.KeepAliveUntilTerminated() {}		
 	    IObservable o := Observable.start(generator);
 	    any discard := o.subscribe(ExpectValues.create([<any>1], onTeardown, test.fail));
 	    discard := o.subscribe(ExpectValues.create([<any>2], onTeardown, test.fail));

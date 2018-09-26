@@ -10,6 +10,7 @@ monitor TestObservable {
 	integer teardownCount := 0;
 
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
 	    any discard := TestObservables.createAsync().take(4)
 			.complexPipe(pipe)
 	      	.subscribe(ExpectValues.create([<any>0.0,10.0,20.0,30.0], test.complete, test.fail));

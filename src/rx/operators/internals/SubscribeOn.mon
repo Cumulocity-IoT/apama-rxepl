@@ -46,8 +46,7 @@ event SubscribeOn {
 	}
 	
 	action doOnOtherContext() {
-		handleUnsubscribe();
-		subscriber.onUnsubscribe(sendUnsubscribed);		
+		handleUnsubscribe();	
 		ISubscription s := subscribe(subscriber);
 		send Spawned(channel) to channel;
 	}
@@ -57,9 +56,12 @@ event SubscribeOn {
 	}
 	
 	action handleUnsubscribe() {
+		// If either the creating context or the runner context unsubscribe then we want the other to know about it
+		subscriber.onUnsubscribe(sendUnsubscribed);
 		monitor.subscribe(channel);
 		on Spawned(channel = channel) and Unsubscribe(channel = channel) {
 			subscriber.unsubscribe();
+			monitor.unsubscribe(channel);
 		}
 	}
 }
