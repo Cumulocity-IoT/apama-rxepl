@@ -13,6 +13,7 @@ monitor TestObservable {
 	
 	
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
 		DisposableStream valueStream := Observable.fromValues([<any>1,2,3,4])
   			.do(ExpectValues.create([<any>1,2,3,4], countTeardowns, test.fail))
 		    .toStream();

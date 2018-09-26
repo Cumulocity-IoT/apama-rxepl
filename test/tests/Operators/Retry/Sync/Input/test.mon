@@ -12,6 +12,7 @@ monitor TestObservable {
 	integer j := 0;
 	
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
 		any discard := TestObservables.createSync()
 								.take(3)
 								.map(throwOnThirdAndSixth)

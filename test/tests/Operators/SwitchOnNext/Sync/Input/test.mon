@@ -8,7 +8,8 @@ using com.industry.rx_epl.IObservable;
 monitor TestObservable {
 	Test test := Test("TestResult");
 	integer i := 0;
-	action onload() {		
+	action onload() {
+		on utils.KeepAliveUntilTerminated() {}		
 		IObservable o := Observable.fromValues([0,1]);
 		
 	    any discard := Observable.fromValues([<any>o,o,o])

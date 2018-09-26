@@ -18,6 +18,7 @@ monitor TestObservable {
 	Test test := Test("TestResult");
   
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
 	    any discard := Observable.fromChannel("Test")
 			.distinctByUntilChanged(getIValue)
 			.take(4)

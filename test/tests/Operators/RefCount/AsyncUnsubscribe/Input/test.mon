@@ -37,6 +37,7 @@ monitor TestObservable {
 	ISubscription subscription5;
 	
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
 	     IObservable connectableObservable := Observable.interval(0.1)
 			.map(makeSureNotCalledUntilConnected)
 			.map(CheckFiresAtMostXTimes.create(3 + 4, test.fail)) // 3 for the first connection 4 for the second

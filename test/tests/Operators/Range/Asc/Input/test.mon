@@ -6,7 +6,8 @@ using utils.ExpectValues;
 monitor TestObservable {
 	Test test := Test("TestResult");
   
-	action onload() {		
+	action onload() {
+		on utils.KeepAliveUntilTerminated() {}		
 	    any discard := Observable.range(15,20)
 	      	.subscribe(ExpectValues.create([<any>15,16,17,18,19,20], test.complete, test.fail));
 	}

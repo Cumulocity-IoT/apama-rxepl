@@ -7,6 +7,7 @@ monitor TestObservable {
 	boolean hasDelayed := false;
 	
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
 	    any discard := TestObservables.createSync()
 			.take(3)
 			.delay(0.1)

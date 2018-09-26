@@ -11,6 +11,7 @@ monitor TestObservable {
 	Test test := Test("TestResult");
 	
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
 		ISubject s := Subject.create();
 		
 		IObservable o := Observable.interval(0.1).take(2);

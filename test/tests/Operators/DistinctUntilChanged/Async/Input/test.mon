@@ -8,7 +8,8 @@ using com.industry.rx_epl.WrappedAny;
 monitor TestObservable {
 	Test test := Test("TestResult");
   
-	action onload() {		
+	action onload() {
+		on utils.KeepAliveUntilTerminated() {}		
 	    any discard := Observable.fromValues([1,1,2,1,2,0,0,1,2,3]).async()
 			.distinctUntilChanged()
 			.take(8)

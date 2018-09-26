@@ -6,6 +6,7 @@ monitor TestObservable {
 	Test test := Test("TestResult");
   
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
     any discard := TestObservables.createSync()
 		.first()
 		.subscribe(ExpectValues.create([<any>0.0], test.complete, test.fail));

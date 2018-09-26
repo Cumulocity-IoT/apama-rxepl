@@ -13,7 +13,8 @@ event Data {
 monitor TestObservable {
 	Test test := Test("TestResult");
   
-	action onload() {		
+	action onload() {
+		on utils.KeepAliveUntilTerminated() {}		
 		any discard := Observable.fromValues([<any>Data("a", 1), Data("b", 1), Data("a", 2), Data("b", 2)])
 							.groupBy(dataToSourceId)
 							.subscribe(Subscriber.create().onNext(subscribeToEachGroup).onComplete(onTeardown));

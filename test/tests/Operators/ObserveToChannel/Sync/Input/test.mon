@@ -15,6 +15,7 @@ monitor TestObservable {
 	IDisposable disposable;
 	
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
 		disposable := TestObservables.createSync().take(3)
 			.do(ExpectValues.create([<any>0.0,1.0,2.0], countTeardownsAndDispose, test.fail))
   			.observeToChannel("TestChannel");

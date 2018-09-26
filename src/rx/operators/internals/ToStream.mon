@@ -47,6 +47,7 @@ event ToStreamSubscriber {
 
 /** @private */
 event ToStream {
+	string channelName;
 	IObserver subscriber;
 	stream<any> outputStream;
 	
@@ -54,7 +55,7 @@ event ToStream {
 		string channelName := "__ToStream__";
 		integer id := integer.getUnique();
 		monitor.subscribe(channelName);
-		ToStream toStream := ToStream(new IObserver, from a in all WrappedAnyFromChannel(channelName = channelName, uniqueId = id) select a.value);
+		ToStream toStream := ToStream(channelName, new IObserver, from a in all WrappedAnyFromChannel(channelName = channelName, uniqueId = id) select a.value);
 		toStream.subscriber := ToStreamSubscriber.create(toStream.outputStream, channelName, id, toStream.onComplete);
 		ISubscription s := observable.connectObserver(toStream.subscriber);
 		return DisposableStream(toStream.outputStream, toStream.dispose);
@@ -64,6 +65,7 @@ event ToStream {
 		if subscriber.subscribed() {
 			subscriber.unsubscribe();
 			outputStream.quit();
+			monitor.unsubscribe(channelName);
 			log "Stream killed" at DEBUG;
 		}
 	}

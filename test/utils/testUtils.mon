@@ -144,3 +144,5 @@ event ExpectValues {
       fail("Should not have called teardown");
   }
 }
+
+event KeepAliveUntilTerminated {}

@@ -8,6 +8,7 @@ monitor TestObservable {
 	integer teardownCount := 0;
   
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
 	    any discard := TestObservables.createSync()
 			.do(ExpectValues.createNoComplete([<any>0.0,1.0,2.0,3.0], countTeardowns, test.fail))
 			.contains(is3)

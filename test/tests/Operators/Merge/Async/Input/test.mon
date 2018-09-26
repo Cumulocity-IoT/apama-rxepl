@@ -9,6 +9,7 @@ monitor TestObservable {
 	Test test := Test("TestResult");
   
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
 	    IObservable o := TestObservables.createAsync().take(3);
 		any subscription := o.merge([o]).subscribe(ExpectValues.create([<any>0.0,0.0,1.0,1.0,2.0,2.0], test.complete, test.fail));
 	}

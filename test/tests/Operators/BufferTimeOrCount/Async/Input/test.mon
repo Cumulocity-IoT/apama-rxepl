@@ -12,6 +12,7 @@ monitor TestObservable {
 	integer teardownCount := 0;
 	
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
 		ISubject s := Subject.create();
 		
 		any discard := s.bufferTimeOrCount(0.1, 3)

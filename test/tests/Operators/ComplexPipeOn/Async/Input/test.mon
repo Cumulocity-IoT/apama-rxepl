@@ -15,6 +15,7 @@ monitor TestObservable {
 	integer teardownCount := 0;
 
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
 		context testContext := context("NewTestContext", false);
 		context pipeContext := context("NewPipeContext", false);
 

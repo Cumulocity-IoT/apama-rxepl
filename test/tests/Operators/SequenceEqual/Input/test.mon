@@ -9,6 +9,7 @@ monitor TestObservable {
 	integer teardownCount := 0;
 	
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
 		// Both Sync
 		any discard := Observable.fromValues([<any>0,1,2,3])
 			.sequenceEqual([Observable.fromValues([<any>0,1,2,3])])

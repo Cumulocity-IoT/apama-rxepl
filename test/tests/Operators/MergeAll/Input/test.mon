@@ -9,6 +9,7 @@ monitor TestObservable {
 	integer teardownCount := 0;
 	
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
 	    any discard := Observable.fromValues([<any>Observable.fromValues([<any>9,10]).delay(0.1),Observable.fromValues([<any>0,1,2,3]),[4,5,6],7,8])
 	      	.mergeAll()
 	      	.subscribe(ExpectValues.create([<any>0,1,2,3,4,5,6,7,8,9,10], test.complete, test.fail));

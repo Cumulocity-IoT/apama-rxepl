@@ -98,6 +98,8 @@ event PipeOnOnConnection {
 			}
 			upstream := new optional<IDisposable>;
 			
+			monitor.unsubscribe(downstreamChannel);
+			
 			if spawned {
 				send Dispose(downstreamChannel) to downstreamChannel;
 			}

@@ -10,6 +10,7 @@ monitor TestObservable {
 	Test test := Test("TestResult");
   
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
 		sequence<any> result := new sequence<any>;
 		
 		ISubject trigger := Subject.create(); 

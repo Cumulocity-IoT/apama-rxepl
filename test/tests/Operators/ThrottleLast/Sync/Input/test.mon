@@ -8,7 +8,8 @@ using com.industry.rx_epl.Subscriber;
 monitor TestObservable {
 	Test test := Test("TestResult");
   
-	action onload() {		
+	action onload() {
+		on utils.KeepAliveUntilTerminated() {}		
 		any discard := Observable.fromValues([<any>0,1,2,3])
 							.throttleLast(0.0)
 							.subscribe(ExpectValues.create([<any>3], test.complete, test.fail));

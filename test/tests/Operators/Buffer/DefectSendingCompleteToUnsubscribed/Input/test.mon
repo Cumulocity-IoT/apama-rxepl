@@ -12,6 +12,7 @@ monitor TestObservable {
 	integer completeCount := 0;
 	
 	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
 		any discard := Observable.just(1)
 			.zipToSequence([Observable.just(1)])
 			.buffer(Observable.just(1))
