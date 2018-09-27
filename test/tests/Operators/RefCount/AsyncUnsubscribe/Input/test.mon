@@ -46,13 +46,10 @@ monitor TestObservable {
 
 	     isConnected := true;
 	     subscription1 := connectableObservable.subscribe(ExpectValues.createNoComplete([<any>0,1], onTeardown, test.fail));
-	     subscription1.onUnsubscribe(onTeardown);
 	     subscription2 := connectableObservable.subscribe(ExpectValues.createNoComplete([<any>0,1,2], onTeardown, test.fail));
-	     subscription2.onUnsubscribe(onTeardown);
 	     
 	     on wait(0.1) {
 	    	 subscription3 := connectableObservable.subscribe(ExpectValues.createNoComplete([<any>1,2], onTeardown, test.fail));
-		     subscription3.onUnsubscribe(onTeardown);
 	     }
 	     
 	     on wait(0.2) {
@@ -86,6 +83,7 @@ monitor TestObservable {
 	
 	action onTeardown() {
 		teardownCount := teardownCount + 1;
+		log "Count: " + teardownCount.toString();
 		if teardownCount = 6 {
 			test.complete();
 		}
