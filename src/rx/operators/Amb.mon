@@ -33,3 +33,9 @@ event Amb {
 		return AmbOnConnection.create(onConnection, otherObservables);
 	}
 }
+
+event Race {
+	static action create(sequence<IObservable> otherObservables) returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return Amb.create(otherObservables);
+	}
+}
