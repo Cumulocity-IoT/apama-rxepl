@@ -27,99 +27,161 @@ using com.industry.rx_epl.Subscription;
 using com.industry.rx_epl.Subscriber;
 
 /** @private */
-event PublishReplayRecordingSubscriber {
-	sequence<any> replayValues;
-	integer maxCount;
+event SubscriberAndSubscription {
 	IObserver subscriber;
-	boolean isComplete;
+	Subscription subscription;
+}
+
+/** @private */
+event PublishReplaySubscriber {
+	// Can't store in dictionary need reliable iteration order
+	sequence<SubscriberAndSubscription> subscribers;
+	action<> onComplete;
+	action<> returns boolean isUnsubscribed;
+	integer replayCount;
+	sequence<any> replayValues;
 	
-	static action create(sequence<any> replayValues, integer maxCount) returns IObserver {
-		PublishReplayRecordingSubscriber p := PublishReplayRecordingSubscriber(replayValues, maxCount, new IObserver, false);
-		IObserver o := Subscriber.create().onNext(p.next).onComplete(p.complete).asIObserver();
-		p.subscriber := o;
-		return o;
+	static action create(sequence<SubscriberAndSubscription> subscribers, action<> onComplete, action<> returns boolean isUnsubscribed, integer replayCount, sequence<any> replayValues) returns IObserver {
+		PublishReplaySubscriber p := PublishReplaySubscriber(subscribers, onComplete, isUnsubscribed, replayCount, replayValues);
+		IObserver s := Subscriber.create().onNext(p.next).onError(p.error).onComplete(p.complete).asIObserver();
+		return s;
 	}
 	
 	action next(any value) {
-		if isComplete {
-			return;
+		SubscriberAndSubscription ss;
+		for ss in subscribers {
+			ss.subscriber.next(value);
 		}
 		replayValues.append(value);
-		if replayValues.size() > maxCount {
+		if replayValues.size() > replayCount {
 			replayValues.remove(0);
 		}
 	}
 	
+	action error(any e) {
+		SubscriberAndSubscription ss;
+		for ss in subscribers{
+			ss.subscriber.error(e);
+		}		
+	}
+	
 	action complete() {
-		isComplete := true;
-		subscriber.unsubscribe();
+		SubscriberAndSubscription ss;
+		sequence<SubscriberAndSubscription> subscribersCopy := new sequence<SubscriberAndSubscription>;
+		subscribersCopy.appendSequence(subscribers);
+		for ss in subscribersCopy {
+			ss.subscriber.complete();
+		}
+		onComplete();
 	}
 }
 
 /** @private */
-event PublishReplaySubscriberOnDisconnection {
-	IDisposable upstreamConnection;
-	IObserver publishReplaySubscriber;
+event PublishOnDisconnection {
+	sequence<SubscriberAndSubscription> subscribers;
+	integer subscriberId;
 	
-	static action create(IDisposable upstreamConnection, IDisposable downstreamConnection, IObserver publishReplaySubscriber) returns IDisposable {
-		PublishReplaySubscriberOnDisconnection p := PublishReplaySubscriberOnDisconnection(upstreamConnection, publishReplaySubscriber);
-		downstreamConnection.onDispose := p.onDisconnect;
-		return downstreamConnection;
+	static action create(sequence<SubscriberAndSubscription> subscribers, integer subscriberId) returns action<> {
+		return PublishOnDisconnection(subscribers, subscriberId).onDisconnect;
 	}
 	
 	action onDisconnect() {
-		publishReplaySubscriber.unsubscribe();
-		upstreamConnection.dispose();
+		// Subscribers might already have been removed. 
+		// Specifically if it is refCounted and we receive a complete because reset is called twice:
+		// once by the auto-completing subscriber
+		// once by the refCounter triggered by the auto-completing subscriber
+		integer idx := 0;
+		while idx < subscribers.size() {
+			if subscribers[idx].subscriber.getId() = subscriberId {
+				subscribers.remove(idx);
+				break;
+			}
+			idx := idx + 1;
+		}
 	}
 }
 
 /** @private */
 event PublishReplayHandler {
-	IDisposable upstreamConnection;
-	IDisposable downstreamConnection;
-	action<> returns IDisposable upstreamConnect;
 	action<IObserver> returns ISubscription parentOnConnection;
+	IDisposable connection;
+	sequence<SubscriberAndSubscription> subscribers;
+	ISubscription upstreamSubscription;
+	optional<IObserver> upstreamSubscriber;
+	boolean isComplete;
+	integer replayCount;
 	sequence<any> replayValues;
-	optional<IObserver> recordingSubscriber;
-	integer maxReplayCount;
 	
-	static action create(IDisposable upstreamConnection, IDisposable downstreamConnection, 
-	                     action<> returns IDisposable upstreamConnect, action<IObserver> returns ISubscription parentOnConnection, 
-	                     integer maxReplayCount) returns PublishReplayHandler {
-		return PublishReplayHandler(upstreamConnection, downstreamConnection, upstreamConnect, parentOnConnection, new sequence<any>, new optional<IObserver>, maxReplayCount);
+	static action create(action<IObserver> returns ISubscription parentOnConnection, IDisposable connection, integer replayCount) returns PublishReplayHandler {
+		if replayCount < 0 {
+			throw Exception("Replay count must be >= 0", "IllegalArgumentException");
+		}
+		
+		return PublishReplayHandler(parentOnConnection, connection, new sequence<SubscriberAndSubscription>, new ISubscription, new optional<IObserver>, false, replayCount, new sequence<any>);
+	}
+	
+	action connect() returns IDisposable {
+		if not isComplete {
+			// If there isn't an upstream subscription then create one
+			if upstreamSubscriber.empty() {
+				upstreamSubscriber := PublishReplaySubscriber.create(subscribers, onComplete, isUnsubscribed, replayCount, replayValues);
+				connection.onDispose := reset;
+				upstreamSubscription := parentOnConnection(upstreamSubscriber.getOrThrow());
+			}
+		} else {
+			SubscriberAndSubscription ss;
+			for ss in subscribers {
+				ss.subscriber.complete();
+			}
+		}
+		return connection;
+	}
+	
+	action isUnsubscribed() returns boolean {
+		return upstreamSubscriber.empty();
+	}
+	
+	action onComplete() {
+		isComplete := true;
+		ifpresent upstreamSubscriber {
+			upstreamSubscriber.unsubscribe();
+		}
+	}
+	
+	action reset() {
+		ifpresent upstreamSubscriber {
+			upstreamSubscriber.unsubscribe();
+		}
+		replayValues.clear();
+		upstreamSubscriber := new optional<IObserver>;
+		upstreamSubscription := new ISubscription;
+		SubscriberAndSubscription ss;
+		for ss in subscribers {
+			ss.subscription.unsubscribe();
+		}
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {
-		ifpresent recordingSubscriber {
-			subscriber.subscribe();
-			any value;
-			for value in replayValues {
-				subscriber.next(value);
-				// If the subscriber unsubscribes then don't bother subscribing to the upstream
-				if not subscriber.subscribed() {
-					return Subscription.create(subscriber).asISubscription();
-				}
+		// Must create subscription before calling ay next, error, complete
+		Subscription downstreamSubscription := Subscription.create(subscriber);
+		
+		any replayValue;
+		for replayValue in replayValues {
+			if not subscriber.subscribed() {
+				break;
+			}
+			subscriber.next(replayValue);
+		}
+		
+		if subscriber.subscribed() {
+			if not isComplete {
+				SubscriberAndSubscription ss := SubscriberAndSubscription(subscriber, downstreamSubscription);
+				subscribers.append(ss);
+				downstreamSubscription.add(PublishOnDisconnection.create(subscribers, subscriber.getId()));
+			} else {
+				subscriber.complete();
 			}
 		}
-		return parentOnConnection(subscriber);
-	}
-	
-	action downstreamConnect() returns IDisposable {
-		if recordingSubscriber.empty() {
-			recordingSubscriber := PublishReplayRecordingSubscriber.create(replayValues, maxReplayCount);
-			recordingSubscriber.getOrThrow().onUnsubscribe(onDisconnect);
-			ISubscription discard := parentOnConnection(recordingSubscriber.getOrThrow());
-			upstreamConnection := upstreamConnect();
-			return PublishReplaySubscriberOnDisconnection.create(upstreamConnection, downstreamConnection, recordingSubscriber.getOrThrow());
-		} else {
-			log "Observable is already connected" at ERROR;
-			return downstreamConnection;
-		}
-	}
-	
-	action onDisconnect() {
-		recordingSubscriber.getOrThrow().unsubscribe();
-		recordingSubscriber := new optional<IObserver>;
-		replayValues.clear();
+		return downstreamSubscription.asISubscription();
 	}
 }

@@ -1,4 +1,5 @@
 
+
 # <a name="iobservable"></a>com.industry.rx_epl.IObservable [<>](/src/rx/interfaces/IObservable.mon)
 
 IObservable is the interface returned by almost all RxEPL operators, this allows the operators to be chained in with a fluent syntax.
@@ -1463,7 +1464,7 @@ Observable.fromValues([1,2,3,4])
 // Output: 1,2,3,4,1,2,3,4
 ```
 
-<a name="publish" href="#publish">#</a> .**publish**() returns [IObservable](#iobservable)<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/Publish.mon  "Source")
+<a name="publish" href="#publish">#</a> .**publish**() returns [IObservable](#iobservable)<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/PublishReplay.mon  "Source")
 
 Publish allows a single observable subscription to be shared among various other subscribers. Delaying upstream subscription until [.connect()](#connect) is called.
 
@@ -1494,6 +1495,8 @@ See also: [RefCount](#refcount)
 <a name="publishreplay" href="#publishreplay">#</a> .**publishReplay**(*`count:` integer*) returns [IObservable](#iobservable)<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/internals/PublishReplay.mon  "Source")
 
 Similar to [Publish](#publish), except it stores up to `count` values received after [.connect()](#connect) is called, replaying the latest to any late subscriptions.
+
+Note: Values are replayed to new subscriptions even if the source completes. To empty the replay cache dispose of the [IDisposable](./IDisposable.md#idisposable) returned from  [.connect()](#connect).
 
 ```javascript
 IObservable o := Observable.interval(1.0).publishReplay(2);

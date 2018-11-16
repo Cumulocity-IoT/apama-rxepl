@@ -32,8 +32,7 @@ monitor TestObservable {
 	     }
 	     
 	     on wait(0.1 + 0.6) {
-	    	 // Should call complete if connecting to a completed observable
-		     any subscription5 := replay.subscribe(ExpectValues.create(new sequence<any>, onTeardown, test.fail));
+		     any subscription5 := replay.subscribe(ExpectValues.create([<any>3,4], onTeardown, test.fail));
 	     }
 	     
 	     on wait(0.1) {

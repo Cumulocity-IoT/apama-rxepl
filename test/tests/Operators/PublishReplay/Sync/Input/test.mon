@@ -23,7 +23,7 @@ monitor TestObservable {
 	     any connection := replay.connect();
     	 any subscription2 := replay.subscribe(ExpectValues.create([<any>3,4], onTeardown, test.fail));
     	 sendComplete();
-    	 any subscription3 := replay.subscribe(ExpectValues.create(new sequence<any>, onTeardown, test.fail));
+    	 any subscription3 := replay.subscribe(ExpectValues.create([<any>3,4], onTeardown, test.fail));
 	}
 	
 	action send0to4WithoutComplete(IResolver resolver) {
