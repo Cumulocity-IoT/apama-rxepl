@@ -1,0 +1,30 @@
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IObservable;
+
+using com.industry.rx_epl.operators.Map;
+
+event Drift {
+	float threshold;
+	float warmupPeriod;
+	
+	static action create(float threshold, float warmupPeriod) returns action<IObservable> returns IObservable {
+		return Drift(threshold, warmupPeriod).drift;
+	}
+	
+	action drift(IObservable source) returns IObservable {
+		IObservable avg := source.takeUntil(Observable.timer(0, warmupPeriod)).average().last();
+		
+		return source.withLatestFromToSequence([avg])
+			.filter(outsideThreshold)
+			.map(getValue);
+	}
+	
+	action outsideThreshold(any valueAndAverageAsAny) returns boolean {
+		sequence<any> valAndAverage := <sequence<any> > valueAndAverageAsAny;
+		return ((<float>valAndAverage[0]) - (<float>valAndAverage[1])).abs() > threshold;
+	}
+	
+	action getValue(any valueAndAverageAsAny) returns any {
+		return (<sequence<any> > valueAndAverageAsAny)[0];
+	}
+}

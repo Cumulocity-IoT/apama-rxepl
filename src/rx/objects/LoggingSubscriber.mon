@@ -18,11 +18,26 @@
 
 package com.industry.rx_epl;
 
-using com.apama.exceptions.Exception;
-
-event ReplaySubject {	
-	static action create(integer count) returns ISubject {
-		Observable o := Observable._create();
-		return BaseReplaySubject.create(o.asIObservable(), o.setOnConnection, count);
+event LoggingSubscriber {	
+	string label;
+	
+	static action create(string label) returns Subscriber {
+		if label != "" {
+			label := label + ": ";
+		}
+		LoggingSubscriber l := LoggingSubscriber(label);
+		return Subscriber(l.logNext, l.logError, l.logComplete, false, new sequence<action<> >);
+	}
+	
+	action logNext(any value) {
+		log label + "Received value: " + value.valueToString();
+	}
+	
+	action logError(any value) {
+		log label + "Received error: " + value.valueToString() at ERROR;
+	}
+	
+	action logComplete() {
+		log label + "Completed";
 	}
 }

@@ -136,7 +136,7 @@ using com.industry.rx_epl.operators.internals.GetSyncHandler;
 using com.industry.rx_epl.operators.internals.IntervalOnConnection;
 using com.industry.rx_epl.operators.internals.JustOnConnection;
 using com.industry.rx_epl.operators.internals.ObserveOnHandler;
-using com.industry.rx_epl.operators.internals.PublishReplayHandler;
+using com.industry.rx_epl.operators.internals.PublishHandler;
 using com.industry.rx_epl.operators.internals.ObserveToHandler;
 using com.industry.rx_epl.operators.internals.RangeOnConnection;
 using com.industry.rx_epl.operators.internals.ObserveFromDispose;
@@ -373,7 +373,8 @@ event Observable {
 	
 	action publish() returns IObservable {
 		IDisposable connection := IDisposable(new action<>);
-		PublishReplayHandler p := PublishReplayHandler.create(onConnection, connection, 0);
+		
+		PublishHandler p := PublishHandler.create(onConnection, connection, (<action<> returns ISubject>any.newInstance("com.industry.rx_epl.Subject").getAction("create"))());
 		Observable o := _createConnectable(connection, p.connect);
 		
 		o.onConnection := p.onConnection;
@@ -495,7 +496,7 @@ event Observable {
 	 */
 	action publishReplay(integer count) returns IObservable {
 		IDisposable connection := IDisposable(new action<>);
-		PublishReplayHandler p := PublishReplayHandler.create(onConnection, connection, count);
+		PublishHandler p := PublishHandler.create(onConnection, connection, (<action<integer> returns ISubject>any.newInstance("com.industry.rx_epl.ReplaySubject").getAction("create"))(count));
 		Observable o := _createConnectable(connection, p.connect);
 		
 		o.onConnection := p.onConnection;

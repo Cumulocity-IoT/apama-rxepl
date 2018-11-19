@@ -1,0 +1,34 @@
+using utils.TestObservables;
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.IDisposable;
+using com.industry.rx_epl.IResolver;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	boolean hasRun := false;
+	
+	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
+		
+	    IObservable replay := Observable.create(runOnceSource).publishReplay(1);
+	    any connection := replay.connect();
+
+    	any subscription := replay.concat([replay]).subscribe(ExpectValues.create([<any>1, 1], test.complete, test.fail));
+	}
+	
+	action runOnceSource(IResolver r) {
+		if hasRun {
+			throw com.apama.exceptions.Exception("You've already run this!!!!!", "RuntimeException");
+		}
+		hasRun := true;
+		on wait(0.1) {
+			r.next(1);
+			r.complete();
+		}
+	}
+}

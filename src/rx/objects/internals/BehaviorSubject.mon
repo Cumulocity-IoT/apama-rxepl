@@ -37,16 +37,21 @@ event BehaviorSubjectHandler {
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {
+		// Should create the subscription before sending any next, error, complete
+		ISubscription s := Subscription.create(subscriber).asISubscription();
+		
 		if not isComplete {
 			subscribers.add(subscriber.getId(), subscriber);
 			subscriber.onUnsubscribe(SubjectOnDisconnection.create(subscribers, subscriber.getId()));
-			Subscription s := Subscription.create(subscriber);
-			subscriber.next(currentValue);
-			return s.asISubscription();
+			if subscriber.subscribed() {
+				subscriber.next(currentValue);
+			}
 		} else {
-			subscriber.complete();
-			return Subscription.create(subscriber).asISubscription();
+			if subscriber.subscribed() {
+				subscriber.complete();
+			}
 		}
+		return s;
 	}
 	
 	action next(any value) {

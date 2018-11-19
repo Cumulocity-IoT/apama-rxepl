@@ -54,7 +54,9 @@ event RepeatToFirstSubjectHandler {
 			subscribers.add(subscriber.getId(), subscriber);
 			subscriber.onUnsubscribe(SubjectOnDisconnection.create(subscribers, subscriber.getId()));
 		} else {
-			subscriber.complete();
+			if subscriber.subscribed() {
+				subscriber.complete();
+			}
 		}
 		return s;
 	}

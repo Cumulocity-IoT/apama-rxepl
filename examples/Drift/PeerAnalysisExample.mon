@@ -1,0 +1,30 @@
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.Subscriber;
+
+using com.industry.rx_epl.utils.Utils;
+
+using com.industry.rx_epl.operators.Map;
+
+monitor PeerAnalysisExample {
+	constant decimal THRESHOLD := 1.0d;
+	
+	action onload() {
+		ISubscription s := Observable.fromStream(from temp in all MachineTemp() select <any> temp)
+			.complexPipe(PeerAnalysis.create(2.0d, 1.0))
+			.subscribe(Subscriber.create().onNext(printValue));
+		
+		sequence<string> machineIds := ["machine1", "machine2", "machine3", "machine4"];
+		on all wait(0.5) {
+			string machineId;
+			for machineId in machineIds {
+				send MachineTemp(machineId, 20.0d + 2.5d.rand()) to "";
+			}
+		}
+	}
+	
+	action printValue(any value) {
+		log value.valueToString();
+	}
+}

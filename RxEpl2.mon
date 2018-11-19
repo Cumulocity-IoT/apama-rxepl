@@ -1,0 +1,312 @@
+package com.industry.rx_epl;
+
+using com.industry.rx_epl.operators.Map;
+using com.industry.rx_epl.operators.Reduce;
+using com.industry.rx_epl.operators.Pipe;
+using com.industry.rx_epl.operators.ScanWithInitial;
+using com.industry.rx_epl.operators.CombineLatestToSequence;
+using com.industry.rx_epl.operators.PipeOnNew;
+using com.industry.rx_epl.operators.Do;
+using com.industry.rx_epl.operators.Average;
+using com.industry.rx_epl.operators.Max;
+using com.industry.rx_epl.operators.FlatMap;
+using com.industry.rx_epl.operators.BufferCountSkip;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.lambdas.Lambda;
+
+event Test {
+	float value;
+}
+
+event Data {
+	string streamName;
+	string type;
+	string sourceId;
+	decimal timestamp;
+	decimal dValue;
+	string sValue;
+	float xValue;
+	float yValue;
+	float zValue;
+	dictionary<string, string> params;
+}
+
+event MultiplyByX {
+	integer x;
+	static action create(integer x) returns action<any> returns any {
+		return MultiplyByX(x).multiplyByX;
+	}
+	
+	action multiplyByX(any value) returns any {
+		return <integer> value * x;
+	}
+}
+
+event Order {
+	string productId;
+	float qty;
+	
+	constant string CHANNEL := "ahhh";
+}
+
+event Logger {
+	string msg;
+	
+	static action logMsgAndValue(string msg) returns action<any> {
+		return Logger(msg).logValue;
+	}
+
+	static action logMsg(string msg) returns action<> {
+		return Logger(msg).logMsg2;
+	}
+	
+	action logValue(any value) {
+		log msg + value.valueToString();
+	}
+	
+	action logMsg2() {
+		log msg;
+	}
+}
+
+monitor RxEpl {
+	integer j := 0;
+	
+	float t0;
+
+	action onload() {
+		on wait(2.0) {
+			
+			IObservable o1 := Observable.create(source)
+				.do(LoggingSubscriber.create("Debug1"))
+				.publishReplay(1);
+			log "Pre-connect";
+			any discard := o1.connect();
+			log "Post-connect";
+			discard := o1
+				.do(LoggingSubscriber.create("Debug2"))
+				.concat([o1.do(LoggingSubscriber.create("Debug3"))])
+				.do(LoggingSubscriber.create("Debug4"))
+				.last()
+				.do(LoggingSubscriber.create("Debug5"))
+				.subscribe(LoggingSubscriber.create("Out"));
+			log "Post-subscribe";
+			// Next: 10
+			// Next: 20
+			// Next: 30
+			// Complete
+		}
+	}
+	
+	boolean runOnce := false;
+	
+	action source(IResolver r) {
+		if runOnce {
+			throw Exception("Ahhh", "RuntimeException");
+		}
+		runOnce := true;
+		on wait(1.0) {
+			r.next(1);
+			r.complete();
+		}
+	}
+	
+	action observer(IObservable o, action<> dispose) {
+		any discard := o;
+	}
+	
+	action customOperator(IObservable source) returns IObservable {
+		return source.pairwise();
+	}
+	
+	action createSequenceString(sequence<any> values) returns any {
+		sequence<string> strings := new sequence<string>;
+		any value;
+		for value in values {
+			strings.append(value.valueToString());
+		}
+		return "[" + ",".join(strings) + "]";
+	}
+	
+	action comparator(integer left, integer right) returns integer {
+		return right - left;
+	}
+	
+	action sumValuesInWindow(IObservable group) returns IObservable {
+		return group.sum();
+	}
+	
+	action multiplyBy10(integer v) returns integer {
+		return v * 10;
+	}
+	
+	action noOpMapper(any value) returns any {
+		return value;
+	}
+	
+	action doSomething(IResolver resolver) {
+		resolver.next(new sequence<any>);
+		resolver.complete();
+	}
+	
+	action sum(integer sum, integer value) returns integer {
+		return sum + value;
+	}
+	
+	action evenNumbers(integer x) returns boolean {
+		return x % 2 = 0;
+	}
+	
+	action missingData(IObservable o) returns IObservable {
+		IObservable output := o
+			.timeout(2.0)
+			.ignoreElements()
+			.catchError(
+				Observable.fromValues(["Did not receive value in 10 seconds"])
+					.concat([o.complexPipe(missingData)])
+			);
+		return output;
+	}
+	
+	action gt3(any value) returns boolean {
+		return <integer> value > 3;
+	}
+	
+	action multiplyByX(any value) returns any {
+		return <integer> value * 10;
+	}
+	
+	action sumAllValues(any currentSum, any value) returns any {
+		return <integer> currentSum + <integer> value;
+	}
+	
+	
+	
+	action window1(any sequenceOfValuesInWindow) returns any {
+		return Observable.fromValues(sequenceOfValuesInWindow)
+			.pipe([
+			    Average.create()  
+	        ]);
+	}
+	
+	action printError(any e) {
+		print e.valueToString();
+	}
+	
+	action printCompleteMain() {
+		log "Complete Main";
+	}
+	
+	action subscribeToObservable(any value) {
+		ISubscription s := (<IObservable> value).bufferCount(5).subscribe(Subscriber.create().onNext(printValue).onComplete(printComplete));
+	}
+	
+	action test(any value) {
+	    log "Next Called: " + value.toString();
+    	log (value.toString() = value.toString()).toString();
+	}
+	
+	action fail(string fail) {
+		log fail at ERROR;
+	}
+	
+	action throwError(any value) returns any {
+		throw Exception("Ahhh", "ohDear");
+	}
+ 	
+	action toObservable(any value) returns IObservable {
+		return Observable.just(value);
+	}
+	
+	
+	action processInSeparateContext(any observable) {
+		IDisposable disposable := (<IObservable>observable).observeOnNew(handlePartitioned);
+	}
+	
+	action handlePartitioned(IObservable source, action<> dispose) {
+		any discard := source
+			.subscribe(Subscriber.create().onNext(printContextNameAndValue).onComplete(printContextNameAndComplete));
+	}
+
+	action printContextNameAndValue(any value) {
+		log context.current().getName() + ": " + value.valueToString();
+	}
+	action printContextNameAndComplete() {
+		log context.current().getName() + ": Complete";
+	}
+	
+	action subscribeToEach(any value) {
+		any discard := (<IObservable>value).subscribe(Subscriber.create().onNext(printValue).onComplete(printComplete));
+	}
+	
+	action constructObservable(IObservable source) {
+		any discard := source
+			.map(throwOnThird)
+			.subscribe(Subscriber.create().onNext(printValue).onComplete(printComplete));
+		
+		on wait(3.0) {
+			any discard := source.subscribe(Subscriber.create().onNext(printValue).onComplete(printComplete));
+		}
+	}
+		
+	action throwOnThird(any value) returns any {
+		j := j + 1;
+		if j = 3 {
+			throw Exception("Ahhh", "Oh dear");
+		}
+		return value;
+	}
+	
+	action addTogether(sequence<any> values) returns any {
+		return <integer>values[0] + <integer>values[1];
+	}
+	
+	action combineIntoIntArray(sequence<any> values) returns any {
+		sequence<integer> intArray := new sequence<integer>;
+		any value;
+		for value in values {
+			intArray.append(<integer> value);
+		}
+		return intArray;
+	}
+	
+	action sumWithPrevious(any previous, any value) returns any {
+		return <float> previous + <float> value;
+	}
+	
+	float i := 0.0;
+	action incrementingIterator() returns any {
+		i := i + 1.0;
+		return i;
+	}
+
+	action lt3(any value) returns boolean {
+		return <integer> value < 3;
+	}
+	
+	action isEven(any value) returns boolean {
+		return (<float> value).round() % 2 = 0;
+	}
+	
+	action printComplete() {
+		log "Complete";
+	}
+	
+	action errorHandler(Exception e, any triggerValue) returns any {
+		return 0.0;
+	}
+	
+	action mapToObservable(any value) returns any {
+		return Observable.fromValues([value, value]);
+	}
+	
+	action mapToArray(any value) returns any {
+		return [value, value];
+	}
+	
+	action printValue(any value) {
+		log value.valueToString();
+	}
+}
