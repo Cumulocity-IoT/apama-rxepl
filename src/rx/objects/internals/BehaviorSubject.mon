@@ -78,4 +78,12 @@ event BehaviorSubjectHandler {
 		isComplete := true;
 		subscribers.clear();
 	}
+	
+	action dispose() {
+		IObserver s;
+		for s in subscribers.values() {
+			s.unsubscribe();
+			s.disconnect();
+		}
+	}
 }
