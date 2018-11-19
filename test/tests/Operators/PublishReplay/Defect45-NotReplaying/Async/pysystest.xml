@@ -2,8 +2,8 @@
 <pysystest type="auto" state="runnable">
     
   <description> 
-    <title>PublishReplay Defect45-NotReplaying</title>    
-    <purpose><![CDATA[PublishReplay Defect45-NotReplaying]]></purpose>
+    <title>PublishReplay Defect45-NotReplaying Aync</title>    
+    <purpose><![CDATA[PublishReplay Defect45-NotReplaying Aync]]></purpose>
   </description>
 
   <classification>

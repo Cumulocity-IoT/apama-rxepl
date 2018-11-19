@@ -18,32 +18,33 @@
 
 package com.industry.rx_epl;
 
-/** @private */
-event SubjectOnDisconnection {
-	dictionary<integer, IObserver> subscribers;
-	integer subscriberId;
-	
-	static action create(dictionary<integer, IObserver> subscribers, integer subscriberId) returns action<> {
-		return SubjectOnDisconnection(subscribers, subscriberId).onDisconnect;
-	}
-	
-	action onDisconnect() {
-		subscribers.remove(subscriberId);
-	}
-}
+using com.apama.exceptions.Exception;
 
 /** @private */
-event SubjectHandler {
+event ReplaySubjectHandler {
 	dictionary<integer, IObserver> subscribers;
 	boolean isComplete;
+	integer replayCount;
+	sequence<any> replayValues;
 	
-	static action create() returns SubjectHandler {
-		return SubjectHandler(new dictionary<integer, IObserver>, false);
+	static action create(integer replayCount) returns ReplaySubjectHandler {
+		if replayCount < 0 {
+			throw Exception("The replay count must be >= 0", "IllegalArgumentException");
+		}
+		return ReplaySubjectHandler(new dictionary<integer, IObserver>, false, replayCount, new sequence<any>);
 	}
 	
 	action onConnection(IObserver subscriber) returns ISubscription {
 		// Should create the subscription before sending any next, error, complete
 		ISubscription s := Subscription.create(subscriber).asISubscription();
+		
+		any value;
+		for value in replayValues {
+			if not subscriber.subscribed() {
+				break;
+			}
+			subscriber.next(value);
+		}
 		
 		if not isComplete {
 			subscribers.add(subscriber.getId(), subscriber);
@@ -57,6 +58,11 @@ event SubjectHandler {
 	}
 	
 	action next(any value) {
+		replayValues.append(value);
+		if replayValues.size() > replayCount {
+			replayValues.remove(0);
+		}
+		
 		IObserver s;
 		for s in subscribers.values() {
 			s.next(value);
@@ -64,35 +70,37 @@ event SubjectHandler {
 	}
 	
 	action error(any e) {
+		isComplete := true;	
+		
 		IObserver s;
-		for s in subscribers.values(){
+		for s in subscribers.values() {
 			s.error(e);
-		}		
+		}	
 	}
 	
 	action complete() {
+		isComplete := true;	
+		
 		IObserver s;
 		for s in subscribers.values() {
 			s.complete();
 			s.disconnect();
 		}
-		isComplete := true;
-		subscribers.clear();
 	}
 }
 
 /** @private */
-event BaseSubject {	
+event BaseReplaySubject {	
 	IObservable observable;
 	
 	action<any> next;
 	action<any> error;
 	action<> complete;
 	
-	static action create(IObservable observable, action<action<IObserver> returns ISubscription> setOnConnection) returns ISubject {
-		SubjectHandler h := SubjectHandler.create();
+	static action create(IObservable observable, action<action<IObserver> returns ISubscription> setOnConnection, integer replayCount) returns ISubject {
+		ReplaySubjectHandler h := ReplaySubjectHandler.create(replayCount);
 		// Can't pull from a subject so the observable is hot
-		BaseSubject s := BaseSubject(observable, h.next, h.error, h.complete);
+		BaseReplaySubject s := BaseReplaySubject(observable, h.next, h.error, h.complete);
 		setOnConnection(h.onConnection);
 		return s.asISubject();
 	}
