@@ -89,8 +89,7 @@ event PublishHandler {
 		ifpresent upstreamSubscriber {
 			upstreamSubscriber.unsubscribe();
 		}
-		publishSubject.dispose();
-		publishSubject := publishSubject; // Note: If we want to support: action<> returns ISubject, then we'd do it here
+		publishSubject := publishSubject; // Note: If we want to support: action<> returns ISubject, then we'd do it here (although we might have to add some way to copy subscribers from the old to the new subject)
 		upstreamSubscriber := new optional<IObserver>;
 		upstreamSubscription := new ISubscription;
 	}

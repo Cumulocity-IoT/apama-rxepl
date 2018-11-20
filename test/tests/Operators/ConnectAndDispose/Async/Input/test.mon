@@ -11,23 +11,36 @@ monitor TestObservable {
 	Test test := Test("TestResult");
   
 	boolean isConnected := false;
-	boolean isDisposed := false;
+	IDisposable connection;
 	
 	action onload() {
 		on utils.KeepAliveUntilTerminated() {}
 	     IObservable connectableObservable := Observable.interval(0.1)
+		   											  .take(6)
                                                       .map(makeSureNotCalledUntilConnected)
                                                       .publish();
 	    
-	     any subscription := connectableObservable.subscribe(ExpectValues.createNoComplete([<any>0,1,2,3,4],onTeardown, test.fail));
+	     any subscription := connectableObservable.subscribe(ExpectValues.create([<any>0,1,2,0,1,0,1,2,3,4,5], test.complete, test.fail));
 	     
 	     on wait(0.1) {
 	    	 isConnected := true;
-	    	 IDisposable connection := connectableObservable.connect();
-	    	 on wait(0.5) {
-	    		 isDisposed := true;
-	    		 connection.dispose();
-	    	 }
+	    	 connection := connectableObservable.connect();
+	     }
+	     on wait(0.4) {
+	    	 isConnected := false;
+	    	 connection.dispose();
+	     }
+	     on wait(0.5) {
+	    	 isConnected := true;
+	    	 connection := connectableObservable.connect();
+	     }
+	     on wait(0.7) {
+	    	 isConnected := false;
+	    	 connection.dispose();
+	     }
+	     on wait(0.8) {
+	    	 isConnected := true;
+	    	 connection := connectableObservable.connect();
 	     }
 	}
 	
@@ -36,13 +49,5 @@ monitor TestObservable {
 			test.fail("Should not be called until connected");
 		}
 		return value;
-	}
-	
-	action onTeardown() {
-		if isDisposed {
-			test.complete();
-	    } else {
-	    	test.fail("Torn down without being disposed");
-	    }
 	}
 }

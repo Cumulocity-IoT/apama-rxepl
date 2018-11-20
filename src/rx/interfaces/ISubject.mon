@@ -24,7 +24,6 @@ event ISubject {
 	action<any> next;
 	action<any> error;
 	action<> complete;
-	action<> dispose;
 	
 	action<> returns IObservable asIObservable;
 
