@@ -42,7 +42,7 @@ event RefCountOnConnection {
 		refCount := refCount + 1;
 		subscriber.onUnsubscribe(decrementRefCount);
 		ISubscription subscription := parentOnConnection(subscriber);
-		if connection.disposed() {
+		if connection.disposed() and refCount > 0 { // Note: the refCount may drop to zero after subscribing so we need to check before connecting
 			connection := connect();
 		}
 		return subscription;
