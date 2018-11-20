@@ -1,6 +1,6 @@
 # <a name="loggingsubscriber"></a>com.industry.rx_epl.LoggingSubscriber [<>](/src/rx/objects/LoggingSubscriber.mon)
 
-A specialised instance of a [Subscriber](../Subscriber.md#subscriber) which logs all values and completion, error, and unsubscription.
+A specialised instance of a [Subscriber](./Subscriber.md#subscriber) which logs all values and completion, error, and unsubscription.
 
 Note: Subscribers should not be reused for multiple subscriptions.
 
@@ -8,7 +8,7 @@ Note: Subscribers should not be reused for multiple subscriptions.
 
 * [Create](#create)
 
-<a name="create" href="#create">#</a> *static* .**create**(`identifier:` string) returns [Subscriber](../Subscriber.md#subscriber) [<>](/src/rx/objects/LoggingSubscriber.mon  "Source")
+<a name="create" href="#create">#</a> *static* .**create**(`identifier:` string) returns [Subscriber](./Subscriber.md#subscriber) [<>](/src/rx/objects/LoggingSubscriber.mon  "Source")
 
 Creates a new [LoggingSubscriber](#loggingsubscriber). The `identifier` is added to all messages produced.
 
