@@ -526,17 +526,11 @@ Do is a handy operator that allows you to inspect the values as they pass throug
 ```javascript
 IObservable o := Observable.interval(1.0);
 ISubscription s := o.take(5);
-                    .do(Subscriber.create()
-                                  .onNext(printValue)
-                                  .onError(printError)
-                                  .onComplete(printComplete));
+                     .do(LoggingSubscriber.create("BeforeMultiplication"));
                      .map(multiplyBy10)
-                     .subscribe(Subscriber.create()
-                                          .onNext(printValue)
-                                          .onError(printError)
-                                          .onComplete(printComplete));
-// Output from Do: 0, 1, 2, 3, 4, Done
-// Output from Subscriber: 0, 10, 20, 30, 40, Done
+                     .subscribe(LoggingSubscriber.create("Result"));
+// Output from Do: 0, 1, 2, 3, 4, Completed, Unsubscribed
+// Output from Subscribe: 0, 10, 20, 30, 40, Completed, Unsubscribed
 ```
 
 ## <a id="reusability"></a>Reusability: Build your own Observable Operator
