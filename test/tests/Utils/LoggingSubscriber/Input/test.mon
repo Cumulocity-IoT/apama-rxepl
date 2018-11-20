@@ -1,0 +1,19 @@
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.LoggingSubscriber;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+	
+	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
+		
+		any discard := Observable.fromValues([<any>0,1,2,3])
+			.do(LoggingSubscriber.create("DO"))
+			.subscribe(LoggingSubscriber.create("SUBSCRIBE"));
+		
+		test.complete();
+	}
+}

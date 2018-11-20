@@ -16,6 +16,7 @@
 
 ## Utilities
 - com.industry.rx_epl.[Subscriber](utilities/Subscriber.md#subscriber)
+- com.industry.rx_epl.[LoggingSubscriber](utilities/LoggingSubscriber.md#loggingsubscriber)
 - com.industry.rx_epl.[DisposableStream](utilities/DisposableStream.md#disposablestream)
 - com.industry.rx_epl.[TimeInterval](utilities/TimeInterval.md#timeinterval)
 - com.industry.rx_epl.[TimestampedValue](utilities/TimestampedValue.md#timestampedvalue)
