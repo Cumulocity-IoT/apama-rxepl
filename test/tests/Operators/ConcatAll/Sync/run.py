@@ -1,0 +1,96 @@
+# Copyright (c) 2015-2018 Software AG, Darmstadt, Germany and/or Software AG USA Inc., Reston, VA, USA, and/or its subsidiaries and/or its affiliates and/or their licensors. 
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from pysys.constants import *
+from pysys.basetest import BaseTest
+from apama.correlator import CorrelatorHelper
+
+class PySysTest(BaseTest):
+
+	def execute(self):
+		correlator = CorrelatorHelper(self, name='correlator')
+		correlator.start(logfile='correlator.log', config=os.path.join(PROJECT.TEST_SUBJECT_DIR, 'initialization.yaml'))
+
+		correlator.flush()
+		correlator.injectEPL(filenames='testUtils.mon', filedir=PROJECT.UTILS_DIR)
+		
+		# Start test results receiver
+		correlator.receive(filename='TestResult.evt', channels=['TestResult'], logChannels=True)
+		
+		# Inject test
+		correlator.injectEPL(filenames=['test.mon'])
+		
+		# wait for all events to be processed
+		correlator.flush()
+		
+		# wait for test to complete
+		self.waitForSignal('TestResult.evt', expr="TestComplete", condition="==1", timeout=10)
+		
+		# Output the engine_inspect result to a file to check for any remaining subscribed channels
+		correlator.inspect(filename='preTerminateInspect.txt', arguments=['-x'])
+		
+		correlator.sendEventStrings('utils.KeepAliveUntilTerminated()')
+		
+		# Output the engine_inspect result to a file to check for non-terminated listeners
+		correlator.inspect(filename='postTerminateInspect.txt', raw=True, arguments=['-x'])
+		
+	def validate(self):
+		# check the main correlator log for Errors
+		self.assertGrep('correlator.log', expr=' (ERROR|FATAL) ', contains=False)
+		
+		# Check that the test didn't fail
+		self.assertGrep('TestResult.evt', expr='TestFailed', contains=False)
+		
+		# Check that there are no subscribed channels left
+		self.assertGrep('preTerminateInspect.txt', expr='main\\s*\\d+\\s*\\d+\\s*(\\w+)', contains=False)
+		
+		# Check that there is nothing keeping the correlator alive
+		self.assertDiff('postTerminateInspect.txt', 'terminatedEngineInspectReference.txt', filedir2=PROJECT.UTILS_DIR)
+
+		# Check that received, completed and unsubscribed in the correct order
+		self.assertOrderedGrep('correlator.log', exprList=[
+			'source1: Received value: 0',
+			'Output: Received value: 0',
+			'source1: Received value: 1',
+			'Output: Received value: 1',
+			'source1: Received value: 2',
+			'Output: Received value: 2',
+			'source1: Received value: 3',
+			'Output: Received value: 3',
+			'source1: Completed',
+			'source1: Unsubscribed',
+			'source2: Received value: 4',
+			'Output: Received value: 4',
+			'source2: Received value: 5',
+			'Output: Received value: 5',
+			'source2: Received value: 6',
+			'Output: Received value: 6',
+			'source2: Completed',
+			'source2: Unsubscribed',
+			'source3: Received value: 7',
+			'Output: Received value: 7',
+			'source3: Received value: 8',
+			'Output: Received value: 8',
+			'source3: Received value: 9',
+			'Output: Received value: 9',
+			'source3: Completed',
+			'source3: Unsubscribed',
+			'Output: Received value: 10',
+			'Output: Received value: 11',
+			'Output: Received value: 12',
+			'Output: Completed',
+			'Output: Unsubscribed'
+		])

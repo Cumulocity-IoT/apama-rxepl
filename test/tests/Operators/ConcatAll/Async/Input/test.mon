@@ -1,0 +1,23 @@
+using utils.Test;
+using utils.ExpectValues;
+
+using com.industry.rx_epl.Observable;
+using com.industry.rx_epl.LoggingSubscriber;
+
+monitor TestObservable {
+	Test test := Test("TestResult");
+  
+	action onload() {
+		on utils.KeepAliveUntilTerminated() {}
+		any discard := Observable.fromValues([<any>
+                  Observable.interval(0.1).take(4).do(LoggingSubscriber.create("source1")),
+                  Observable.fromValues([4,5,6]).do(LoggingSubscriber.create("source2")), 
+                  Observable.fromValues([7,8,9]).async().do(LoggingSubscriber.create("source3")),
+                  [10,11,12]
+          ])
+		   	.async()
+			.concatAll()
+			.do(LoggingSubscriber.create("Output"))
+		   	.subscribe(ExpectValues.create([<any>0,1,2,3,4,5,6,7,8,9,10,11,12], test.complete, test.fail));
+	}  
+}

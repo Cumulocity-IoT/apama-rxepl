@@ -1,0 +1,128 @@
+/* 
+* Copyright (c) 2018 Software AG, Darmstadt, Germany and/or its licensors
+*
+* SPDX-License-Identifier: Apache-2.0
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+package com.industry.rx_epl.operators.internals;
+
+using com.apama.exceptions.Exception;
+
+using com.industry.rx_epl.IObserver;
+using com.industry.rx_epl.IObserverBuilder;
+using com.industry.rx_epl.IObservable;
+using com.industry.rx_epl.ISubscription;
+using com.industry.rx_epl.ISubject;
+using com.industry.rx_epl.Subscription;
+using com.industry.rx_epl.Subscriber;
+using com.industry.rx_epl.utils.Utils;
+using com.industry.rx_epl.utils.Actions;
+
+/** @private */
+event ConcatAllSubscriber {
+	IObserver downstreamSubscriber;
+	IObserver upstreamSubscriber;
+	optional<IObserver> valueSubscriber;
+	sequence<any> valueSources;
+	
+	static action create(IObserver subscriber) returns IObserver {
+		ConcatAllSubscriber m := ConcatAllSubscriber(subscriber, new IObserver, new optional<IObserver>, new sequence<any>);
+		m.upstreamSubscriber := Subscriber.create().onNext(m.next).onError(subscriber.error).onComplete(m.mainComplete).asIObserver();
+		subscriber.subscribe();
+		subscriber.onUnsubscribe(m.unsubscribe);
+		return m.upstreamSubscriber;
+	}
+	
+	action next(any value) {
+		valueSources.append(value);
+		if valueSubscriber.empty() {
+			connectToNextValueSource();
+		}
+	}
+	
+	action connectToNextValueSource() {
+		if valueSources.size() = 0 {
+			return;
+		}
+		any valueSource := valueSources[0];
+		valueSources.remove(0);
+		try {
+			switch (valueSource) {
+				case IObservable: {
+					connectToValueSource(valueSource);
+				}
+				case ISubject: {
+					connectToValueSource(valueSource.asIObservable());
+				}
+				default: {
+					any value;
+					for value in Utils.anyToSequenceAny(valueSource) {
+						downstreamSubscriber.next(value);
+						if not downstreamSubscriber.subscribed() {
+							break;
+						}
+					}
+				}
+			}
+		} catch(Exception e) {
+			downstreamSubscriber.error(e);
+		}
+	}
+	
+	action valueSourceComplete() {
+		ifpresent valueSubscriber as v {
+			v.unsubscribe();
+			valueSubscriber := new optional<IObserver>;
+		}
+
+		connectToNextValueSource();
+		
+		if not upstreamSubscriber.subscribed() and valueSubscriber.empty() and downstreamSubscriber.subscribed() {
+			downstreamSubscriber.complete();
+		}
+	}
+	
+	action mainComplete() {
+		upstreamSubscriber.unsubscribe();
+		if valueSubscriber.empty() and downstreamSubscriber.subscribed() {
+			downstreamSubscriber.complete();
+		}
+	}
+	
+	action unsubscribe() {
+		valueSources.clear();
+		upstreamSubscriber.unsubscribe();
+		ifpresent valueSubscriber {
+			valueSubscriber.unsubscribe();
+		}
+	}
+	
+	action connectToValueSource(IObservable o) {
+		valueSubscriber := Subscriber.create().onNext(downstreamSubscriber.next).onError(downstreamSubscriber.error).onComplete(valueSourceComplete).asIObserver();
+		ISubscription discard := o.connectObserver(valueSubscriber.getOrThrow());
+	}
+}
+
+/** @private */
+event ConcatAllOnConnection {
+	action<IObserver> returns ISubscription parentOnConnection;
+	
+	static action create(action<IObserver> returns ISubscription parentOnConnection) returns action<IObserver> returns ISubscription {
+		return ConcatAllOnConnection(parentOnConnection).onConnection;
+	}
+	
+	action onConnection(IObserver subscriber) returns ISubscription {
+		return parentOnConnection(ConcatAllSubscriber.create(subscriber));
+	}
+}

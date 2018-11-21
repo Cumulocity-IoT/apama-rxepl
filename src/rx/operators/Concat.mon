@@ -23,6 +23,7 @@ using com.industry.rx_epl.IObserver;
 using com.industry.rx_epl.ISubscription;
 
 using com.industry.rx_epl.operators.internals.ConcatOnConnection;
+using com.industry.rx_epl.operators.internals.ConcatAllOnConnection;
 
 event Concat {	
 	sequence<IObservable> otherObservables;
@@ -33,4 +34,14 @@ event Concat {
 	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
 		return ConcatOnConnection.create(onConnection, otherObservables);
 	}
+}
+
+event ConcatAll {
+	static action create() returns action<action<IObserver> returns ISubscription> returns action<IObserver> returns ISubscription {
+		return ConcatAll().pipeModifier;
+	}
+
+	action pipeModifier(action<IObserver> returns ISubscription onConnection) returns action<IObserver> returns ISubscription {
+		return ConcatAllOnConnection.create(onConnection);
+	}	
 }
