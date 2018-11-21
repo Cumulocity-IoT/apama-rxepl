@@ -1,5 +1,3 @@
-
-
 # <a name="iobservable"></a>com.industry.rx_epl.IObservable [<>](/src/rx/interfaces/IObservable.mon)
 
 IObservable is the interface returned by almost all RxEPL operators, this allows the operators to be chained in with a fluent syntax.
@@ -37,7 +35,7 @@ Observable.fromValues([1,2,3,4)
 	* [WithLatestFrom](#withlatestfrom)/[WithLatestFromToSequence](#withlatestfromtosequence)
 	* [CombineLatest](#combinelatest)/[CombineLatestToSequence](#combinelatesttosequence)
 	* [Zip](#zip)/[ZipToSequence](#ziptosequence)
-	* [Concat](#concat)/[StartWith](#startwith)
+	* [Concat](#concat)/[ConcatAll](#concatall)/[StartWith](#startwith)
 	* [SwitchMap](#switchmap)/[SwitchOnNext](#switchonnext)
 * [Error Handling](#error-handling)
 	* [CatchError](#catcherror)
@@ -998,6 +996,25 @@ Observable.fromValues([1,2,3])
 ```
 
 See also: [Repeat](#repeat)
+
+<a name="concatall" href="#concatall">#</a> .**concatAll**() returns [IObservable](#iobservable)<[T2](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/Concat.mon  "Source")
+
+For a source that provides IObservables (or sequences) it will concatenate the contents. The next IObservable will be connected to after the previous one completes.
+
+Note: This will potentially miss values if the subsequent observables are "hot" (Miss values when not connected. Eg. Values from a channel or stream).
+
+```javascript
+Observable.fromValues([
+		Observable.range([1,5]).delay(3.0),
+		Observable.fromValues([6,7,8])
+	])
+	.concatAll()
+	...
+
+// Output: 1,2,3,4,5,6,7,8
+```
+
+See also: [MergeAll](#mergeall)
 
 <a name="startwith" href="#startwith">#</a> .**startWith**(*`startingValues:` sequence\<any>*) returns [IObservable](#iobservable)<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/StartWith.mon  "Source")
 
