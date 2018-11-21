@@ -22,7 +22,6 @@ using com.apama.exceptions.Exception;
 
 using com.industry.rx_epl.IObserver;
 using com.industry.rx_epl.ISubscription;
-using com.industry.rx_epl.SubjectOnDisconnection;
 using com.industry.rx_epl.Subscription;
 
 /** @private */

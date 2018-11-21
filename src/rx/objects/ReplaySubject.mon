@@ -18,6 +18,8 @@
 
 package com.industry.rx_epl;
 
+using com.industry.rx_epl.internals.BaseReplaySubject;
+
 using com.apama.exceptions.Exception;
 
 event ReplaySubject {	

@@ -36,6 +36,7 @@ using com.industry.rx_epl.operators.ComplexPipe;
 using com.industry.rx_epl.operators.ComplexPipeOn;
 using com.industry.rx_epl.operators.ComplexPipeOnNew;
 using com.industry.rx_epl.operators.Concat;
+using com.industry.rx_epl.operators.ConcatAll;
 using com.industry.rx_epl.operators.ConcatString;
 using com.industry.rx_epl.operators.Contains;
 using com.industry.rx_epl.operators.Count;
@@ -1118,6 +1119,12 @@ event Observable {
 		return o.asIObservable();
 	}
 	
+	action concatAll() returns IObservable {
+		Observable o := _create();
+		o.onConnection := ConcatAll.create()(onConnection);
+		return o.asIObservable();
+	}
+	
 	static action invalidConnect() returns IDisposable {
 		throw Exception("Can only connect a published Observable", "UnsupportedOperation");
 	}
@@ -1132,6 +1139,6 @@ event Observable {
 		
 	action asIObservable() returns IObservable {
 		return IObservable(self, 
-		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial, toStream, catchError, retry, observeOn, groupBy, observeToChannel, observeOnNew, every, contains, takeWhile, skipWhile, concatFromInstance, startWith, defaultIfEmpty, ignoreElements, count, sum, sumInteger, sumFloat, sumDecimal, concatString, max, maxInteger, maxFloat, maxDecimal, min, minInteger, minFloat, minDecimal, average, averageDecimal, sequenceEqualFromInstance, ambFromInstance, raceFromInstance, timestamp, updateTimestamp, timeout, getSync, getSyncOr, timeInterval, distinctUntilChanged, distinctByUntilChanged, switchMap, debounce, windowTime, throttleFirst, throttleLast, sampleTime, buffer, bufferTime, bufferCount, bufferTimeOrCount, combineLatestToSequenceFromInstance, withLatestFromToSequence, zipToSequenceFromInstance, groupByWindow, windowCount, windowTimeOrCount, sample, sampleCount, sampleTimeOrCount, bufferCountSkip, pipe, pluck, mergeAll, pipeOn, pipeOnNew, subscribeOn, subscribeOnNew, pairwise, let, groupByField, complexPipe, complexPipeOn, complexPipeOnNew, decouple, distinctByField, distinctByFieldUntilChanged, pausable, pausableBuffered, toChannel, toSortedList, toSortedListAsc, toSortedListDesc, sort, sortAsc, sortDesc, switchIfEmpty);
+		                   connectObserver, subscribe, map, publish, connect, refCount, share, take, takeLast, first, last, skip, skipLast, filter, scan, scanWithInitial, distinct, distinctBy, combineLatestFromInstance, withLatestFrom, delay, async, do, publishReplay, shareReplay, takeUntil, repeatObservable, flatMap, mergeFromInstance, zipFromInstance, switchOnNext, skipUntil, elementAt, reduce, reduceWithInitial, toStream, catchError, retry, observeOn, groupBy, observeToChannel, observeOnNew, every, contains, takeWhile, skipWhile, concatFromInstance, startWith, defaultIfEmpty, ignoreElements, count, sum, sumInteger, sumFloat, sumDecimal, concatString, max, maxInteger, maxFloat, maxDecimal, min, minInteger, minFloat, minDecimal, average, averageDecimal, sequenceEqualFromInstance, ambFromInstance, raceFromInstance, timestamp, updateTimestamp, timeout, getSync, getSyncOr, timeInterval, distinctUntilChanged, distinctByUntilChanged, switchMap, debounce, windowTime, throttleFirst, throttleLast, sampleTime, buffer, bufferTime, bufferCount, bufferTimeOrCount, combineLatestToSequenceFromInstance, withLatestFromToSequence, zipToSequenceFromInstance, groupByWindow, windowCount, windowTimeOrCount, sample, sampleCount, sampleTimeOrCount, bufferCountSkip, pipe, pluck, mergeAll, pipeOn, pipeOnNew, subscribeOn, subscribeOnNew, pairwise, let, groupByField, complexPipe, complexPipeOn, complexPipeOnNew, decouple, distinctByField, distinctByFieldUntilChanged, pausable, pausableBuffered, toChannel, toSortedList, toSortedListAsc, toSortedListDesc, sort, sortAsc, sortDesc, switchIfEmpty, concatAll);
 	}
 }
