@@ -98,13 +98,6 @@ event SequenceEqualSubscriberFactory {
 		completeSubscribersById.add(id, true);
 		upstreamSubscribersById[id].unsubscribe();
 		
-		// If all of the subscribers are complete then the sequences were equal
-		if completeSubscribersById.size() = subscriberCount {
-			downstreamSubscriber.next(true);
-			downstreamSubscriber.complete();
-			return;
-		}
-		
 		// Check that none of the observables contain more observables than the one that just completed
 		integer maxValuesCount := valuesById.getOrDefault(id).size();
 		sequence<any> values;
@@ -114,6 +107,13 @@ event SequenceEqualSubscriberFactory {
 				downstreamSubscriber.complete();
 				return;
 			}
+		}
+		
+		// If all of the subscribers are complete then the sequences were equal
+		if completeSubscribersById.size() = subscriberCount {
+			downstreamSubscriber.next(true);
+			downstreamSubscriber.complete();
+			return;
 		}
 	}
 }
