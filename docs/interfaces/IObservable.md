@@ -62,6 +62,7 @@ Observable.fromValues([1,2,3,4)
 * [Conditional](#conditional)
 	* [Contains](#contains)/[Every](#every)
 	* [SequenceEqual](#sequenceequal)
+	* [IsEmpty](#isempty)
 	* [Amb](#amb)/[Race](#race)
 	* [DefaultIfEmpty](#defaultifempty)/[SwitchIfEmpty](#switchifempty)
 * [Math and Aggregation](#math-and-aggregation)
@@ -1627,6 +1628,26 @@ Check if all of the provided observables contain the same values, in the same or
 ```javascript
 Observable.interval(1.0).take(4)
 	.sequenceEqual([Observable.fromValues([0,1,2,3]), Observable.range(0,3)])
+	...
+
+// Output: true
+```
+
+<a name="isempty" href="#isempty">#</a> .**isEmpty**() returns [IObservable](#iobservable)\<boolean> [<>](/src/rx/operators/IsEmpty.mon  "Source")
+
+Check if the observable completes without emitting any values.
+
+Note: It will return false immediately if any values are received.
+
+```javascript
+Observable.fromValues([1,2,3])
+	.isEmpty()
+	...
+
+// Output: false
+
+Observable.empty()
+	.isEmpty()
 	...
 
 // Output: true
