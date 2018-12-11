@@ -151,4 +151,5 @@ event ISubject {
 	action<> returns IObservable sortDesc;
 	action<IObservable> returns IObservable switchIfEmpty;
 	action<> returns IObservable concatAll;
+	action<> returns IObservable isEmpty;
 }
