@@ -44,11 +44,27 @@ monitor TestObservable {
 		discard := Observable.empty()
 			.sequenceEqual([Observable.empty()])
 			.subscribe(ExpectValues.create([<any>true], onTeardown, test.fail));
+		
+		// Sync - Single value with empty 
+		discard := Observable.just(1)
+			.sequenceEqual([Observable.empty()])
+			.subscribe(ExpectValues.create([<any>false], onTeardown, test.fail));
+		discard := Observable.empty()
+			.sequenceEqual([Observable.just(1)])
+			.subscribe(ExpectValues.create([<any>false], onTeardown, test.fail));
+		
+		// Async - Single value with empty 
+		discard := Observable.just(1).async()
+			.sequenceEqual([Observable.empty().async()])
+			.subscribe(ExpectValues.create([<any>false], onTeardown, test.fail));
+		discard := Observable.empty().async()
+			.sequenceEqual([Observable.just(1).async()])
+			.subscribe(ExpectValues.create([<any>false], onTeardown, test.fail));
 	} 
 	
 	action onTeardown() {
 		teardownCount := teardownCount + 1;
-		if teardownCount = 7 {
+		if teardownCount = 11 {
 			test.complete();
 		}
 	}
