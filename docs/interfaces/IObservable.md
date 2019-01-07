@@ -1006,7 +1006,7 @@ Note: This will potentially miss values if the subsequent observables are "hot" 
 
 ```javascript
 Observable.fromValues([
-		Observable.range([1,5]).delay(3.0),
+		Observable.range(1,5).delay(3.0),
 		Observable.fromValues([6,7,8])
 	])
 	.concatAll()
