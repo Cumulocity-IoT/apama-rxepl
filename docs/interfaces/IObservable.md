@@ -890,10 +890,10 @@ Note: The resulting sequence contains the `values` in the same order as the obse
 
 ```javascript
 Observable.interval(1.0)
-	.withLatestFrom([Observable.interval(0.1)])
+	.withLatestFromToSequence([Observable.interval(0.1)])
 	...
 
-// Output: [0,9], [1,19], [2,29]...
+// Output: [any(integer,0),any(integer,9)], [any(integer,1),any(integer,19)], [any(integer,2),any(integer,29)], [any(integer,3),any(integer,39)], [any(integer,4),any(integer,49)]...
 ```
 
 <a name="combinelatest" href="#combinelatest">#</a> .**combineLatest**(*`other:` sequence<[IObservable](#iobservable)\<any>>, `combiner:` action\<`values:` sequence\<any>> returns any*) returns [IObservable](#iobservable)<[T](/docs/README.md#wildcard-class-notation)> [<>](/src/rx/operators/CombineLatest.mon  "Source")
