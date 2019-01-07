@@ -174,7 +174,7 @@ action groupId(Fruit fruit) returns string {
 
 action sumValuesInGroup(IObservable group) returns IObservable {
 	return group
-		.reduceWithInitial(Lambda.function2("groupResult, fruit => [fruit.type, groupResult[1] + fruit.value]"), ["", 0]);
+		.reduceWithInitial(Lambda.function2("groupResult, fruit => [fruit.type, groupResult[1] + fruit.value]"), [<any> "", 0]);
 }
 
 Observable.fromValues([Fruit("apple", 1), Fruit("banana", 2), Fruit("apple", 3)])
